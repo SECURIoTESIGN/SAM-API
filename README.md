@@ -15,6 +15,7 @@ python3 -m venv venv
 FLASK_APP=api.py
 FLASK_ENV=development
 ```
+4) Create a folder called ```instance``` in the project directory with a copy of the ```.config.cfg``` file. Configure the contents of the file accordingly to your environment.
 
 # Run SAM's Web API (for developers only):
 ```
