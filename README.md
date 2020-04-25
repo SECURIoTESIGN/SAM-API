@@ -1,5 +1,10 @@
 # SAM-API
-SAM's Web API
+
+<p align="center"> 
+<img src="https://github.com/SECURIoTESIGN/SAM-API/blob/master/static/logo.png"><br/>
+SAM's Web API<br/>(under initial development)
+</p>
+
 
 # Installation (for developers only):
 1) Create a virtual environment called ```venv``` in the project directory: 
