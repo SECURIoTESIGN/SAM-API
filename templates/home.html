@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+ <title></title>
+ <meta charset="utf-8" />
+ <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Roboto" />
+
+</head>
+<body> 
+    <div style="font-family: Roboto; position: absolute;left: 50%;top: 50%;
+                -webkit-transform: translate(-50%, -50%);
+                transform: translate(-50%, -50%);">
+        <div style=" margin-left: auto; margin-right: auto;display: block;">
+            <table>
+                <tr>
+                    <td align="center"><img src="{{url_for('static', filename='logo.png')}}"/></td>
+                </tr>
+                <tr>
+                    <td align="middle"><b>SAM's SERVICES build {{version}}</b></td>
+                </tr>
+                <tr>
+                    <td>See <a href="apidocs/">API Swagger</a> for more info.</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
