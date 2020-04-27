@@ -2,36 +2,22 @@ swagger: "2.0"
 info:
   description: SAM's API Swagger documentation
   version: 0.1
+# Some services need a JWT authorization token to be parsed in the header (Authorization)
+securityDefinitions:  
+  JWT:  
+    type: apiKey  
+    in: header
+    name: Authorization
+tags:
+- name: "User"
+  description: "Operations about user"
 paths:
-  # User Login Service
-  /user/{email}:
-    get:
-      tags:
-      - "User"
-      summary: "Find user by email"
-      description: "Returns a single user"
-      operationId: "getUser"
-      produces:
-      - "application/json"
-      parameters:
-      - name: "email"
-        in: "path"
-        description: "Email of the user to return"
-        required: true
-        type: "string"
-      responses:
-        200:
-          description: "Successful operation"
-        400:
-          description: "Invalid email supplied"
-        404:
-          description: "User not found"
-  # User Login Service
+# Authenticate a User
   /user/login:
     post:
       tags:
-      - "Authentication"
-      summary: "User Authentication Service"
+      - "User"
+      summary: "Login user into the system"
       description: ""
       operationId: "authenticate"
       consumes:
@@ -74,13 +60,14 @@ paths:
             description: A user with the specified email was not found.
         '5XX':
             description: Unexpected error.
+  # Add a new User
   /user:
     post:
       tags:
-      - "Authentication"
-      summary: "Add a new user"
+      - "User"
+      summary: "Create user"
       description: ""
-      operationId: "authenticate"
+      operationId: "addUser"
       consumes:
       - "application/json"
       produces:
@@ -93,7 +80,9 @@ paths:
         example:
             {
               'email': 'new@user.com',
-              'psw': 'SuperSecretPlainPassword',
+              'firstName': 'Test',
+              'lastName': 'User',
+              'psw': 'Super_Secret_Plain_Password',
               'avatar': 'path/to/avatar/img'
             }
       responses:
@@ -111,3 +100,90 @@ paths:
             description: Invalid parsed JSON object
         '5XX':
             description: Unexpected error.
+  # Get a User
+  /user/{email}:
+    get:
+      tags:
+      - "User"
+      security:  
+      - JWT: []
+      summary: "Find User by email"
+      description: "Returns a single user"
+      operationId: "getUser"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "email"
+        in: "path"
+        description: "Email of the user to return"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Successful operation"
+        400:
+          description: "Invalid email supplied"
+        403:
+          description: "Authentication failure"
+        404:
+          description: "User not found"
+    put:
+      tags:
+      - "User"
+      security:  
+      - JWT: []
+      summary: "Update User"
+      operationId: "updateUser"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "email"
+        in: "path"
+        description: "Email of the user to update"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        description: "Updated user object"
+        required: true
+        example:
+            {
+              'email': 'new.updated@user.com',
+              'psw': 'Super_Secret_Plain_Password_Updated_or_Same',
+              'firstName': 'Test Updated',
+              'lastName': 'User Updated',
+              'avatar': 'path/to/avatar/img_updated'
+            }
+      responses:
+        200:
+          description: "Successful operation"
+        400:
+          description: "Invalid email supplied"
+        403:
+          description: "Authentication failure"
+        404:
+          description: "User not found"
+    delete:
+      tags:
+      - "User"
+      security:  
+      - JWT: []
+      summary: "Delete a User"
+      operationId: "deleteUser"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "email"
+        in: "path"
+        description: "Email of the user to delete"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Successful operation"
+        400:
+          description: "Invalid email supplied"
+        403:
+          description: "Authentication failure"
+        404:
+          description: "User not found"

@@ -43,25 +43,25 @@ import views.user #SAM's views
 def isAuthenticated(request):
     # 1. Check if the token is available on the request header.
     headers = dict(request.headers)
-    #print(str(len(headers)))
+    # Debug only: print(str(len(headers)))
     
     # 2. Check if the Authorization header name was parsed.
-    if 'Authorization' not in headers: raise modules.error_handlers.BadRequest(request.path, "Authentication failure - You don't have the permission to access the requested resource", 403) 
+    if 'Authorization' not in headers: raise modules.error_handlers.BadRequest(request.path, "Authentication failure - You don't have the permission to access this resource. Please, provide an authorization token.", 403) 
     parsedToken = headers['Authorization']
+    # print("Parsed Token:" + parsedToken)
 
     # 3. Decode the authorization token to get the User object.
     try:
         res_dic  = jwt.decode(parsedToken, JWT_SECRET_TOKEN, algorithms=['HS256'])
+        # debug only: print(str(json.dumps(res_dic)))
         # Get the ID of the user.
-        userID = int(res_dic['User']['ID'])
+        userID = int(res_dic['ID'])
         # Check if this user id exists.
         conn    = mysql.connect()
         cursor  = conn.cursor()
         cursor.execute("SELECT ID FROM User WHERE id=%s", userID)
         res = cursor.fetchall()
     except Exception as e:
-        cursor.close()
-        conn.close()
         raise modules.error_handlers.BadRequest(request.path, str(e), 403) 
 
     if (len(res) == 1): 
@@ -71,7 +71,7 @@ def isAuthenticated(request):
     else:
         cursor.close()
         conn.close()    
-        raise modules.error_handlers.BadRequest(request.path, "Authentication failure - You don't have the necessary permissions to access the requested resource", 403) 
+        raise modules.error_handlers.BadRequest(request.path, "Authentication failure - You don't have the necessary permissions to access this resource. Please, provide an authorization token.", 403) 
 
 """
 [Summary]: User Authentication Service (i.e., login).
@@ -118,53 +118,9 @@ def authenticate():
         if modules.utils.check_password(dbpsw, psw):
             # First, build the authentication token and added it to the dictionary.
             # Second, let's create a JSON response with the data of the dictionary.
-            data['token'] = str(jwt.encode(data, JWT_SECRET_TOKEN, algorithm='HS256'))
-
+            data['token'] = (jwt.encode(data, JWT_SECRET_TOKEN, algorithm='HS256')).decode('UTF-8')
+            
             # Authentication success, the user 'can follow the white rabbit'.
             return (modules.utils.build_response_json(request.path, 200, data))
         else:
-            raise modules.error_handlers.BadRequest(request.path, "Authentication failure", 401) 
-
-"""
-[Summary]: User Registration Service (i.e., add a new user).
-[Returns]: Returns a JSON object with the data of the user including a JWT authentication token.
-[TODO]: Check inline comments.
-"""
-@app.route('/user', methods=['POST'])
-def register():
-    # 1. Lets get our shiny new JSON object and current time.
-    # - Always start by validating the structure of the json, if not valid send an invalid response.
-    try:
-        obj = request.json
-        date = (datetime.now()).strftime('%Y-%m-%d %H:%M:%S')
-    except Exception as e:
-        raise modules.error_handlers.BadRequest(request.path, str(e), 400) 
-
-    # 2. Lets validate the data of our JSON object with a custom function.
-    if (not modules.utils.valid_json(obj, {"email", "psw"})):
-        raise modules.error_handlers.BadRequest(request.path, "Some required key or value is missing from the JSON object", 400)
-
-    # 3. Let's hash the hell of the password.
-    hashed_psw = modules.utils.hash_password(obj['psw'])
-    obj['psw'] = "" # "paranoic mode".
-    
-    # 4. Check if the user was not previously registered in the DB.
-    if (views.user.getUser(obj['email']) is not None):
-        raise modules.error_handlers.BadRequest(request.path, "The user with that email already exists", 500)
-
-    # 4. Connect to the database and create the new user.
-    # TODO: Let's build procedures in the DB to do this. 
-    try:
-        conn    = mysql.connect()
-        cursor  = conn.cursor()
-        cursor.execute("INSERT INTO User (email, psw, avatar, createdon, updatedon) VALUES (%s, %s, %s, %s, %s)", (obj['email'], hashed_psw, obj['avatar'], date, date))
-        conn.commit()
-    except Exception as e:
-        print(str(e))
-        raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
-    finally:
-        cursor.close()
-        conn.close()
-
-    # Authentication success, the user can now choose to 'take the red or blue pill to follow the white rabbit'
-    return (modules.utils.build_response_json(request.path, 200))
+            raise modules.error_handlers.BadRequest(request.path, "Authentication failure", 401)
