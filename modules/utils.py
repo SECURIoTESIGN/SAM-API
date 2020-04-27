@@ -46,34 +46,33 @@ def valid_json(json_object:None, keys):
        - $data$: is a dictionary.
        - $status$: is the HTML status code (e.g, 200).
 [References]: https://kite.com/python/docs/flask.jsonify
-[Returns]: A JSON response with a HTML code status information.
+[Returns]: A JSON response with a HTML code.
 """
-
 def build_response_json(route, status, data={}):
-    # If data object is not provided, data is initialized (i.e. data={}) 
+    # If a data object is not provided, data is initialized (i.e. data={}) 
     data['status'] = status 
     return jsonify({route : data})
 
 """ 
-[Summary]: Hash a password with a random or static salt
+[Summary]: Hash a password with some salt
 [Arguments]:
        - $password$: The password to hash
-[Returns]: Returns the hash of a parsed password
+[Returns]: Returns the hash of a password + the salt
 """
 # TODO: implement a random salt for each user's password
 def hash_password(password):
     # uuid is used to generate a random number
     salt = uuid.uuid4().hex
-    # The password hash and the salt is store in the database
+    # The password hash and the salt will be stored in the database
     return hashlib.sha256(salt.encode() + password.encode()).hexdigest() + ':' + salt
 
 """ 
-[Summary]: Check if a hashed password (previsouly store) is equal to one provided by the user
+[Summary]: Check if a hashed password is equal to one provided by a user.
 [Arguments]:
-       - $password$: The password to check
-[Returns]: Returns true if equal, false otherwise
+       - $password$: The password to check.
+[Returns]: Returns true if equal, false otherwise.
 """
 def check_password(hashed_password, user_password):
-    # Lets combine the salt and the password in the same var
+    # Let's combine the salt and the password
     password, salt = hashed_password.split(':')
     return password == hashlib.sha256(salt.encode() + user_password.encode()).hexdigest()

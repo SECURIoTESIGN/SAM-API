@@ -24,9 +24,9 @@
 //  POCI-01-0145-FEDER-030657) 
 // ---------------------------------------------------------------------------
 """
-from api import app, mysql, JWT_SECRET_TOKEN
 import time, json, jwt, os, urllib
-import modules.error_handlers, modules.utils # Import our new and shiny custom SAM's modules
+import modules.error_handlers, modules.utils # SAM's modules
+from api import app, mysql, JWT_SECRET_TOKEN
 from datetime import datetime
 from configparser import SafeConfigParser
 from flask import Flask, abort, request, jsonify, render_template, redirect, url_for, request
@@ -34,111 +34,131 @@ from flaskext.mysql import MySQL
 from flasgger import Swagger
 from flasgger.utils import swag_from
 from jsonschema import validate
-# Import our SAM's views at predefined routes
-import views.user
+import views.user #SAM's views
 
 """
-[Summary]: Check if the user has the necessary permissions (e.g., authenticated) to access SAM's services
-[Returns]: True if access to a resource is approved, false otherwise.
+[Summary]: Check if the user has the necessary permissions to access a service.
+[Returns]: True if access is granted to access the resource, false otherwise.
 """
 def isAuthenticated(request):
-    # Get the token from the parse request headers
+    # 1. Check if the token is available on the request header.
     headers = dict(request.headers)
-    print(str(len(headers)))
-    # Check if the Authorization header name was parsed to the service
+    #print(str(len(headers)))
+    
+    # 2. Check if the Authorization header name was parsed.
     if 'Authorization' not in headers: raise modules.error_handlers.BadRequest(request.path, "Authentication failure - You don't have the permission to access the requested resource", 403) 
     parsedToken = headers['Authorization']
 
-    # Decode the parsed Token
+    # 3. Decode the authorization token to get the User object.
     try:
         res_dic  = jwt.decode(parsedToken, JWT_SECRET_TOKEN, algorithms=['HS256'])
-        # Get the ID of the user embedded on the token 
+        # Get the ID of the user.
         userID = int(res_dic['User']['ID'])
-        # Check if the user id exists on the database
+        # Check if this user id exists.
         conn    = mysql.connect()
         cursor  = conn.cursor()
         cursor.execute("SELECT ID FROM User WHERE id=%s", userID)
         res = cursor.fetchall()
     except Exception as e:
+        cursor.close()
+        conn.close()
         raise modules.error_handlers.BadRequest(request.path, str(e), 403) 
 
     if (len(res) == 1): 
+        cursor.close()
+        conn.close()    
         return True # The user is legit, we can let him access the target resource 
     else:
-        raise modules.error_handlers.BadRequest(request.path, "Authentication failure - You don't have the permission to access the requested resource", 403) 
+        cursor.close()
+        conn.close()    
+        raise modules.error_handlers.BadRequest(request.path, "Authentication failure - You don't have the necessary permissions to access the requested resource", 403) 
 
 """
-[Summary]: User Authentication Service for login proposes.
-[Returns]: Returns a JSON object with the data of the user including a JWT token.
+[Summary]: User Authentication Service (i.e., login).
+[Returns]: Returns a JSON object with the data of the user including a JWT authentication token.
 """
 @app.route('/user/login', methods=['POST'])
 def authenticate():
     if request.method == "POST":
-        # Validate and parse POST data
+        # 1. Validate and parse POST data.
         if not request.form.get('email'):
             raise modules.error_handlers.BadRequest(request.path, 'The email cannot be empty', 400) 
         if not request.form.get('psw'):
             raise modules.error_handlers.BadRequest(request.path, 'The password cannot be empty', 400) 
-        #
+        
         email   = request.form['email']
         psw     = request.form['psw']
-        # Connecting to the DB 
+        
+        # 2. Connect to the DB and get the user info.
         try:
             conn    = mysql.connect()
             cursor  = conn.cursor()
             cursor.execute("SELECT ID, email, psw, avatar FROM User WHERE email=%s", email)
         except Exception as e:
             raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
-        # Evalute DB and if != none parse results
+        # 2.1. Check if the user exists.
         if (cursor.rowcount == 0): 
             raise modules.error_handlers.BadRequest(request.path, "A user with the specified email was not found", 404) 
-        # Lets get the amazing results returned by the DB
+        
+        # 2.2. Process the DB results.
         records = cursor.fetchall()
         dbpsw = ""
-        data = {} # Create a new nice empty dictionary to be populated with data from the DB
+        data = {} # Create a new nice empty dictionary to be populated with data from the DB.
         for row in records:
             data['ID']      = row[0]
             data['email']   = row[1]
-            dbpsw           = row[2] # For security reasons lets not store this in the dic
+            # For security reasons lets not store the password in the dic.
+            dbpsw           = row[2] 
             data['avatar']  = row[3]
 
+        cursor.close()
+        conn.close()    
+        
+        # Check if the hashed password of the database is the same as the one provided by the user.
         if modules.utils.check_password(dbpsw, psw):
-            # IF the hash password of the database is the same as the one provided by the user
-            # Build the authentication token and added to newly created dic
+            # First, build the authentication token and added it to the dictionary.
+            # Second, let's create a JSON response with the data of the dictionary.
             data['token'] = str(jwt.encode(data, JWT_SECRET_TOKEN, algorithm='HS256'))
-            # Creates a JSON response with the data of the dictionary 
+
+            # Authentication success, the user 'can follow the white rabbit'.
             return (modules.utils.build_response_json(request.path, 200, data))
         else:
             raise modules.error_handlers.BadRequest(request.path, "Authentication failure", 401) 
 
+"""
+[Summary]: User Registration Service (i.e., add a new user).
+[Returns]: Returns a JSON object with the data of the user including a JWT authentication token.
+[TODO]: Check inline comments.
+"""
 @app.route('/user', methods=['POST'])
 def register():
-    # 1. Lets get our shiny new JSON object and current time
-    # Always start by validating the structure of the json, if not valid send an invalid response
+    # 1. Lets get our shiny new JSON object and current time.
+    # - Always start by validating the structure of the json, if not valid send an invalid response.
     try:
         obj = request.json
         date = (datetime.now()).strftime('%Y-%m-%d %H:%M:%S')
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 400) 
 
-    # 2. Lets validate the data of our JSON object with a custom function
+    # 2. Lets validate the data of our JSON object with a custom function.
     if (not modules.utils.valid_json(obj, {"email", "psw"})):
         raise modules.error_handlers.BadRequest(request.path, "Some required key or value is missing from the JSON object", 400)
 
-    # 3. Lets hash the hell of the password
+    # 3. Let's hash the hell of the password.
     hashed_psw = modules.utils.hash_password(obj['psw'])
-    obj['psw'] = "" # clearing the user's plain text password parsed through https
+    obj['psw'] = "" # "paranoic mode".
     
-    # 4. Check if the user is not already registered
+    # 4. Check if the user was not previously registered in the DB.
     if (views.user.getUser(obj['email']) is not None):
         raise modules.error_handlers.BadRequest(request.path, "The user with that email already exists", 500)
 
-    # 4. Connect to the database and create the new user
+    # 4. Connect to the database and create the new user.
+    # TODO: Let's build procedures in the DB to do this. 
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
         cursor.execute("INSERT INTO User (email, psw, avatar, createdon, updatedon) VALUES (%s, %s, %s, %s, %s)", (obj['email'], hashed_psw, obj['avatar'], date, date))
-        #conn.commit()
+        conn.commit()
     except Exception as e:
         print(str(e))
         raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
@@ -146,4 +166,5 @@ def register():
         cursor.close()
         conn.close()
 
+    # Authentication success, the user can now choose to 'take the red or blue pill to follow the white rabbit'
     return (modules.utils.build_response_json(request.path, 200))

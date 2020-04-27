@@ -26,13 +26,12 @@
 """
 import time, flask, json, modules.utils
 from flask import jsonify
-
-# Lets make a blueprint in order to add an @app.errorHandler on the main api.py file
 blueprint = flask.Blueprint('error_handlers', __name__)
 
-# Use example
- # raise error_handlers.BadRequest('The email cannot be empty', 403
-
+"""
+[Summary]: BadRequest class, the name says it all
+[Example]: raise error_handlers.BadRequest('The email cannot be empty', 403
+"""
 class BadRequest(Exception):
     # Custom exception class to be thrown when local error occurs.
     def __init__(self, route, message, status):
@@ -42,10 +41,9 @@ class BadRequest(Exception):
         
 @blueprint.app_errorhandler(BadRequest)
 def handle_bad_request(error):
-    # Catch BadRequest exception globally, serialize into JSON, and respond with [error.status].
+    # Catch BadRequest exception globally, serialize into JSON, and respond with a [error.status].
     data = {}
     data['route']   = error.route
     data['message'] = error.message
     data['status']  = error.status
-     
     return modules.utils.build_response_json(error.route, error.status, data), error.status

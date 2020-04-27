@@ -7,9 +7,11 @@ SAM's Web API<br/>(under initial development)
 
 
 # Installation (for developers only):
-1) Create a virtual environment called ```venv``` in the project directory: 
+1) Create a virtual environment called ```venv``` in the project directory and install the main Python packages into the environment: 
 ```
 python3 -m venv venv
+source venv/bin/activate
+pip install flask python-dotenv
 ```
 2) Install all the necessary libraries in the virtual environment:
 ```

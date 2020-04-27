@@ -27,37 +27,42 @@
 from api import app, mysql
 from email_validator import validate_email, EmailNotValidError
 from flask import Flask, abort, request, jsonify, render_template, redirect, url_for, request
+import modules.error_handlers, modules.utils # SAM's modules
 
-import modules.error_handlers, modules.utils # Import our new and shiny custom SAM's modules
-
+"""
+[Summary]: Find a user by email.
+[Returns]: Returns a User object.
+"""
 # Check if a user exists
 @app.route('/user/<email>', methods=['GET'])
 def getUser(email):
-    # 1. Lets validate the email 
+    # 1. Let's validate the email, invalid emails from this point are not allowed.
     try:
         valid = validate_email(email)
     except EmailNotValidError as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 400) 
     
-    # 2. Lets get the user with the provided email
+    # 2. Let's get the user from the database with the provided [email].
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
         cursor.execute("SELECT ID, email, psw, avatar FROM User WHERE email=%s", email)
         res = cursor.fetchall()
     except Exception as e:
-        raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+    
+    # Empty results ?
     if (len(res) == 0):
         cursor.close()
         conn.close()
         return(modules.utils.build_response_json(request.path, 404))    
     else:
-        data = {} # Create a new nice empty dictionary to be populated with data from the DB
+        data = {} # Create a new nice empty dictionary to be populated with data from the DB.
         for row in res:
             data['ID']      = row[0]
             data['email']   = row[1]
-            dbpsw           = row[2] # For security reasons lets not store this in the dic
             data['avatar']  = row[3]
         cursor.close()
         conn.close()
+        # 3. Return information about the user (except the password) and 'May the Force be with you'.
         return(modules.utils.build_response_json(request.path, 200, data))    
