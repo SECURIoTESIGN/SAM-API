@@ -79,6 +79,7 @@ paths:
         required: true
         example:
             {
+              'g-recaptcha-response': 'secret_recaptcha_response',
               'email': 'new@user.com',
               'firstName': 'Test',
               'lastName': 'User',

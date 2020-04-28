@@ -28,8 +28,21 @@ from api import app, mysql
 from email_validator import validate_email, EmailNotValidError
 from flask import Flask, abort, request, jsonify, render_template, redirect, url_for, request
 from datetime import datetime
+import requests, json
 import modules.error_handlers, modules.utils # SAM's modules
 import views.authentication # SAM's views
+
+""" [Summary]: Validates recaptcha response from google server.
+    [Returns]: Returns True captcha test passed, false otherwise.
+    [TODO]: In a production environment the client and server key should be reconfigured.
+"""
+def is_human(captcha_response):
+    # https://www.google.com/recaptcha/
+    secret = "6LcLdO8UAAAAAH3CWKWo2WAtFZazstWy2qjcOHOY"
+    payload = {'response':captcha_response, 'secret':secret}
+    response = requests.post("https://www.google.com/recaptcha/api/siteverify", payload)
+    response_text = json.loads(response.text)
+    return response_text['success']
 
 """
 [Summary]: User Registration Service (i.e., add a new user).
@@ -49,18 +62,22 @@ def addUser():
         raise modules.error_handlers.BadRequest(request.path, str(e), 400) 
 
     # 2. Let's validate the data of our JSON object with a custom function.
-    if (not modules.utils.valid_json(obj, {"email", "psw", "firstName", "lastName", "avatar"})):
+    if (not modules.utils.valid_json(obj, {"email", "psw", "firstName", "lastName", "avatar", "g-recaptcha-response"})):
         raise modules.error_handlers.BadRequest(request.path, "Some required key or value is missing from the JSON object", 400)
 
-    # 3. Let's hash the hell of the password.
+    # 3. Validate reCAPTCHA
+    if not is_human(obj['g-recaptcha-response']):
+        raise modules.error_handlers.BadRequest(request.path, "reCAPTCHA failure - Bots are not allowed.", 400)
+
+    # 4. Let's hash the hell of the password.
     hashed_psw = modules.utils.hash_password(obj['psw'])
     obj['psw'] = "" # "paranoic mode".
     
-    # 4. Check if the user was not previously registered in the DB (i.e., same email)
+    # 5. Check if the user was not previously registered in the DB (i.e., same email)
     if (views.user.getUser(obj['email']) is not None):
         raise modules.error_handlers.BadRequest(request.path, "The user with that email already exists", 500)
 
-    # 4. Connect to the database and create the new user.
+    # 6. Connect to the database and create the new user.
     # TODO: Let's build procedures in the DB to do this. 
     try:
         conn    = mysql.connect()
@@ -73,7 +90,7 @@ def addUser():
         cursor.close()
         conn.close()
 
-    # Authentication success, the user can now choose to 'take the red or blue pill to follow the white rabbit'
+    # 7. Authentication success, the user can now choose to 'take the red or blue pill to follow the white rabbit'
     return (modules.utils.build_response_json(request.path, 200))
 
 """
