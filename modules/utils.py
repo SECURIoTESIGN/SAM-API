@@ -27,7 +27,13 @@
 import time, hashlib, uuid, flask, json
 from flask import jsonify
 
-# Check if a key is on the json object, and its has values
+"""
+[Summary]: Check if a key/pair value is on a JSON object.
+[Arguments]:
+       - $json_object$: The JSON object to validate.
+       - $keys$: The JSON object must have these keys.
+[Returns]: Returns true if valid, false otherwise.
+"""
 def valid_json(json_object:None, keys):
     for key in keys:
         if key in json_object:
@@ -37,7 +43,6 @@ def valid_json(json_object:None, keys):
         else:
             return(False)
     return(True)
-
 
 """
 [Summary]: Creates a JSON Response built around a set of parsed arguments.
@@ -59,7 +64,7 @@ def build_response_json(route, status, data={}):
        - $password$: The password to hash
 [Returns]: Returns the hash of a password + the salt
 """
-# TODO: implement a random salt for each user's password
+# TODO: implement a random salt for each request
 def hash_password(password):
     # uuid is used to generate a random number
     salt = uuid.uuid4().hex
