@@ -26,7 +26,7 @@
 """
 import time, json, jwt, os, urllib
 import modules.error_handlers, modules.utils # SAM's modules
-from api import app, mysql, JWT_SECRET_TOKEN
+from api import app, mysql, JWT_SECRET_TOKEN, JWT_EXPIRATION_SECONDS
 from datetime import datetime
 from configparser import SafeConfigParser
 from flask import Flask, abort, request, jsonify, render_template, redirect, url_for, request
@@ -34,11 +34,15 @@ from flaskext.mysql import MySQL
 from flasgger import Swagger
 from flasgger.utils import swag_from
 from jsonschema import validate
+from datetime import timedelta
+
 import views.user #SAM's views
+
 
 """
 [Summary]: Check if the user has the necessary permissions to access a service.
 [Returns]: True if access is granted to access the resource, false otherwise.
+[ref]: CHECK THIS: https://medium.com/devgorilla/how-to-log-out-when-using-jwt-a8c7823e8a6
 """
 def isAuthenticated(request):
     # 1. Check if the token is available on the request header.
@@ -52,13 +56,24 @@ def isAuthenticated(request):
 
     # 3. Decode the authorization token to get the User object.
     try:
+        # Decode will raise an exception if anything goes wrong within the decoding process (i.e., perform validation of the JWT).
         res_dic  = jwt.decode(parsedToken, JWT_SECRET_TOKEN, algorithms=['HS256'])
-        # debug only: print(str(json.dumps(res_dic)))
         # Get the ID of the user.
         userID = int(res_dic['ID'])
-        # Check if this user id exists.
+        # Debug only: print(str(json.dumps(res_dic)))
+       
         conn    = mysql.connect()
         cursor  = conn.cursor()
+        # 3.1. Check if the token is not blacklisted, that is if a user was previously logged out from the platform but the token is still 'alive'.
+        cursor.execute("SELECT ID FROM Auth_Token_Blacklist WHERE userID=%s AND token=%s", (userID, parsedToken))
+        res = cursor.fetchall()
+        if (len(res) == 1):
+            raise modules.error_handlers.BadRequest(request.path, "Authentication failure - You don't have the necessary permissions to access this resource. Please, provide an authorization token.", 403) 
+        cursor.close()
+        cursor  = conn.cursor()
+
+        # 3.2. Get info of the user
+        # Check if this user id exists.
         cursor.execute("SELECT ID FROM User WHERE id=%s", userID)
         res = cursor.fetchall()
     except Exception as e:
@@ -110,6 +125,9 @@ def authenticate():
             # For security reasons lets not store the password in the dic.
             dbpsw           = row[2] 
             data['avatar']  = row[3]
+            # Set the expiration time of the token, the JWT auth token will not be valid after x seconds
+            # Default is a 15 minute session
+            data['exp']     = datetime.utcnow() + timedelta(seconds=int(JWT_EXPIRATION_SECONDS))
 
         cursor.close()
         conn.close()    
@@ -124,3 +142,104 @@ def authenticate():
             return (modules.utils.build_response_json(request.path, 200, data))
         else:
             raise modules.error_handlers.BadRequest(request.path, "Authentication failure", 401)
+
+
+"""
+[Summary]: Clear the list of expired blacklisted JSON Web Tokens of a user.
+[Arguments]:
+       - $userID$: Target user.
+[Returns]: Returns false, if an error occurs, true otherwise. 
+"""
+def clear_expired_blacklisted_JWT(userID):
+    debug=True
+    if (debug): print("Checking blacklisted tokens for user id ="+str(userID))
+    try:
+        # Check if this user id exists.
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("SELECT token FROM Auth_Token_BlackList WHERE userID=%s", userID)
+        res = cursor.fetchall()
+    except Exception as e:
+        if (debug): print(str(e))
+        return (False) # 'Houston, we have a problem.'
+    # Empty results ?
+    if (len(res) == 0):
+        cursor.close()
+        conn.close()
+        return (True)
+    else:
+        i=0
+        for row in res: 
+            token = row[0]
+            if (debug): print ("# Checking token[" + str(i) + "]" + "= " + token)
+            i = i + 1
+            try:
+                # Let's see if the token is expired
+                res_dic  = jwt.verify(token)
+                if (debug): print(" - The token is still 'alive'. Nothing to do here.")
+            except:
+                if (debug): print(" - The token is expired, removing it from the database for user with id " + str(userID))
+                # The token is expired, remove it from the DB
+                try:
+                    cursor.execute("DELETE FROM Auth_Token_Blacklist WHERE token=%s AND userID=%s", (token,userID))
+                    conn.commit()
+                except Exception as e:
+                    if (debug): print(str(e))
+                    return (False) # 'Houston, we have a problem.'
+    return(True)
+
+"""
+[Summary]: Performs a logout using an JWT authentication token.
+[Returns]: 200 response if the user was successfully logged out.
+[ref]: Based on https://medium.com/devgorilla/how-to-log-out-when-using-jwt-a8c7823e8a6
+"""
+@app.route('/user/logout', methods=['POST'])
+def logout():
+    data = {}
+    if request.method != "POST": return
+    # 1. Check if the token is available on the request header.
+    headers = dict(request.headers)
+    # Debug only: print(str(len(headers)))
+    
+    # 2. Check if the Authorization header name was parsed.
+    if 'Authorization' not in headers: raise modules.error_handlers.BadRequest(request.path, "Authentication failure - You don't have the permission to access this resource. Please, provide an authorization token.", 403) 
+    parsedToken = headers['Authorization']
+    print("Parsed Token:" + parsedToken)
+    
+    try:
+        # 3. From now on the token will be blacklisted because the user has logout and the token may still
+        #    exists somewhere because its expiration date is still valid.
+        
+        # 3.1. Let's clean the house - Remove possible expired tokens from the user of the token
+        res_dic  = jwt.decode(parsedToken, JWT_SECRET_TOKEN, algorithms=['HS256'])
+       
+        userID = int(res_dic['ID'])
+        if not clear_expired_blacklisted_JWT(userID): # Sanity check
+            return (modules.utils.build_response_json(request.path, 500))
+        # 3.2. Let's add the token to the blacklist table on the database for the current user
+        #      That is, blacklist the current token, that may or may not be alive. 
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("INSERT INTO Auth_Token_Blacklist (userID, token) VALUES (%s, %s)", (userID, parsedToken))
+        conn.commit()
+        data['message'] = "The authentication token was blacklisted."
+       
+    except jwt.exceptions.ExpiredSignatureError as e:
+        # We don't need to blacklist this token, the token is already expired (see 'exp' field of the JWT defined in the authenticate function).
+        # raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
+        data['message'] = "The token has already expired, no need to blacklist it."
+        return (modules.utils.build_response_json(request.path, 200, data))
+    except Exception as e :
+        # Double token entry ?
+        if e.args[0] == 1062:
+            data['message'] = "The token was already blacklisted."
+        else:
+            raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
+    finally:
+        try:
+            cursor.close()
+            conn.close()
+        except:
+            pass # cursor or conn may not be defined, I don't care, 'Just keep swimming'.
+    #
+    return (modules.utils.build_response_json(request.path, 200, data))

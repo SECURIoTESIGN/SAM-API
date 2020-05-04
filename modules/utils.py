@@ -24,7 +24,7 @@
 //  POCI-01-0145-FEDER-030657) 
 // ---------------------------------------------------------------------------
 """
-import time, hashlib, uuid, flask, json
+import time, hashlib, uuid, flask, json, codecs, os
 from flask import jsonify
 
 """
@@ -56,6 +56,7 @@ def valid_json(json_object:None, keys):
 def build_response_json(route, status, data={}):
     # If a data object is not provided, data is initialized (i.e. data={}) 
     data['status'] = status 
+    print(data)
     return jsonify({route : data})
 
 """ 
@@ -63,11 +64,14 @@ def build_response_json(route, status, data={}):
 [Arguments]:
        - $password$: The password to hash
 [Returns]: Returns the hash of a password + the salt
+TODO: Change to bcrypt if possible
+TODO: implement a random salt for each request
 """
-# TODO: implement a random salt for each request
 def hash_password(password):
-    # uuid is used to generate a random number
-    salt = uuid.uuid4().hex
+    # Static salt: uuid is used to generate a random number.
+    # salt = uuid.uuid4().hex 
+    # Dynamic sal.
+    salt = codecs.encode(os.urandom(16), 'hex').decode()
     # The password hash and the salt will be stored in the database
     return hashlib.sha256(salt.encode() + password.encode()).hexdigest() + ':' + salt
 
@@ -76,6 +80,7 @@ def hash_password(password):
 [Arguments]:
        - $password$: The password to check.
 [Returns]: Returns true if equal, false otherwise.
+TODO: Change to bcrypt if possible
 """
 def check_password(hashed_password, user_password):
     # Let's combine the salt and the password

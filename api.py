@@ -53,6 +53,8 @@ parser.read('instance/config.cfg')
 #print(parser.get('DEFAULT', 'color'))
 # JWT related stuff
 JWT_SECRET_TOKEN = parser.get('DEFAULT', 'JWT_SECRET_TOKEN')
+JWT_EXPIRATION_SECONDS = parser.get('DEFAULT', 'JWT_EXPIRATION_SECONDS')
+
 # MySQL related stuff
 mysql = MySQL()
 app.config['MYSQL_DATABASE_USER'] = parser.get('DEFAULT', 'MYSQL_DATABASE_USER')
