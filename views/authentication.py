@@ -151,7 +151,7 @@ def authenticate():
 [Returns]: Returns false, if an error occurs, true otherwise. 
 """
 def clear_expired_blacklisted_JWT(userID):
-    debug=True
+    debug=False
     if (debug): print("Checking blacklisted tokens for user id ="+str(userID))
     try:
         # Check if this user id exists.
@@ -195,6 +195,7 @@ def clear_expired_blacklisted_JWT(userID):
 """
 @app.route('/user/logout', methods=['POST'])
 def logout():
+    debug = False
     data = {}
     if request.method != "POST": return
     # 1. Check if the token is available on the request header.
@@ -204,7 +205,7 @@ def logout():
     # 2. Check if the Authorization header name was parsed.
     if 'Authorization' not in headers: raise modules.error_handlers.BadRequest(request.path, "Authentication failure - You don't have the permission to access this resource. Please, provide an authorization token.", 403) 
     parsedToken = headers['Authorization']
-    print("Parsed Token:" + parsedToken)
+    if (debug): print("Parsed Token:" + parsedToken)
     
     try:
         # 3. From now on the token will be blacklisted because the user has logout and the token may still

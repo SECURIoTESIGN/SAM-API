@@ -176,6 +176,7 @@ def deleteUser(email):
 """
 @app.route('/user/<email>', methods=["PUT"])
 def updateUser(email):
+    updatePsw = False
     # Note: Remember that if an email is being changed, the email argument is the old one; 
     #       The new email content is available on the JSON object parsed in the body of the request.  
     if request.method != 'PUT': return
@@ -197,7 +198,7 @@ def updateUser(email):
         raise modules.error_handlers.BadRequest(request.path, str(e), 400) 
 
     # 4. Let's validate the data of our JSON object with a custom function.
-    if (not modules.utils.valid_json(obj, {"email", "avatar", "firstName", "lastName", "psw"})):
+    if (not modules.utils.valid_json(obj, {"email", "avatar", "firstName", "lastName"})):
         raise modules.error_handlers.BadRequest(request.path, "Some required key or value is missing from the JSON object", 400)
 
     # 4.1. Let's also validate the new email, invalid emails from this point are not allowed.
@@ -206,17 +207,22 @@ def updateUser(email):
     except EmailNotValidError as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 400) 
 
-    # 5. Hash the new password and store it
-    hashed_psw = modules.utils.hash_password(obj['psw'])
-    obj['psw'] = "" # "paranoic mode".
+    # 5. Hash the new password and store it (if supplied)
+    if (modules.utils.valid_json(obj, {"psw"})):
+        updatePsw=True
+        hashed_psw = modules.utils.hash_password(obj['psw'])
+        obj['psw'] = "" # "paranoic mode".
 
     # 6. Connect to the database and update the user with the data of the parsed json object
-    # TODO: - Let's build procedures in the DB to delete Users. 
+    # TODO: - Let's build procedures in the DB to update Users. 
     #       - Let's not update every single field of the User, instead, let's just updated the one that has changed.
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("UPDATE User SET email=%s, psw=%s, firstName=%s, lastName=%s, avatar=%s, updatedOn=%s WHERE email=%s",  (obj['email'], hashed_psw, obj['firstName'], obj['lastName'], obj['avatar'],date,email))
+        if (updatePsw):
+            cursor.execute("UPDATE User SET email=%s, psw=%s, firstName=%s, lastName=%s, avatar=%s, updatedOn=%s WHERE email=%s",  (obj['email'], hashed_psw, obj['firstName'], obj['lastName'], obj['avatar'],date,email))
+        else:
+            cursor.execute("UPDATE User SET email=%s, firstName=%s, lastName=%s, avatar=%s, updatedOn=%s WHERE email=%s",  (obj['email'], obj['firstName'], obj['lastName'], obj['avatar'],date,email))    
         conn.commit()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
