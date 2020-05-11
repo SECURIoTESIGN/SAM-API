@@ -55,9 +55,20 @@ def valid_json(json_object:None, keys):
 """
 def build_response_json(route, status, data={}):
     # If a data object is not provided, data is initialized (i.e. data={}) 
-    data['status'] = status 
-    print(data)
-    return jsonify({route : data})
+    # Check if data is an array/list of dic
+    if isinstance(data, list):
+        ndata = {}
+        ndata['status']     = status
+        ndata['content']    = data
+        print(ndata)
+        return jsonify({route : ndata})
+    else:
+        data['status'] = status 
+        # print(data)
+        return jsonify({route : data})
+    
+    
+
 
 """ 
 [Summary]: Hash a password with some salt
