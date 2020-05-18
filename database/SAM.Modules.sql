@@ -357,7 +357,7 @@ INSERT INTO Recomendation_Question_Answer (recomendationID, questionAnswerID) VA
 -- #####################################################################
 -- # Test Modules for user input with some logic
 -- #####################################################################
-INSERT INTO Module (ID, typeID, shortname, fullname, displayname) VALUES (4, 1, 'AL',  'Algorithms', 'Algorithms');
+INSERT INTO Module (ID, typeID, shortname, fullname, displayname, logicFileName) VALUES (4, 1, 'AL',  'Algorithms', 'Algorithms', 'AL.py');
 INSERT INTO Question (ID, content) VALUES (33, 'Q1 - Enter the bit number of your first CPU');
 INSERT INTO Module_Question (moduleID, questionID, questionOrder) VALUES (4, 33, 1);
 INSERT INTO Question (ID, content) VALUES (34, 'Q2 - Enter the bit number of your second CPU');
@@ -365,8 +365,8 @@ INSERT INTO Module_Question (moduleID, questionID, questionOrder) VALUES (4, 34,
 
 -- Simulate also a session that needs a module with user input and some logic attached
 INSERT INTO SESSION (ID, userID, moduleID, ended) VALUES (1, 1, 4, 1);
-INSERT INTO Session_Question_Answer (sessionID, questionID, input) VALUES (1, 33, '16');
-INSERT INTO Session_Question_Answer (sessionID, questionID, input) VALUES (1, 34, '32');
+INSERT INTO Session_User_Answer (sessionID, questionID, input) VALUES (1, 33, '16');
+INSERT INTO Session_User_Answer (sessionID, questionID, input) VALUES (1, 34, '32');
 -- Add a recomendation based on some logic used by an external module
 INSERT INTO Recomendation (ID, content) VALUES (3, 'Algorithm XYZ');
 

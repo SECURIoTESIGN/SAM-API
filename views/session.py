@@ -160,7 +160,6 @@ def getOpenSession(ID):
     else:
         # 2.2. Check if the session requested was ended.
         if (res[0][3] == 1):
-            print("the requested session ")
             cursor.close()
             conn.close()
             datas = getClosedSession(ID)
@@ -188,7 +187,7 @@ def getClosedSession(ID):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT session_ID, session_userID, session_moduleID, session_ended, session_createdOn, session_updatedOn, question_ID, question, answer_input FROM View_Session_Input_Answer WHERE session_ID=%s AND session_ended=1", ID)
+        cursor.execute("SELECT session_ID, session_userID, session_moduleID, session_ended, session_createdOn, session_updatedOn, question_ID, question, answer_input, module_logic, answer_id, answer FROM View_Session_Answers WHERE session_ID=%s AND session_ended=1", ID)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -203,12 +202,13 @@ def getClosedSession(ID):
         data = {}
         # 3. Let's get the info about the session.
         for row in res:
-            data['ID']          = row[0]
-            data['userID']      = row[1]
-            data['moduleID']    = row[2]
-            data['ended']       = row[3]
-            data['createdOn']   = row[4]
-            data['updatedOn']   = row[5]
+            data['ID']           = row[0]
+            data['userID']       = row[1]
+            data['moduleID']     = row[2]
+            data['module_logic'] = row[9]
+            data['ended']        = row[3]
+            data['createdOn']    = row[4]
+            data['updatedOn']    = row[5]
             break
         # 4. Let's get the questions and inputted answers.
         questions = []
@@ -216,41 +216,42 @@ def getClosedSession(ID):
             question = {}
             question['ID']           = row[6]
             question['content']      = row[7]
-            question['answer_input'] = row[8]
+            # Let's check if the answer was user inputted, or selected from the database.
+            if (row[8] != None):
+                question['answer'] = row[8]
+                question.update({"answer": { "ID": -1, "content": row[8]}}) 
+            else:
+                question.update({"answer": { "ID": row[10], "content": row[11]}})
             questions.append(question)
         data.update({"questions":  questions})
-
-        cursor.close()
-        conn.close()
-        # 5. 'May the Force be with you'.
-        return(data)  
-
-"""
-[Summary]: Adds a recomendation to a session. 
-[Returns]: Response result.
-"""
-@app.route('/session/<ID_s>/recomendation/<ID_r>', methods=['GET'])
-def addRecomendation(ID_s, ID_r):
-    if request.method != 'GET': return
-    # 1. Check if the user has permissions to access this resource
-    views.authentication.isAuthenticated(request)
-
+    cursor.close()
+        
+    # 5. Let's now get the recomendations, if any, stored for this session
     try:
-        conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("INSERT INTO Session_Recomendation (sessionID, recomendationID) VALUES (%s, %s)", (ID_s, ID_r))
-        conn.commit()
+        cursor.execute("SELECT recomendation_id, recomendation, recomendation_description, recomendation_guide  FROM View_Session_Recomendation WHERE session_id=%s", ID)
+        res = cursor.fetchall()
     except Exception as e:
-        raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
-    finally:
-        cursor.close()
-        conn.close()
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500)
 
-    # 5. The Update request was a success, the user 'is in the rabbit hole'
-    return (modules.utils.build_response_json(request.path, 200))
+    if (len(res) != 0):
+        recomendations = []
+        for row in res:
+            recomendation = {}
+            recomendation['ID']                  = row[0]
+            recomendation['content']             = row[1]
+            recomendation['description']         = row[2]
+            recomendation['recomendation_guide'] = row[3]
+            recomendations.append(recomendation)
+        data.update({"recomendations": recomendations})
+    conn.close()
+    cursor.close()
+
+    # 6. 'May the Force be with you'.
+    return(data)  
 
 """
-[Summary]: Updates the session with the answers given and the corresponding questions.
+[Summary]: Updates the session with the set of answers given and the corresponding questions.
 [Returns]: Response result.
 """
 @app.route('/session/<ID>', methods=['PUT'])
@@ -284,3 +285,85 @@ def updateSession(ID):
     # 5. The Update request was a success, the user 'is in the rabbit hole'
     return (modules.utils.build_response_json(request.path, 200))
 
+"""
+[Summary]: Adds a recomendation to a session based on one or more answers given. 
+[Returns]: Response result.
+"""
+@app.route('/session/<ID_s>/recomendation/<ID_r>', methods=['GET'])
+def addRecomendation(ID_s, ID_r):
+    if request.method != 'GET': return
+    # 1. Check if the user has permissions to access this resource
+    views.authentication.isAuthenticated(request)
+
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("INSERT INTO Session_Recomendation (sessionID, recomendationID) VALUES (%s, %s)", (ID_s, ID_r))
+        conn.commit()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
+    finally:
+        cursor.close()
+        conn.close()
+
+    # 5. The Update request was a success, the user 'is in the rabbit hole'
+    return (modules.utils.build_response_json(request.path, 200))
+
+"""
+[Summary]: Generates recommendations based on the answers given and store it on the session provided.
+[Returns]: Response result.
+"""
+@app.route('/session/<ID>/recomendations', methods=['GET'])
+def generateRecomendations(ID):
+    if request.method != 'GET': return
+
+    # 1. Check if the user has permission to access this resource.
+    views.authentication.isAuthenticated(request)
+
+    # 2. Is there a logic file to process the set of answers given in this session? If yes, then, run the logic file;
+    #    Otherwise, use the static information present in the database to infer the recommendations.
+    session = getClosedSession(ID)
+    if (session['module_logic'] != None):
+        return(None)
+    
+    # 3. Get the list of recomendations to be stored in the session.
+    #    -> Some redundancy is expected to exist on the database, however, it avoids further 
+    #       processing when checking the history of sessions.
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("SELECT session_id, recomendation_id, recomendation FROM View_Recomendation WHERE session_id=%s", ID)
+        res = cursor.fetchall()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+        
+    # 3.1 Check for empty results.
+    if (len(res) == 0):
+        cursor.close()
+        conn.close()
+        return(modules.utils.build_response_json(request.path, 404))
+
+    results = []
+    for row in res:
+        result = {}
+        result['session_id']          = row[0]
+        result['recomendation_id']    = row[1]
+        result['recomendation']       = row[2]
+        results.append(result)
+        # 4. Store the recomendations for the current session.
+        try:
+            print("entrou")
+            conn2    = mysql.connect()
+            cursor2  = conn2.cursor()
+            cursor2.execute("INSERT INTO Session_Recomendation (sessionID, recomendationID) VALUES (%s, %s)", (ID, result['recomendation_id']))
+            conn2.commit()
+        except Exception as e:
+            raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
+        finally:
+            cursor2.close()
+            conn2.close()
+    cursor.close()
+    conn.close()
+
+    # 5. 'May the Force be with you'.
+    return(modules.utils.build_response_json(request.path, 200, results))    

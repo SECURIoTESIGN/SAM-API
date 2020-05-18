@@ -105,8 +105,71 @@ WHERE
 
 
 -- View_Session_Input_Answer: Get answers of a question.
-DROP VIEW IF EXISTS View_Session_Input_Answer;
-CREATE VIEW View_Session_Input_Answer AS
+DROP VIEW IF EXISTS View_Session_Answers;
+CREATE VIEW View_Session_Answers AS
+-- ## Shows user selected answers
+SELECT 
+S.ID as session_ID, 
+S.userID as session_userID,
+S.moduleID as session_moduleID,
+S.ended as session_ended,
+S.createdon as session_createdon,
+S.updatedon as session_updatedon,
+--
+NULL as module_logic,
+--
+Q.ID as question_ID,
+Q.content as question,
+--
+SUA.input answer_input,
+--
+A.ID as answer_id,
+A.content as answer
+FROM 
+	Session as S,
+    Session_User_Answer as SUA,
+    Question as Q,
+    Question_Answer as QA,
+    Answer as A
+WHERE
+	S.ID = SUA.sessionID AND
+    SUA.questionAnswerID = QA.ID AND
+    QA.questionID = Q.ID AND
+    QA.answerID = A.ID
+
+UNION
+-- ## Shows user inputted answers
+SELECT DISTINCT
+S.ID as session_ID, 
+S.userID as session_userID,
+S.moduleID as session_moduleID,
+S.ended as session_ended,
+S.createdon as session_createdon,
+S.updatedon as session_updatedon,
+--
+M.logicFileName as module_logic,
+--
+Q.ID as question_ID,
+Q.content as question,
+--
+SUA.input answer_input,
+--
+Null as answer_ID,
+Null as answer
+FROM 
+	Session as S,
+    Session_User_Answer as SUA,
+    Question as Q,
+    Question_Answer as QA,
+    Module as M
+WHERE
+	S.ID = SUA.sessionID AND
+    SUA.questionID = Q.ID AND
+    S.moduleID = M.ID;
+
+-- View_Session_Recomendation: Get recomendations stored in a session.
+DROP VIEW IF EXISTS View_Session_Recomendation;
+CREATE VIEW View_Session_Recomendation AS
 SELECT 
 S.ID as session_ID, 
 S.userID as session_userID,
@@ -115,13 +178,36 @@ s.ended as session_ended,
 s.createdon as session_createdOn,
 s.updatedOn as session_updatedOn,
 --
-Q.ID as question_ID,
-Q.content as question,
-SQA.input answer_input
+R.ID as recomendation_ID,
+R.content as recomendation,
+R.description as recomendation_description,
+R.guideFilename as recomendation_guide,
+R.createdOn as recomendation_createdOn,
+R.updatedOn as recomendation_updatedOn
 FROM 
 	Session as S,
-    Session_Question_Answer as SQA,
-    Question as Q
+    Session_Recomendation as SR,
+    Recomendation as R
 WHERE
-	S.ID = SQA.sessionID AND
-	Q.ID = SQA.questionID;
+	S.ID = SR.sessionID AND
+    SR.recomendationID = R.ID;
+
+-- View_Session_Recomendation: Get recomendations to be stored in a session. 
+DROP VIEW IF EXISTS View_Recomendation;
+CREATE VIEW View_Recomendation AS
+Select DISTINCT
+S.ID as session_ID,
+R.ID as recomendation_ID,
+R.content as recomendation
+FROM
+	Session as S,
+	session_user_Answer as SUA,
+    question_answer as QA,
+    Recomendation_question_answer as RQA,
+    recomendation as R
+WHERE
+	S.ID = SUA.sessionID AND
+    SUA.questionAnswerID = QA.ID AND
+    --
+    QA.ID = RQA.questionAnswerID AND
+    RQA.recomendationID = R.ID;
