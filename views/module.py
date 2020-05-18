@@ -113,9 +113,9 @@ def getAnswers(ID):
 
 """
 [Summary]: Auxiliary function to get the sub-questions of a set of questions, and the sub-questions of 
-           those, and so on. This is accomplished through our 'friendly neighbor' recursivity. 
+           those, and so on. This is accomplished through our 'friendly neighbor' - recursivity. 
 [Arguments]:
-    - $initial$:  This flag must be set to true if this is the initial call of the recursive function.
+    - $initial$:  This flag must be set to true if it is the initial call of the recursive function.
     - $c_childs$: Array that contains the childs of a question ($question_js$ Python object), this must be initially empty.
     - $question$: Current question being analysed (has childs ?).
     - $question_js$: The JSON Python object being populate with data (question information, answers, and so on.)
@@ -128,7 +128,7 @@ def getAllChilds(initial, c_childs, question, question_js={}):
         conn    = mysql.connect()
         cursor  = conn.cursor()
         
-        cursor.execute("SELECT child_id, question, questionOrder FROM View_Question_Childs WHERE parent_id=%s", question['ID'])
+        cursor.execute("SELECT child_id, question, questionOrder, ontrigger FROM View_Question_Childs WHERE parent_id=%s", question['ID'])
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -139,7 +139,8 @@ def getAllChilds(initial, c_childs, question, question_js={}):
             child = {
                 "ID": row[0], 
                 "content": row[1],
-                "order": row[2]
+                "order": row[2],
+                "trigger": row[3]
             }
             childs.append(child)
     cursor.close()
@@ -184,7 +185,7 @@ def getAllChilds(initial, c_childs, question, question_js={}):
     - $ID$: ID of the module.
 [Returns]: A set of questions, its children, and its answers.
 """
-@app.route('/module/<ID>/questions', methods=['GET'])
+@app.route('/module/<ID>', methods=['GET'])
 def getQuestions(ID):
     if request.method != 'GET': return
 
@@ -231,17 +232,19 @@ def getQuestions(ID):
             raise modules.error_handlers.BadRequest(request.path, str(e), 500)
         # 3.1. 'déjà vu'.
         if (len(res) == 0):
-            cursor.close()
-            conn.close()
-            return(modules.utils.build_response_json(request.path, 404))    
+            if (conn.open):
+                cursor.close()
+                conn.close()
+            # return(modules.utils.build_response_json(request.path, 404))    
         else:
             answers = []
             for row in res:
                 answer = { "ID": row[0], "content": row[1]}
                 answers.append(answer)
             question.update({"answers": answers})
-        cursor.close()
-        conn.close()
+        if (conn.open):
+            cursor.close()
+            conn.close()
 
     # 4. Recursively get each question child and corresponding data (question, answer, and so on).
     for question in data['questions']: 

@@ -102,3 +102,26 @@ FROM
 WHERE
 	Q.ID = QA.questionID AND A.ID = QA.answerID AND
     R.ID = RQA.recomendationID AND QA.ID = RQA.questionAnswerID;
+
+
+-- View_Session_Input_Answer: Get answers of a question.
+DROP VIEW IF EXISTS View_Session_Input_Answer;
+CREATE VIEW View_Session_Input_Answer AS
+SELECT 
+S.ID as session_ID, 
+S.userID as session_userID,
+s.moduleID as session_moduleID,
+s.ended as session_ended,
+s.createdon as session_createdOn,
+s.updatedOn as session_updatedOn,
+--
+Q.ID as question_ID,
+Q.content as question,
+SQA.input answer_input
+FROM 
+	Session as S,
+    Session_Question_Answer as SQA,
+    Question as Q
+WHERE
+	S.ID = SQA.sessionID AND
+	Q.ID = SQA.questionID;

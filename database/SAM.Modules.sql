@@ -5,7 +5,7 @@ USE SAM;
 
 -- Insert test USER
 DELETE FROM User WHERE ID >= 1;
-ALTER TABLE Type AUTO_INCREMENT = 1;
+ALTER TABLE User AUTO_INCREMENT = 1;
 INSERT INTO User (email, firstName, lastName, psw) VALUES ('old@user.com', 'Old', 'User', '6e68eff9ad873e8df6d25fce9282fb9bfbd3f8f6ff32a639a42963448787d88a:7e3627579e1e4304874ce442f2e50760');
 
 -- #####################################################################
@@ -108,10 +108,10 @@ INSERT INTO Question (ID, content) VALUES (27, 'Q6 - Will the system allow input
 INSERT INTO Question (ID, content) VALUES (29, 'Q7 - Will th system have logging?');
 
 -- Some of the previous questions have sub questions (childs), we need to store this mapping information.
-INSERT INTO Question_has_Child (parent, child, questionOrder, ontrigger) VALUES (18, 20, 1, 10);
-INSERT INTO Question_has_Child (parent, child, questionOrder, ontrigger) VALUES (18, 21, 2, 10);
-INSERT INTO Question_has_Child (parent, child, questionOrder, ontrigger) VALUES (18, 22, 3, 10);
-INSERT INTO Question_has_Child (parent, child, questionOrder, ontrigger) VALUES (23, 25, 1, 10);
+INSERT INTO Question_has_Child (parent, child, questionOrder, ontrigger) VALUES (19, 20, 1, 10);
+INSERT INTO Question_has_Child (parent, child, questionOrder, ontrigger) VALUES (19, 21, 2, 10);
+INSERT INTO Question_has_Child (parent, child, questionOrder, ontrigger) VALUES (19, 22, 3, 10);
+INSERT INTO Question_has_Child (parent, child, questionOrder, ontrigger) VALUES (24, 25, 1, 10);
 INSERT INTO Question_has_Child (parent, child, questionOrder, ontrigger) VALUES (27, 28, 1, 10);
 
 -- Associate Questions to Module 2 (only the parent questions, the childs can be easily found).
@@ -121,7 +121,6 @@ INSERT INTO Module_Question (moduleID, questionID, questionOrder) VALUES (2, 23,
 INSERT INTO Module_Question (moduleID, questionID, questionOrder) VALUES (2, 24, 4);
 INSERT INTO Module_Question (moduleID, questionID, questionOrder) VALUES (2, 26, 5);
 INSERT INTO Module_Question (moduleID, questionID, questionOrder) VALUES (2, 27, 6);
-INSERT INTO Module_Question (moduleID, questionID, questionOrder) VALUES (2, 28, 7);
 INSERT INTO Module_Question (moduleID, questionID, questionOrder) VALUES (2, 29, 8);
 
 -- #####################################################################
@@ -355,5 +354,25 @@ INSERT INTO Recomendation_Question_Answer (recomendationID, questionAnswerID) VA
 INSERT INTO Recomendation_Question_Answer (recomendationID, questionAnswerID) VALUES (2, 6);
 INSERT INTO Recomendation_Question_Answer (recomendationID, questionAnswerID) VALUES (2, 67);
 
+-- #####################################################################
+-- # Test Modules for user input with some logic
+-- #####################################################################
+INSERT INTO Module (ID, typeID, shortname, fullname, displayname) VALUES (4, 1, 'AL',  'Algorithms', 'Algorithms');
+INSERT INTO Question (ID, content) VALUES (33, 'Q1 - Enter the bit number of your first CPU');
+INSERT INTO Module_Question (moduleID, questionID, questionOrder) VALUES (4, 33, 1);
+INSERT INTO Question (ID, content) VALUES (34, 'Q2 - Enter the bit number of your second CPU');
+INSERT INTO Module_Question (moduleID, questionID, questionOrder) VALUES (4, 34, 2);
 
--- VIEW 
+-- Simulate also a session that needs a module with user input and some logic attached
+INSERT INTO SESSION (ID, userID, moduleID, ended) VALUES (1, 1, 4, 1);
+INSERT INTO Session_Question_Answer (sessionID, questionID, input) VALUES (1, 33, '16');
+INSERT INTO Session_Question_Answer (sessionID, questionID, input) VALUES (1, 34, '32');
+-- Add a recomendation based on some logic used by an external module
+INSERT INTO Recomendation (ID, content) VALUES (3, 'Algorithm XYZ');
+
+
+
+
+-- #####################################################################
+-- # Insert Dependency examples, for example, IoT-HarPSecA needs the answers given to other modules.
+-- #####################################################################
