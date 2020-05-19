@@ -32,7 +32,6 @@ import requests, json, os
 import modules.error_handlers, modules.utils # SAM's modules
 import views.authentication # SAM's views
 
-
 """
 [Summary]: Start a new session to a user.
 [Returns]: Response result.
@@ -226,24 +225,24 @@ def getClosedSession(ID):
         data.update({"questions":  questions})
     cursor.close()
         
-    # 5. Let's now get the recomendations, if any, stored for this session
+    # 5. Let's now get the recommendations, if any, stored for this session
     try:
         cursor  = conn.cursor()
-        cursor.execute("SELECT recomendation_id, recomendation, recomendation_description, recomendation_guide  FROM View_Session_Recomendation WHERE session_id=%s", ID)
+        cursor.execute("SELECT recommendation_id, recommendation, recommendation_description, recommendation_guide  FROM View_Session_Recommendation WHERE session_id=%s", ID)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
 
     if (len(res) != 0):
-        recomendations = []
+        recommendations = []
         for row in res:
-            recomendation = {}
-            recomendation['ID']                  = row[0]
-            recomendation['content']             = row[1]
-            recomendation['description']         = row[2]
-            recomendation['recomendation_guide'] = row[3]
-            recomendations.append(recomendation)
-        data.update({"recomendations": recomendations})
+            recommendation = {}
+            recommendation['ID']                  = row[0]
+            recommendation['content']             = row[1]
+            recommendation['description']         = row[2]
+            recommendation['recommendation_guide'] = row[3]
+            recommendations.append(recommendation)
+        data.update({"recommendations": recommendations})
     conn.close()
     cursor.close()
 
@@ -266,39 +265,23 @@ def updateSession(ID):
         obj = request.json
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 400) 
-
+    
+    print(obj)
+    answer_user_inputted = False
     # 3. Let's validate the data of our JSON object with a custom function.
     if (not modules.utils.valid_json(obj, {"questionID","answerID"})):
-        raise modules.error_handlers.BadRequest(request.path, "Some required key or value is missing from the JSON object", 400)
+        if (modules.utils.valid_json(obj, {"questionID","input"})): 
+            answer_user_inputted = True
+        else:
+            raise modules.error_handlers.BadRequest(request.path, "Some required key or value is missing from the JSON object", 400)
 
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("INSERT INTO Session_User_Answer (sessionID, questionAnswerID) VALUES (%s, (SELECT ID FROM Question_Answer WHERE questionID=%s AND answerID=%s))", (ID, obj['questionID'], obj['answerID']))
-        conn.commit()
-    except Exception as e:
-        raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
-    finally:
-        cursor.close()
-        conn.close()
-
-    # 5. The Update request was a success, the user 'is in the rabbit hole'
-    return (modules.utils.build_response_json(request.path, 200))
-
-"""
-[Summary]: Adds a recomendation to a session based on one or more answers given. 
-[Returns]: Response result.
-"""
-@app.route('/session/<ID_s>/recomendation/<ID_r>', methods=['GET'])
-def addRecomendation(ID_s, ID_r):
-    if request.method != 'GET': return
-    # 1. Check if the user has permissions to access this resource
-    views.authentication.isAuthenticated(request)
-
-    try:
-        conn    = mysql.connect()
-        cursor  = conn.cursor()
-        cursor.execute("INSERT INTO Session_Recomendation (sessionID, recomendationID) VALUES (%s, %s)", (ID_s, ID_r))
+        if (not answer_user_inputted):
+            cursor.execute("INSERT INTO Session_User_Answer (sessionID, questionAnswerID) VALUES (%s, (SELECT ID FROM Question_Answer WHERE questionID=%s AND answerID=%s))", (ID, obj['questionID'], obj['answerID']))
+        else:
+            cursor.execute("INSERT INTO Session_User_Answer (sessionID, questionID, input) VALUES (%s, %s, %s)", (ID, obj['questionID'], obj['input']))
         conn.commit()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
@@ -313,26 +296,57 @@ def addRecomendation(ID_s, ID_r):
 [Summary]: Generates recommendations based on the answers given and store it on the session provided.
 [Returns]: Response result.
 """
-@app.route('/session/<ID>/recomendations', methods=['GET'])
-def generateRecomendations(ID):
+@app.route('/session/<ID>/recommendations', methods=['GET'])
+def generateRecommendations(ID):
     if request.method != 'GET': return
 
     # 1. Check if the user has permission to access this resource.
     views.authentication.isAuthenticated(request)
 
-    # 2. Is there a logic file to process the set of answers given in this session? If yes, then, run the logic file;
+    # 2. Is there a logic file to process the set of answers given in this session? If yes, then, run the logic file. 
+    #    This element will be in charge of calling the service to one or more recommendations, depending on the implemented logic.  
     #    Otherwise, use the static information present in the database to infer the recommendations.
     session = getClosedSession(ID)
     if (session['module_logic'] != None):
-        return(None)
+        try:
+            # 2.1. Get information related to the current session. This includes the information about the module, the set of related questions, and the answers given by the user to those questions.
+            r = requests.get(request.url_root+"session/"+str(ID), headers={'content-type': 'application/json', 'Authorization': dict(request.headers)['Authorization']})
+            r.raise_for_status()
+            json_module = json.loads(r.text)
+            json_module["Module"] = json_module.pop("/session/"+str(ID))
+
+            # 2.2. Get the set of available recommendations.
+            r = requests.get(request.url_root+"recommendations", headers={'content-type': 'application/json', 'Authorization': dict(request.headers)['Authorization']})
+            r.raise_for_status()
+            json_recommendations = json.loads(r.text)
+            json_recommendations["Recommendations"] = json_recommendations.pop("/recommendations")
+            
+            # 2.2. Dynamically load the logic element for the current session.
+            name = "external.elements." + session['module_logic'] + "." + session['module_logic']
+            mod = __import__(name, fromlist=[''])
+            provided_recommendations = mod.run(json_module, json_recommendations)
+
+            # 2.3. Make the recommendations taking into account the results of the logic element.
+            if (len(provided_recommendations) != 0):
+                for rec in provided_recommendations:
+                    s_name = request.url_root+'recommendation/'+str(rec)+'/session/' + str(ID)
+                    print("-->"+s_name)
+                    r = requests.get(s_name, headers={'content-type': 'application/json', 'Authorization': dict(request.headers)['Authorization']})
+                    r.raise_for_status()
+        except Exception as e:
+            raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+        return(modules.utils.build_response_json(request.path, 200))
+
+
+         #   raise modules.error_handlers.BadRequest(request.path, str(e), 500)
     
-    # 3. Get the list of recomendations to be stored in the session.
+    # 3. Get the list of recommendations to be stored in the session.
     #    -> Some redundancy is expected to exist on the database, however, it avoids further 
     #       processing when checking the history of sessions.
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT session_id, recomendation_id, recomendation FROM View_Recomendation WHERE session_id=%s", ID)
+        cursor.execute("SELECT session_id, recommendation_id, recommendation FROM View_Recommendation WHERE session_id=%s", ID)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -347,15 +361,15 @@ def generateRecomendations(ID):
     for row in res:
         result = {}
         result['session_id']          = row[0]
-        result['recomendation_id']    = row[1]
-        result['recomendation']       = row[2]
+        result['recommendation_id']    = row[1]
+        result['recommendation']       = row[2]
         results.append(result)
-        # 4. Store the recomendations for the current session.
+        # 4. Store the recommendations for the current session.
         try:
             print("entrou")
             conn2    = mysql.connect()
             cursor2  = conn2.cursor()
-            cursor2.execute("INSERT INTO Session_Recomendation (sessionID, recomendationID) VALUES (%s, %s)", (ID, result['recomendation_id']))
+            cursor2.execute("INSERT INTO Session_Recommendation (sessionID, recommendationID) VALUES (%s, %s)", (ID, result['recommendation_id']))
             conn2.commit()
         except Exception as e:
             raise modules.error_handlers.BadRequest(request.path, str(e), 500) 

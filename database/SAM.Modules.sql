@@ -35,7 +35,7 @@ DELETE FROM Module WHERE ID >= 1;
 ALTER TABLE Module AUTO_INCREMENT = 1;
 INSERT INTO Module (ID, typeID, shortname, fullname, displayname) VALUES (1, 1, 'SRE',  'Security Requirements Elicitation', 'Security Requirements');
 INSERT INTO Module (ID, typeID, shortname, fullname, displayname) VALUES (2, 2, 'SBPG', 'Security Best Pratice Guidelines', 'Security Best Pratices');
-INSERT INTO Module (ID, typeID, shortname, fullname, displayname) VALUES (3, 3, 'SCAR', 'Security Cryptographic Algorithms Recomendation', 'Security Cryptographic Algorithms'); 
+INSERT INTO Module (ID, typeID, shortname, fullname, displayname) VALUES (3, 3, 'SCAR', 'Security Cryptographic Algorithms recommendation', 'Security Cryptographic Algorithms'); 
 
 -- #####################################################################
 -- # Insert Questions and Associate the questions with a module
@@ -314,50 +314,50 @@ INSERT INTO Dependency (moduleID, dependsOn) VALUES (3, 1);
 
 
 -- #####################################################################
--- # Insert Recomendations / outputs of each module according to the set of answers given to a set of questions.
+-- # Insert recommendations / outputs of each module according to the set of answers given to a set of questions.
 -- # Incomplete!
 -- #####################################################################
 
 -- For Module 1
-INSERT INTO Recomendation (ID, content) VALUES (1, 'Confidentiality');
-INSERT INTO Recomendation (ID, content) VALUES (2, 'Integrity');
--- INSERT INTO Recomendation (ID, content) VALUES (3, 'Availability');
--- INSERT INTO Recomendation (ID, content) VALUES (4, 'Authentication');
--- INSERT INTO Recomendation (ID, content) VALUES (5, 'Non-Repudiation');
--- INSERT INTO Recomendation (ID, content) VALUES (6, 'Accountability');
--- INSERT INTO Recomendation (ID, content) VALUES (7, 'Reliability');
--- INSERT INTO Recomendation (ID, content) VALUES (8, 'Privacy');
--- INSERT INTO Recomendation (ID, content) VALUES (9, 'Physical Security');
--- INSERT INTO Recomendation (ID, content) VALUES (10, 'Forgery Resistance');
--- INSERT INTO Recomendation (ID, content) VALUES (11, 'Tamper Detection');
--- INSERT INTO Recomendation (ID, content) VALUES (12, 'Data Freshness');
--- INSERT INTO Recomendation (ID, content) VALUES (13, 'Confinement');
--- INSERT INTO Recomendation (ID, content) VALUES (14, 'Interoperability');
--- INSERT INTO Recomendation (ID, content) VALUES (15, 'Data Origin');
+INSERT INTO recommendation (ID, content) VALUES (1, 'Confidentiality');
+INSERT INTO recommendation (ID, content) VALUES (2, 'Integrity');
+-- INSERT INTO recommendation (ID, content) VALUES (3, 'Availability');
+-- INSERT INTO recommendation (ID, content) VALUES (4, 'Authentication');
+-- INSERT INTO recommendation (ID, content) VALUES (5, 'Non-Repudiation');
+-- INSERT INTO recommendation (ID, content) VALUES (6, 'Accountability');
+-- INSERT INTO recommendation (ID, content) VALUES (7, 'Reliability');
+-- INSERT INTO recommendation (ID, content) VALUES (8, 'Privacy');
+-- INSERT INTO recommendation (ID, content) VALUES (9, 'Physical Security');
+-- INSERT INTO recommendation (ID, content) VALUES (10, 'Forgery Resistance');
+-- INSERT INTO recommendation (ID, content) VALUES (11, 'Tamper Detection');
+-- INSERT INTO recommendation (ID, content) VALUES (12, 'Data Freshness');
+-- INSERT INTO recommendation (ID, content) VALUES (13, 'Confinement');
+-- INSERT INTO recommendation (ID, content) VALUES (14, 'Interoperability');
+-- INSERT INTO recommendation (ID, content) VALUES (15, 'Data Origin');
 
--- Associate recomendations with answers
+-- Associate recommendations with answers
 -- Answers that needs to be answer in order to suggest 'Confidentiality' as an output .
-INSERT INTO Recomendation_Question_Answer (recomendationID, questionAnswerID) VALUES (1, 1);
-INSERT INTO Recomendation_Question_Answer (recomendationID, questionAnswerID) VALUES (1, 2);
-INSERT INTO Recomendation_Question_Answer (recomendationID, questionAnswerID) VALUES (1, 3);
-INSERT INTO Recomendation_Question_Answer (recomendationID, questionAnswerID) VALUES (1, 4);
-INSERT INTO Recomendation_Question_Answer (recomendationID, questionAnswerID) VALUES (1, 5);
-INSERT INTO Recomendation_Question_Answer (recomendationID, questionAnswerID) VALUES (1, 6);
-INSERT INTO Recomendation_Question_Answer (recomendationID, questionAnswerID) VALUES (1, 9);
+INSERT INTO recommendation_Question_Answer (recommendationID, questionAnswerID) VALUES (1, 1);
+INSERT INTO recommendation_Question_Answer (recommendationID, questionAnswerID) VALUES (1, 2);
+INSERT INTO recommendation_Question_Answer (recommendationID, questionAnswerID) VALUES (1, 3);
+INSERT INTO recommendation_Question_Answer (recommendationID, questionAnswerID) VALUES (1, 4);
+INSERT INTO recommendation_Question_Answer (recommendationID, questionAnswerID) VALUES (1, 5);
+INSERT INTO recommendation_Question_Answer (recommendationID, questionAnswerID) VALUES (1, 6);
+INSERT INTO recommendation_Question_Answer (recommendationID, questionAnswerID) VALUES (1, 9);
 
 -- Answers that needs to be answer in order to suggest 'Integrity' as an output.
-INSERT INTO Recomendation_Question_Answer (recomendationID, questionAnswerID) VALUES (2, 1);
-INSERT INTO Recomendation_Question_Answer (recomendationID, questionAnswerID) VALUES (2, 2);
-INSERT INTO Recomendation_Question_Answer (recomendationID, questionAnswerID) VALUES (2, 3);
-INSERT INTO Recomendation_Question_Answer (recomendationID, questionAnswerID) VALUES (2, 4);
-INSERT INTO Recomendation_Question_Answer (recomendationID, questionAnswerID) VALUES (2, 5);
-INSERT INTO Recomendation_Question_Answer (recomendationID, questionAnswerID) VALUES (2, 6);
-INSERT INTO Recomendation_Question_Answer (recomendationID, questionAnswerID) VALUES (2, 67);
+INSERT INTO recommendation_Question_Answer (recommendationID, questionAnswerID) VALUES (2, 1);
+INSERT INTO recommendation_Question_Answer (recommendationID, questionAnswerID) VALUES (2, 2);
+INSERT INTO recommendation_Question_Answer (recommendationID, questionAnswerID) VALUES (2, 3);
+INSERT INTO recommendation_Question_Answer (recommendationID, questionAnswerID) VALUES (2, 4);
+INSERT INTO recommendation_Question_Answer (recommendationID, questionAnswerID) VALUES (2, 5);
+INSERT INTO recommendation_Question_Answer (recommendationID, questionAnswerID) VALUES (2, 6);
+INSERT INTO recommendation_Question_Answer (recommendationID, questionAnswerID) VALUES (2, 67);
 
 -- #####################################################################
 -- # Test Modules for user input with some logic
 -- #####################################################################
-INSERT INTO Module (ID, typeID, shortname, fullname, displayname, logicFileName) VALUES (4, 1, 'AL',  'Algorithms', 'Algorithms', 'AL.py');
+INSERT INTO Module (ID, typeID, shortname, fullname, displayname, logicFileName) VALUES (4, 1, 'AL',  'Algorithms', 'Algorithms', 'Example');
 INSERT INTO Question (ID, content) VALUES (33, 'Q1 - Enter the bit number of your first CPU');
 INSERT INTO Module_Question (moduleID, questionID, questionOrder) VALUES (4, 33, 1);
 INSERT INTO Question (ID, content) VALUES (34, 'Q2 - Enter the bit number of your second CPU');
@@ -367,8 +367,8 @@ INSERT INTO Module_Question (moduleID, questionID, questionOrder) VALUES (4, 34,
 INSERT INTO SESSION (ID, userID, moduleID, ended) VALUES (1, 1, 4, 1);
 INSERT INTO Session_User_Answer (sessionID, questionID, input) VALUES (1, 33, '16');
 INSERT INTO Session_User_Answer (sessionID, questionID, input) VALUES (1, 34, '32');
--- Add a recomendation based on some logic used by an external module
-INSERT INTO Recomendation (ID, content) VALUES (3, 'Algorithm XYZ');
+-- Add a recommendation based on some logic used by an external module
+INSERT INTO recommendation (ID, content) VALUES (3, 'Algorithm XYZ');
 
 
 

@@ -62,7 +62,7 @@ app.config['MYSQL_DATABASE_PASSWORD'] = parser.get('DEFAULT', 'MYSQL_DATABASE_PA
 app.config['MYSQL_DATABASE_DB'] = parser.get('DEFAULT', 'MYSQL_DATABASE_DB')
 app.config['MYSQL_DATABASE_HOST'] = parser.get('DEFAULT', 'MYSQL_DATABASE_HOST')
 mysql.init_app(app)
-import views.authentication, views.user, views.module, views.session # SAM's views
+import views.authentication, views.user, views.module, views.session, views.recommendation # SAM's views
 
 """ Main route where all the magic starts."""
 @app.route('/')
