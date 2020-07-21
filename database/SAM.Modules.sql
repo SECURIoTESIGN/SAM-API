@@ -2,11 +2,22 @@
 -- DB Test data for development purposes
 -- 
 USE SAM;
+-- Insert user Groups
+DELETE FROM SAM.Group WHERE ID >=1;
+ALTER TABLE SAM.Group AUTO_INCREMENT = 1;
+INSERT INTO SAM.Group(designation) VALUES ('Standard');
 
 -- Insert test USER
 DELETE FROM User WHERE ID >= 1;
 ALTER TABLE User AUTO_INCREMENT = 1;
-INSERT INTO User (email, firstName, lastName, psw) VALUES ('old@user.com', 'Old', 'User', '6e68eff9ad873e8df6d25fce9282fb9bfbd3f8f6ff32a639a42963448787d88a:7e3627579e1e4304874ce442f2e50760');
+-- Add a 'normal' user
+INSERT INTO User (email, firstName, lastName, psw) VALUES ('user@SAM.pt', 'Plain', 'User', '6e68eff9ad873e8df6d25fce9282fb9bfbd3f8f6ff32a639a42963448787d88a:7e3627579e1e4304874ce442f2e50760');
+-- Add an 'administrator' user
+INSERT INTO User (administrator, email, firstName, lastName, psw) VALUES (1, 'admin@SAM.pt', 'Admin', 'User', '6e68eff9ad873e8df6d25fce9282fb9bfbd3f8f6ff32a639a42963448787d88a:7e3627579e1e4304874ce442f2e50760');
+-- Associate Users and Groups
+INSERT INTO User_Group (userID, groupID) VALUES (1, 1);
+INSERT INTO User_Group (userID, groupID) VALUES (2, 1);
+
 
 -- #####################################################################
 -- # Insert Initial answers
@@ -303,7 +314,8 @@ INSERT INTO Question_Answer(questionID, answerID) VALUES (28, 10);
 INSERT INTO Question_Answer(questionID, answerID) VALUES (28, 11);
 INSERT INTO Question_Answer(questionID, answerID) VALUES (29, 10);
 INSERT INTO Question_Answer(questionID, answerID) VALUES (29, 11);
-
+INSERT INTO Question_Answer(questionID, answerID) VALUES (30, 10);
+INSERT INTO Question_Answer(questionID, answerID) VALUES (30, 11);
 -- #####################################################################
 -- # Insert Dependencies
 -- #####################################################################
@@ -317,6 +329,18 @@ INSERT INTO Dependency (moduleID, dependsOn) VALUES (3, 1);
 -- # Insert recommendations / outputs of each module according to the set of answers given to a set of questions.
 -- # Incomplete!
 -- #####################################################################
+DELETE FROM Recommendation WHERE ID >= 1;
+ALTER TABLE Recommendation AUTO_INCREMENT = 1;
+DELETE FROM Session WHERE ID >= 1;
+ALTER TABLE Session AUTO_INCREMENT = 1;
+DELETE FROM session_recommendation WHERE ID >= 1;
+ALTER TABLE session_recommendation AUTO_INCREMENT = 1;
+DELETE FROM session_user_answer WHERE ID >= 1;
+ALTER TABLE session_user_answer AUTO_INCREMENT = 1;
+
+DELETE FROM recommendation_Question_Answer WHERE ID >= 1;
+ALTER TABLE recommendation_Question_Answer AUTO_INCREMENT = 1;
+
 
 -- For Module 1
 INSERT INTO recommendation (ID, content) VALUES (1, 'Confidentiality');
@@ -362,12 +386,7 @@ INSERT INTO Question (ID, content) VALUES (33, 'Q1 - Enter the bit number of you
 INSERT INTO Module_Question (moduleID, questionID, questionOrder) VALUES (4, 33, 1);
 INSERT INTO Question (ID, content) VALUES (34, 'Q2 - Enter the bit number of your second CPU');
 INSERT INTO Module_Question (moduleID, questionID, questionOrder) VALUES (4, 34, 2);
-
--- Simulate also a session that needs a module with user input and some logic attached
-INSERT INTO SESSION (ID, userID, moduleID, ended) VALUES (1, 1, 4, 1);
-INSERT INTO Session_User_Answer (sessionID, questionID, input) VALUES (1, 33, '16');
-INSERT INTO Session_User_Answer (sessionID, questionID, input) VALUES (1, 34, '32');
--- Add a recommendation based on some logic used by an external module
+-- Add a recommendation to be used by the logic element of some module 
 INSERT INTO recommendation (ID, content) VALUES (3, 'Algorithm XYZ');
 
 

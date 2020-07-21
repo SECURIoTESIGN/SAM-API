@@ -27,6 +27,59 @@
 import time, hashlib, uuid, flask, json, codecs, os
 from flask import jsonify
 
+# ONLY FOR INSERT AND UPDATE
+# builds sql instruction with columns that may or may not be defined and purge None values from the values inputted.
+# SQL = Barebones sql instruction, for example "INSERT INTO User"
+# columns = list of columns that may containg None values, in this case the column is not included in the SQL instruction. eg ["username", "password"]
+# Use example where updatedon maybe null:  values = (content, description, guide, createdon, updatedon)
+# sql = modules.utils.build_sql_instruction("INSERT INTO Recommendation", ["content", "description", "guideFilename", "createdon", updatedon and "updatedon" or None], values)
+# where sql instruction for update calls
+# RETURNS: the sql instruciton and values to be feed into db_execute_update_insert
+def build_sql_instruction(SQL, columns, values, where=None):
+    values                      = [i for i in values if i] # If exists, remove None values.
+    columns                     = [i for i in columns if i] # If exists, remove None values.
+    table_columns, table_values = (str(SQL.lower()).find("update")) == 0 and "SET " or "", ""
+    
+    if ((str(SQL.lower()).find("insert")) == 0):
+        # Proc. columns
+        i = 0
+        for column in columns:
+            table_columns   += (i==0) and ("(" + column) or ((i==(len(columns)-1)) and ("," + column +")") or ("," + column))
+            i = i + 1
+        i = 0
+        # Proc. Values
+        for value in values:
+            value = "%s"
+            table_values    += (i==0) and (" VALUES (" + value) or ((i==len(values)-1) and (","+value+")") or (","+value)) 
+            i = i + 1
+        SQL = SQL + " " + table_columns + table_values
+    if ((str(SQL.lower()).find("update")) == 0):
+        # Proc. columns 
+        i = 0
+        for column in columns:
+            table_columns   += (i!=len(columns)-1) and (column +"=%s,") or (column +"=%s")
+            i = i + 1
+        SQL = SQL + " " + table_columns + table_values + " " + str(where)
+    
+    return(SQL, values)
+
+def db_execute_update_insert(mysql, SQL, values, DEBUG=True):
+    n_id = None
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute(SQL, values)
+        # Store and return the id of the last created entry in the table.
+        if ( (str(SQL.lower()).find("insert")) != -1): n_id = conn.insert_id()
+        conn.commit()
+    except Exception as e:
+        if (DEBUG): print("[SAM-API] Database - " + e)
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
+    finally:
+        cursor.close()
+        conn.close()
+        return(n_id)
+
 """
 [Summary]: Check if a key/pair value is on a JSON object.
 [Arguments]:

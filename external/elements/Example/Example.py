@@ -44,9 +44,9 @@ def run(module, recommendations):
         print(str(recommendations))
     
     # 1. Do some logic with the answers given by the user to one or more questions for the current parsed module. 
-    if (module['Module']['questions'][0]['answer']['content'] >= '16' and module['Module']['questions'][1]['answer']['content'] >= '32'):
+    if (module['Module']['questions'][0]['answer']['content'] >= 0 and module['Module']['questions'][1]['answer']['content'] >= 0):
         # 1.1. Based on the answers, give an output or recomendation based on the available set of recomendations.
-        p_recommendations.append(2)
-        p_recommendations.append(3)
+        p_recommendations.append(recommendations[0])
+        p_recommendations.append(recommendations[1])
    
     return(p_recommendations)

@@ -30,4 +30,4 @@ $ source venv/bin/activate
 $ (venv) flask run 
 ```
 - If necessary, install any missing or additional modules using the newly created virtual environment. 
-- The swagger documentation is available at ```http://localhost:5000/apidocs/```
+- The list of REST services is available at ```docs\insomnia```

@@ -1,5 +1,22 @@
 USE SAM;
 
+-- View_User_Group: Get groups of user
+DROP VIEW IF EXISTS View_User_Group;
+CREATE VIEW View_User_Group AS
+SELECT
+	U.ID as user_id,
+    U.email as user_email,
+    G.designation as user_group
+FROM
+SAm.Group as G,
+User_Group as UG,
+User as U
+WHERE
+G.ID = UG.groupID AND
+U.ID = UG.userID;
+
+
+
 -- View_Module_Question: Get dependencies of a module
 DROP VIEW IF EXISTS View_Module_Dependency;
 CREATE VIEW View_Module_Dependency AS
@@ -211,3 +228,23 @@ WHERE
     --
     QA.ID = RQA.questionAnswerID AND
     RQA.recommendationID = R.ID;
+    
+DROP VIEW IF EXISTS View_Question_Answer_Recommendation;
+CREATE VIEW View_Question_Answer_Recommendation AS
+SELECT
+QA.questionID as question_ID,
+QA.answerID as answer_ID,
+R.ID as recommendation_ID,
+R.content as content,
+R.description as description,
+R.guideFileName as guide,
+R.createdOn as createdOn,
+R.updatedOn as updatedOn
+FROM
+Question_Answer AS QA, 
+Recommendation_Question_Answer as RQA,
+Recommendation as R
+WHERE
+QA.ID = RQA.questionAnswerID AND
+R.ID = RQA.recommendationID;
+
