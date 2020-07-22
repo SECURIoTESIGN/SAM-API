@@ -10,9 +10,9 @@ INSERT INTO SAM.Group(designation) VALUES ('Standard');
 -- Insert test USER
 DELETE FROM User WHERE ID >= 1;
 ALTER TABLE User AUTO_INCREMENT = 1;
--- Add a 'normal' user
+-- Add a 'normal' user, password encoded is 123
 INSERT INTO User (email, firstName, lastName, psw) VALUES ('user@SAM.pt', 'Plain', 'User', '6e68eff9ad873e8df6d25fce9282fb9bfbd3f8f6ff32a639a42963448787d88a:7e3627579e1e4304874ce442f2e50760');
--- Add an 'administrator' user
+-- Add an 'administrator' user, password encoded is 123
 INSERT INTO User (administrator, email, firstName, lastName, psw) VALUES (1, 'admin@SAM.pt', 'Admin', 'User', '6e68eff9ad873e8df6d25fce9282fb9bfbd3f8f6ff32a639a42963448787d88a:7e3627579e1e4304874ce442f2e50760');
 -- Associate Users and Groups
 INSERT INTO User_Group (userID, groupID) VALUES (1, 1);

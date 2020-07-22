@@ -62,7 +62,7 @@ app.config['MYSQL_DATABASE_PASSWORD'] = parser.get('DEFAULT', 'MYSQL_DATABASE_PA
 app.config['MYSQL_DATABASE_DB'] = parser.get('DEFAULT', 'MYSQL_DATABASE_DB')
 app.config['MYSQL_DATABASE_HOST'] = parser.get('DEFAULT', 'MYSQL_DATABASE_HOST')
 mysql.init_app(app)
-import views.authentication, views.user, views.module, views.session, views.recommendation, views.question, views.answer, views.group, views.type # SAM's views
+import views.user, views.module, views.session, views.recommendation, views.question, views.answer, views.group, views.type, views.dependency # SAM's views
 import modules.utils
 
 """ Main route where all the magic happens."""
@@ -76,5 +76,5 @@ def home():
 """
 @app.route('/time')
 def get_current_time():
-    views.isAuthenticated(request)
+    views.user.isAuthenticated(request)
     return {'time': time.time()}
