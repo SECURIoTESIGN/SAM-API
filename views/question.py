@@ -188,6 +188,54 @@ def find_question(ID):
 
 
 """
+[Summary]: Finds Answers of a Question by question ID ans answerID- [Question_Answer] Table.
+[Returns]: Response result.
+"""
+@app.route('/question/<question_id>/answer/<answer_id>', methods=['GET'])
+def find_question_answers_2(question_id, answer_id, internal_call=False):
+    if (request.method != 'GET' and not internal_call): return
+
+    
+    # 1. Check if the user has permissions to access this resource
+    if (not internal_call): views.user.isAuthenticated(request)
+
+    # 2. Let's get the answeers for the question from the database.
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("SELECT question_answer_id, question_id, question, answer_id, answer FROM view_question_answer where question_id=%s and answer_id=%s", (question_id, answer_id))
+        res = cursor.fetchall()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+    
+    # 2.2. Check for empty results 
+    if (len(res) == 0):
+        cursor.close()
+        conn.close()
+        if (not internal_call):
+            return(modules.utils.build_response_json(request.path, 404))
+        else:
+            return(None)
+    else:
+        datas = [] # Create a new nice empty array of dictionaries to be populated with data from the DB.
+        for row in res:
+            data = {}
+            data['question_answer_id']  = row[0]
+            data['question_id']         = row[1]
+            data['question_content']    = row[2]
+            data['answer_id']           = row[3]
+            data['answer_content']      = row[4]
+            datas.append(data)
+        cursor.close()
+        conn.close()
+        
+        # 3. 'May the Force be with you, young master'.
+        if (not internal_call):
+            return(modules.utils.build_response_json(request.path, 200, datas))
+        else:
+            return(datas)
+
+"""
 [Summary]: Finds Answers of a Question - [Question_Answer] Table.
 [Returns]: Response result.
 """
@@ -202,7 +250,7 @@ def find_question_answers(ID):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT answer_id, answer FROM view_question_answer WHERE question_id = %s", ID)
+        cursor.execute("SELECT question_answer_id, question_id, question, answer_id, answer FROM view_question_answer where question_id=%s", ID)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -216,10 +264,56 @@ def find_question_answers(ID):
         datas = [] # Create a new nice empty array of dictionaries to be populated with data from the DB.
         for row in res:
             data = {}
-            data['ID']          = row[0]
-            data['answer']    = row[1]
+            data['question_answer_id']  = row[0]
+            data['question_id']         = row[1]
+            data['question_content']    = row[2]
+            data['answer_id']           = row[3]
+            data['answer_content']      = row[4]
             datas.append(data)
         cursor.close()
         conn.close()
         # 3. 'May the Force be with you, young master'.
         return(modules.utils.build_response_json(request.path, 200, datas))    
+
+
+"""
+[Summary]: Gets Answers of a Questions - [Question_Answer] Table.
+[Returns]: Response result.
+"""
+@app.route('/questions/answers', methods=['GET'])
+def get_questions_answers():
+   
+    if request.method != 'GET': return
+
+    # 1. Check if the user has permissions to access this resource
+    views.user.isAuthenticated(request)
+
+    # 2. Let's get the questions from the database 
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("SELECT question_answer_id, question_id, question, answer_id, answer FROM view_question_answer")
+        res = cursor.fetchall()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+    
+    # 2.2. Check for empty results 
+    if (len(res) == 0):
+        cursor.close()
+        conn.close()
+        return(modules.utils.build_response_json(request.path, 404))    
+    else:
+        datas = [] # Create a new nice empty array of dictionaries to be populated with data from the DB.
+        for row in res:
+            data = {}
+            data['question_answer_id']  = row[0]
+            data['question_id']         = row[1]
+            data['question_content']    = row[2]
+            data['answer_id']           = row[3]
+            data['answer_content']      = row[4]
+            datas.append(data)
+    
+    cursor.close()
+    conn.close()
+    # 3. 'May the Force be with you, young master'.
+    return(modules.utils.build_response_json(request.path, 200, datas))    

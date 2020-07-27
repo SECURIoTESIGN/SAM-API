@@ -37,38 +37,82 @@ import views.user # SAM's views
 [Returns]: Response result.
 """
 @app.route('/recommendation', methods=['POST'])
-def add_recommendation():
+def add_recommendation(internal_json=None):
     DEBUG=True
-    if request.method != 'POST': return
+    if (request.method != 'POST' and (internal_json is not None)): return
     # Check if the user has permissions to access this resource
     views.user.isAuthenticated(request)
 
-    json_data = request.get_json()
+    if (internal_json is None):
+        json_data = request.get_json()
+    else:
+        json_data = internal_json
+
     # If the mimetype does not indicate JSON (application/json, see is_json()), this returns None.
-    if (json_data is None): return(modules.utils.build_response_json(request.path, 400)) 
+    if (json_data is None): 
+        if (internal_json is None):
+            return(modules.utils.build_response_json(request.path, 400)) 
+        else:
+            return(None)
+    
+    # Validate if the necessary data is on the provided JSON
+    if (json_data['id'] is None):
+        if (not modules.utils.valid_json(json_data, {"content", "description"})):
+            raise modules.error_handlers.BadRequest(request.path, "Some required key or value is missing from the JSON object", 400)    
 
-    # Validate if the necessary data is on the provided JSON 
-    if (not modules.utils.valid_json(json_data, {"content", "description"})):
-        raise modules.error_handlers.BadRequest(request.path, "Some required key or value is missing from the JSON object", 400)    
+    content         = json_data['content']
+    description     = json_data['description']
+    guide           = "guide"     in json_data and json_data['guide']     or None
+    createdon       = "createdon" in json_data and json_data['createdon'] or None
+    updatedon       = "updatedon" in json_data and json_data['updatedon'] or None
+    
 
-    content     = json_data['content']
-    description = json_data['description']
-    guide       = "guide"     in json_data and json_data['guide']     or None
-    createdon   = "createdon" in json_data and json_data['createdon'] or None
-    updatedon   = "updatedon" in json_data and json_data['updatedon'] or None
+    # Check if the recommendation [id] is null. If not null, it means the module was previsoulyed added and we just need to add the question_answers mapping to table [recommendation_question_answer].
+    if (json_data['id'] is None):
+        # Build the SQL instruction using our handy function to build sql instructions.
+        values = (content, description, guide, createdon, updatedon)
+        sql, values = modules.utils.build_sql_instruction("INSERT INTO Recommendation", ["content", "description", guide and "guidefilename" or None, createdon and "createdon" or None, updatedon and "updatedon" or None], values)
+        if (DEBUG): print("[SAM-API]: [POST]/recomendation - " + sql + " " + str(values))
+
+        # Add
+        recommendation_id = modules.utils.db_execute_update_insert(mysql, sql, values)
+        if (recommendation_id is None): 
+            if (internal_json is None):
+                return(modules.utils.build_response_json(request.path, 400))  
+            else:
+                return(None)
+    else:
+        recommendation_id = json_data['id']
+    
+    # This recommendation is given if a question answer association is defined.
+    # question_answer_id is a column in table "Recommendation_Question_Answer"
+    questions_answers = "questions_answers" in json_data and json_data['questions_answers'] or None
+    if (questions_answers is None): 
+        if (internal_json is None):
+            return(modules.utils.build_response_json(request.path, 200, {"id": recommendation_id}))   
+        else:
+            return({"id": recommendation_id})
     
     # Build the SQL instruction using our handy function to build sql instructions.
-    values = (content, description, guide, createdon, updatedon)
-    sql, values = modules.utils.build_sql_instruction("INSERT INTO Recommendation", ["content", "description", guide and "guidefilename" or None, createdon and "createdon" or None, updatedon and "updatedon" or None], values)
-    if (DEBUG): print("[SAM-API]: [POST]/recomendation - " + sql + " " + str(values))
+    for question_answer in questions_answers: 
+        question_answer_id = question_answer['id']
+        columns = ["recommendationID", "questionAnswerID", createdon and "createdon" or None, updatedon and "updatedon" or None] 
+        values  = (recommendation_id, question_answer_id, createdon, updatedon)
+        sql, values = modules.utils.build_sql_instruction("INSERT INTO Recommendation_Question_Answer", columns, values)
+        if (DEBUG): print("[SAM-API]: [POST]/recomendation - " + sql + " " + str(values))
+        # Add
+        rqa_id = modules.utils.db_execute_update_insert(mysql, sql, values)
 
-    # Add
-    n_id = modules.utils.db_execute_update_insert(mysql, sql, values)
-    if (n_id is None):
-        return(modules.utils.build_response_json(request.path, 400))  
+    if (rqa_id is None):
+        if (internal_json is None):
+            return(modules.utils.build_response_json(request.path, 400))
+        else:
+            return(None)
     else:
-        return(modules.utils.build_response_json(request.path, 200, {"id": n_id}))   
-
+        if (internal_json is None):
+            return(modules.utils.build_response_json(request.path, 200, {"id": recommendation_id}))   
+        else:
+            return({"id", recommendation_id})
 """
 [Summary]: Updates a recommendation
 [Returns]: Response result.
@@ -117,7 +161,7 @@ def update_recommendation():
 [Returns]: Response result.
 """
 @app.route('/recommendations', methods=['GET'])
-def find_recommendations():
+def get_recommendations():
     if request.method != 'GET': return
     # 1. Check if the user has permissions to access this resource
     views.user.isAuthenticated(request)
@@ -131,7 +175,7 @@ def find_recommendations():
         res = cursor.fetchall()
         for row in res:
             result = {}
-            result['ID']          = row[0]
+            result['id']          = row[0]
             result['content']     = row[1]
             result['description'] = row[2]
             result['guide']       = row[3]
@@ -165,41 +209,7 @@ def find_recommendation(ID):
         res = cursor.fetchall()
         for row in res:
             result = {}
-            result['ID']          = row[0]
-            result['content']     = row[1]
-            result['description'] = row[2]
-            result['guide']       = row[3]
-            result['createdOn']   = row[4]
-            result['updatedOn']   = row[5]
-            results.append(result)
-    except Exception as e:
-        raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
-    finally:
-        cursor.close()
-        conn.close()
-        # 3. The request was a success, the user 'is in the rabbit hole'
-        return(modules.utils.build_response_json(request.path, 200, results)) 
-
-"""
-[Summary]: Finds recommendation.
-[Returns]: Response result.
-"""
-@app.route('/recommendation/<ID>', methods=['GET'])
-def find_recommendation_(ID):
-    if request.method != 'GET': return
-    # 1. Check if the user has permissions to access this resource
-    views.user.isAuthenticated(request)
-
-    # 2. Let's get the set of available recommendations
-    results = []
-    try:
-        conn    = mysql.connect()
-        cursor  = conn.cursor()
-        cursor.execute("SELECT ID, content, description, guideFileName, createdon, updatedon FROM Recommendation WHERE ID=%s", ID)
-        res = cursor.fetchall()
-        for row in res:
-            result = {}
-            result['ID']          = row[0]
+            result['id']          = row[0]
             result['content']     = row[1]
             result['description'] = row[2]
             result['guide']       = row[3]

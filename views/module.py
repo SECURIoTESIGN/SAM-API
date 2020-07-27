@@ -30,7 +30,7 @@ from flask import Flask, abort, request, jsonify, render_template, redirect, url
 from datetime import datetime
 import requests, json, os, copy
 import modules.error_handlers, modules.utils # SAM's modules
-import views.user, views.recommendation # SAM's views
+import views.user, views.recommendation, views.question # SAM's views
 
 """
 [Summary]: Adds a new Module.
@@ -47,14 +47,15 @@ def add_module():
     # If the mimetype does not indicate JSON (application/json, see is_json()), this returns None.
     if (json_data is None): return(modules.utils.build_response_json(request.path, 400)) 
 
-    # Validate if the necessary data is on the provided JSON 
+    # Validate if the necessary data is on the provided JSON
     if (not modules.utils.valid_json(json_data, {"shortname", "fullname", "displayname", "tree"})):
         raise modules.error_handlers.BadRequest(request.path, "Some required key or value is missing from the JSON object", 400)    
     
-    shortname   = json_data['shortname']
-    fullname    = json_data['fullname']
-    displayname = json_data['displayname']
-    tree        = json_data['tree']
+    shortname       = json_data['shortname']
+    fullname        = json_data['fullname']
+    displayname     = json_data['displayname']
+    tree            = json_data['tree']
+    recommendations = "recommendations" in json_data and json_data['recommendations'] or None
     avatar      = "avatar" in json_data and json_data['avatar'] or None
     description = "description" in json_data and json_data['description'] or None
     type_id     = "type_id" in json_data and json_data['type_id'] or None
@@ -67,13 +68,30 @@ def add_module():
     values  = (shortname, fullname, displayname, type_id, logic, avatar, description, createdon, updatedon)
     
     sql, values = modules.utils.build_sql_instruction("INSERT INTO Module", columns, values)
-    if (DEBUG): print("[SAM-API]: [POST]/question - " + sql + " => " + str(values))
+    if (DEBUG): print("[SAM-API]: [POST]/module - " + sql + " => " + str(values))
 
     # Add Module and iterate the tree of the module in order to create the questions and answers mapped to the current module.
     module_id = modules.utils.db_execute_update_insert(mysql, sql, values)
-    for node in tree: iterate_tree_nodes("INSERT", module_id, node)
+    for node in tree: 
+        iterate_tree_nodes(recommendations, "INSERT", module_id, node)
+    
+    # Store the mapping of question_answer and recommendations (DB table Recommendation_Question_Answer)
+    # 1. Get the question_answer id primary key value, through [question_id] and [answer_id]    
+    for recommendation in recommendations:
+        for question_answer in recommendation['questions_answers']:
+            qa_res = views.question.find_question_answers_2(question_answer['question_id'], question_answer['answer_id'], True)
+            if (qa_res is None): return(modules.utils.build_response_json(request.path, 400)) 
+            qa_res = qa_res[0]
+            if (DEBUG): print("[SAM-API] [POST]/module - question_id = " + str(question_answer['question_id']) + ", answer_id=" + str(question_answer['answer_id']) + " => Question_Answer_id =" + str(qa_res['question_answer_id']))
+            question_answer['id'] = qa_res['question_answer_id']
+    
 
-    return(modules.utils.build_response_json(request.path, 200, {"id": module_id}))  
+    # 2. Add the recommendation with the link between questions and answers
+    for recommendation in recommendations:
+        views.recommendation.add_recommendation(recommendation)
+    
+
+    return(modules.utils.build_response_json(request.path, 200, {"id": module_id, "tree": tree}))  
 
 """
 [Summary]: Updates a Module.
@@ -118,7 +136,7 @@ def update_module():
     
     # Iterate the tree of module in order to update questions an answers of the module
     for node in tree:   
-        iterate_tree_nodes("UPDATE", module_id, node)
+        iterate_tree_nodes(recommendations, "UPDATE", module_id, node)
 
     return(modules.utils.build_response_json(request.path, 200))  
 
@@ -272,12 +290,12 @@ def get_module_tree(pID, internal_call=False):
         else:
             # 2.2.1. The initial set of the information about the module.
             for row in res: 
-                data = {"ID": row[0], "name": row[1]}
+                data = {"id": row[0], "name": row[1]}
                 break
             # 2.2.2. Map questions of the module to a JSON Python Object (dic).
             questions = []
             for row in res:
-                question = {"ID": row[2], "type": "question", "name": row[3], "order": row[4], "children": []}
+                question = {"id": row[2], "type": "question", "name": row[3], "order": row[4], "children": []}
                 questions.append(question)
             data.update({"tree":  questions})
 
@@ -345,12 +363,12 @@ def get_module_tree(pID, internal_call=False):
         else:
             # 2.2.1. The initial set of the information about the module.
             for row in res: 
-                data = {"ID": row[0], "name": row[1]}
+                data = {"id": row[0], "name": row[1]}
                 break
             # 2.2.2. Map questions of the module to a JSON Python Object (dic).
             questions = []
             for row in res:
-                question = {"ID": row[2], "name": row[3], "order": row[4]}
+                question = {"id": row[2], "name": row[3], "order": row[4]}
                 questions.append(question)
             data.update({"questions":  questions})
 
@@ -362,7 +380,7 @@ def get_module_tree(pID, internal_call=False):
             try:
                 conn    = mysql.connect()
                 cursor  = conn.cursor()
-                cursor.execute("SELECT answer_id, answer FROM View_Question_Answer WHERE question_id = %s", question['ID'])
+                cursor.execute("SELECT answer_id, answer FROM View_Question_Answer WHERE question_id = %s", question['id'])
                 res = cursor.fetchall()
             except Exception as e:
                 raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -375,7 +393,7 @@ def get_module_tree(pID, internal_call=False):
             else:
                 answers = []
                 for row in res:
-                    answer = { "ID": row[0], "name": row[1]}
+                    answer = { "id": row[0], "name": row[1]}
                     answers.append(answer)
                 question.update({"answers": answers})
             if (conn.open):
@@ -453,6 +471,43 @@ def parent_changed(question_id, answer_id):
         conn.close()
         return(False)
 
+
+
+"""
+[Summary]: When a new question or answer is added on the client side an ID is generated for each one. After that, the user is required to add recommendations. 
+           These recommendations will be given taking into account if the user has selected a set of answers to a set of questions. The mapping of questions and 
+           answers temporarily uses the previous generated ID. After the process of adding each question and answer to the database, that temporary ID needs to be 
+           updated to the new one (i.e., the ID that identifies each question and answer on the database). 
+[Arguments]:
+    - $client_id$: The id temporary assigned (on the client side) to a question or answer.
+    - $database_id$: The 'real' id of the question or answer that is used to update a recommendation.
+    - $recommendations$: The list of recommendations.
+    - $is_question$: Flag to ascertain if the mapping operation of client_id => database_id is to be performed on a question or an answer.
+"""
+def update_questions_answers_ids(client_id, database_id, recommendations, is_question):
+    DEBUG = True
+    if (DEBUG):
+        if (is_question):
+            print("[SAM-API] update_questions_answers_ids() => Trying to find client_question_id = " + str(client_id) + " in recommendations list.")
+        else:
+            print("[SAM-API] update_questions_answers_ids() => Trying to find client_question_id = " + str(client_id) + " in recommendations list.")
+            
+    for recommendation in recommendations:
+        for question_answer in recommendation['questions_answers']:
+            # Update the questions to the real ID
+            if (is_question):
+                if ("client_question_id" in question_answer):
+                    if (question_answer['client_question_id'] == client_id):
+                        del question_answer['client_question_id']
+                        question_answer['question_id'] = database_id
+                        print("[SAM-API] update_questions_answers_ids() => Found it, updating node = " + str(question_answer))
+            else:
+                if ("client_answer_id" in question_answer):
+                    if (question_answer['client_answer_id'] == client_id):
+                        del question_answer['client_answer_id']
+                        question_answer['answer_id'] = database_id
+                        print("[SAM-API] update_questions_answers_ids() => Found it, updating node = " + str(question_answer))
+
 """
 [Summary]: Iterates the module tree that contains the mapping of questions and answers. This is an auxiliary function of add_module().
 [Arguments]:
@@ -461,7 +516,7 @@ def parent_changed(question_id, answer_id):
     - $p_node$: Previous node or parent node.
     - $p_p_node$: Parent of the parent node.
 """
-def iterate_tree_nodes(operation, module_id, c_node, p_node=None, p_p_node=None):
+def iterate_tree_nodes(recommendations, operation, module_id, c_node, p_node=None, p_p_node=None):
     debug=True
     print("[SAM-API] Processing current node = '"+ str(c_node['name'])+"'")
     operation = operation.upper()
@@ -472,8 +527,15 @@ def iterate_tree_nodes(operation, module_id, c_node, p_node=None, p_p_node=None)
         if (operation == "INSERT"):
             sql     = "INSERT INTO Question (content) VALUES (%s)"
             values  = c_node['name']
-            c_node.update({"scope_id": modules.utils.db_execute_update_insert(mysql, sql, values)})
-            if (debug): print("  -> [" + str(c_node["scope_id"]) + "] = '" + sql + ", " + str(values))
+            exists_flag = False
+            try: exists_flag = modules.utils.db_already_exists(mysql, "SELECT id FROM Question WHERE id=%s", c_node['id'])
+            except: pass
+            if (not exists_flag):
+                c_node.update({"id": modules.utils.db_execute_update_insert(mysql, sql, values)})
+                # By knowing the client_id update recommendations questions and answers to the database id (c_node['id']).
+                update_questions_answers_ids(c_node['client_id'], c_node['id'], recommendations, True)
+
+            if (debug): print("  -> [" + str(c_node["id"]) + "] = '" + sql + ", " + str(values))
         if (operation == "UPDATE"):
             sql     = "UPDATE Question SET content=%s WHERE ID=%s"
             values  = (c_node['name'], c_node['id'])
@@ -486,7 +548,7 @@ def iterate_tree_nodes(operation, module_id, c_node, p_node=None, p_p_node=None)
         if (p_node is None):
             if (operation == "INSERT"):
                 sql     = "INSERT INTO Module_Question (moduleID, questionID, questionOrder) VALUES (%s, %s, %s)"
-                values  = (module_id,c_node['scope_id'], 0)
+                values  = (module_id,c_node['id'], 0)
                 modules.utils.db_execute_update_insert(mysql, sql, values)
                 if (debug): print("  -> [?] = '" + sql + ", " + str(values))
 
@@ -496,7 +558,7 @@ def iterate_tree_nodes(operation, module_id, c_node, p_node=None, p_p_node=None)
             if (p_node['type'] == "answer"): 
                 if (operation == "INSERT"):
                     sql     = "INSERT INTO Question_has_Child (parent, child, ontrigger, questionOrder) VALUES (%s, %s, %s, %s)"
-                    values  = (p_p_node['scope_id'], c_node['scope_id'], p_node['scope_id'], 0)
+                    values  = (p_p_node['id'], c_node['id'], p_node['id'], 0)
                     modules.utils.db_execute_update_insert(mysql, sql, values)
                     if (debug): print("  -> [?] = '" + sql + ", " + str(values))
                 if (operation == "UPDATE"):
@@ -515,10 +577,17 @@ def iterate_tree_nodes(operation, module_id, c_node, p_node=None, p_p_node=None)
     else: 
         # 1.1. Add or update answer - Table [Answer].
         if (operation == "INSERT"):
-            sql     = "INSERT INTO Answer (content) VALUES(%s)"
+            sql     = "INSERT INTO Answer (content) VALUES (%s)"
             values  = c_node['name']
-            c_node.update({"scope_id": execute_SQL(sql, values)}) # Store the ID of the newly created answer.
-            if (debug): print("  -> [" + str(c_node["scope_id"]) + "] = '" + sql + ", " + str(values))
+            exists_flag = False
+            try: exists_flag = modules.utils.db_already_exists(mysql, "SELECT id FROM Answer WHERE id=%s", c_node['id'])
+            except: pass
+            if (not exists_flag):
+                c_node.update({"id": modules.utils.db_execute_update_insert(mysql, sql, values)}) # Store the ID of the newly created answer.
+                # By knowing the client_id update recommendations questions and answers to the database id (c_node['id']).
+                update_questions_answers_ids(c_node['client_id'], c_node['id'], recommendations, False)
+
+            if (debug): print("  -> [" + str(c_node["id"]) + "] = '" + sql + ", " + str(values))
         if (operation == "UPDATE"):
             sql     = "UPDATE Answer SET content=%s WHERE ID=%s"
             values  = (c_node['name'], c_node['id'])
@@ -528,7 +597,7 @@ def iterate_tree_nodes(operation, module_id, c_node, p_node=None, p_p_node=None)
         if (operation == "INSERT"):
             # 1.2. Add link to table [Question_Answer] - Link question and answer together.
             sql     = "INSERT INTO Question_Answer (questionID, answerID) VALUES (%s, %s)"
-            values  = (p_node['scope_id'], c_node['scope_id'])
+            values  = (p_node['id'], c_node['id'])
             modules.utils.db_execute_update_insert(mysql, sql, values)
             if (debug): print("  -> [?] = '" + sql + ", " + str(values))
         if (operation == "UPDATE"):
@@ -551,7 +620,7 @@ def iterate_tree_nodes(operation, module_id, c_node, p_node=None, p_p_node=None)
     try:
         # Recursively iterate 
         for child in c_node['children']:
-            iterate_tree_nodes(operation, module_id, child, c_node, p_node)
+            iterate_tree_nodes(recommendations, operation, module_id, child, c_node, p_node)
     except:
         pass
     return
@@ -569,12 +638,12 @@ def iterate_tree_nodes(operation, module_id, c_node, p_node=None, p_p_node=None)
 def get_children(initial, question, add_recommendations_to_tree):
     children = question['children']
     debug = False
-    if (debug): print("# Parsing question [%s] - %s" % (question['ID'], question['name']))
+    if (debug): print("# Parsing question [%s] - %s" % (question['id'], question['name']))
     # 1. Get answers of the parent question.
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT answer_id, answer FROM View_Question_Answer WHERE question_id=%s", question['ID'])
+        cursor.execute("SELECT answer_id, answer FROM View_Question_Answer WHERE question_id=%s", question['id'])
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -582,7 +651,7 @@ def get_children(initial, question, add_recommendations_to_tree):
     # 1.2. Store, if available, answers of the parent question - An answer is a child of a parent question.
     if (len(res) != 0):
         for row in res:
-            answer = { "ID": row[0], "type": "answer", "name": row[1], "children" : []}
+            answer = { "id": row[0], "type": "answer", "name": row[1], "children" : []}
             children.append(answer)     
     cursor.close() # Clean the house nice & tidy.
 
@@ -599,7 +668,7 @@ def get_children(initial, question, add_recommendations_to_tree):
     for child in children:
         try:
             cursor  = conn.cursor()
-            cursor.execute("SELECT child_id, question, questionOrder, ontrigger FROM View_Question_Childs WHERE parent_id=%s AND ontrigger=%s", (question['ID'], child['ID']))
+            cursor.execute("SELECT child_id, question, questionOrder, ontrigger FROM View_Question_Childs WHERE parent_id=%s AND ontrigger=%s", (question['id'], child['id']))
             res = cursor.fetchall()
         except Exception as e:
             raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -607,13 +676,13 @@ def get_children(initial, question, add_recommendations_to_tree):
         # 3.1. Store it!
         if (len(res) != 0):
             for row in res:
-                s_question = {"ID": row[0], "name": row[1],"type": "question","order": row[2],"trigger": row[3], "children": []}
+                s_question = {"id": row[0], "name": row[1],"type": "question","order": row[2],"trigger": row[3], "children": []}
                 child['children'].append(s_question)
         
         # 3.2. If requested, and a sub-question is no where to be found for the current child, the list of recommendations will be added as children to the current answer.
         else:
             if (add_recommendations_to_tree):
-                recommendations = (views.recommendation.find_recommendations_of_question_answer(question['ID'], child['ID'], True)).json
+                recommendations = (views.recommendation.find_recommendations_of_question_answer(question['id'], child['id'], True)).json
                 # print(str(recommendations))
                 if (recommendations != None): child['children'] = recommendations
             
@@ -623,12 +692,12 @@ def get_children(initial, question, add_recommendations_to_tree):
 
     # Debug
     if (debug):
-        print("<!> Question [%s] ('%s') has the following answers:" % (question['ID'], question['name']))
+        print("<!> Question [%s] ('%s') has the following answers:" % (question['id'], question['name']))
         for answer in children:
             if (answer['type'] == "answer"):
-                print("  -> Answer ID[%d] - %s" % (answer['ID'], answer['name']))
+                print("  -> Answer ID[%d] - %s" % (answer['id'], answer['name']))
                 for s_question in answer['children']:
-                    print("     -> Question ID[%d] - %s" % (s_question['ID'], s_question['name']))
+                    print("     -> Question ID[%d] - %s" % (s_question['id'], s_question['name']))
 
     # 4. Recursive calls and python JSON object construction
     if (len(question['children']) != 0): question.update({"expanded": False})

@@ -63,7 +63,34 @@ def build_sql_instruction(SQL, columns, values, where=None):
     
     return(SQL, values)
 
+
+def db_already_exists(mysql, SQL, values, DEGUG=True): 
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute(SQL, values)
+        print("dldaldaldlal :::: " + SQL + " " + str(values))
+        res = cursor.fetchall()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+    
+    # Check for empty results. 
+    if (len(res) == 0):
+        cursor.close()
+        conn.close()
+        return(False)    
+    else:
+        cursor.close()
+        conn.close()
+        return(True)
+    
+    retur(False)
+
+
+# ID = where=%s, (ID)
 def db_execute_update_insert(mysql, SQL, values, DEBUG=True):
+
+    
     n_id = None
     try:
         conn    = mysql.connect()

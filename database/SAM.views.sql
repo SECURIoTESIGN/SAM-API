@@ -91,6 +91,8 @@ WHERE
 DROP VIEW IF EXISTS View_Question_Answer;
 CREATE VIEW View_Question_Answer AS
 SELECT
+	QA.ID as question_answer_id,
+	--
 	Q.ID as question_id,
 	Q.content as question,
     --

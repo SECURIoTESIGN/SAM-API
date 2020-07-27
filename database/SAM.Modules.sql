@@ -271,7 +271,6 @@ INSERT INTO Question_Answer(questionID, answerID) VALUES (26, 51);
 INSERT INTO Question_Answer(questionID, answerID) VALUES (26, 52);
 INSERT INTO Question_Answer(questionID, answerID) VALUES (26, 53);
 --
-INSERT INTO Question_Answer(questionID, answerID) VALUES (18, 20);
 INSERT INTO Question_Answer(questionID, answerID) VALUES (21, 20);
 INSERT INTO Question_Answer(questionID, answerID) VALUES (26, 20);
 
