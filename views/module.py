@@ -30,7 +30,7 @@ from flask import Flask, abort, request, jsonify, render_template, redirect, url
 from datetime import datetime
 import requests, json, os, copy
 import modules.error_handlers, modules.utils # SAM's modules
-import views.user, views.recommendation, views.question # SAM's views
+import views.user, views.recommendation, views.question, views.dependency # SAM's views
 
 """
 [Summary]: Adds a new Module.
@@ -76,7 +76,7 @@ def add_module():
         iterate_tree_nodes(recommendations, "INSERT", module_id, node)
     
     # Store the mapping of question_answer and recommendations (DB table Recommendation_Question_Answer)
-    # 1. Get the question_answer id primary key value, through [question_id] and [answer_id]    
+    # Get the question_answer id primary key value, through [question_id] and [answer_id]    
     for recommendation in recommendations:
         for question_answer in recommendation['questions_answers']:
             qa_res = views.question.find_question_answers_2(question_answer['question_id'], question_answer['answer_id'], True)
@@ -85,12 +85,11 @@ def add_module():
             if (DEBUG): print("[SAM-API] [POST]/module - question_id = " + str(question_answer['question_id']) + ", answer_id=" + str(question_answer['answer_id']) + " => Question_Answer_id =" + str(qa_res['question_answer_id']))
             question_answer['id'] = qa_res['question_answer_id']
     
-
-    # 2. Add the recommendation with the link between questions and answers
+    # Add the recommendation with the link between questions and answers
     for recommendation in recommendations:
         views.recommendation.add_recommendation(recommendation)
     
-
+    # 'Do, or do not, there is no try.'
     return(modules.utils.build_response_json(request.path, 200, {"id": module_id, "tree": tree}))  
 
 """
@@ -110,18 +109,19 @@ def update_module():
     if (not modules.utils.valid_json(json_data, {"id", "tree"})):
         raise modules.error_handlers.BadRequest(request.path, "Some required key or value is missing from the JSON object", 400)    
     
-    module_id   = json_data['id']
-    tree        = json_data['tree']
+    module_id       = json_data['id']
+    tree            = json_data['tree']
     #
-    shortname   = "shortname" in json_data and json_data['shortname'] or None
-    fullname    = "fullname" in json_data and json_data['fullname'] or None
-    displayname = "displayname" in json_data and json_data['displayname'] or None
-    avatar      = "avatar" in json_data and json_data['avatar'] or None
-    description = "description" in json_data and json_data['description'] or None
-    type_id     = "type_id" in json_data and json_data['type_id'] or None
-    logic       = "logic_filename" in json_data and json_data['logic_filename'] or None
-    createdon   = "createdon" in json_data and json_data['createdon'] or None
-    updatedon   = "updatedon" in json_data and json_data['updatedon'] or None
+    recommendations = "recommendations" in json_data and json_data['recommendations'] or None
+    shortname       = "shortname" in json_data and json_data['shortname'] or None
+    fullname        = "fullname" in json_data and json_data['fullname'] or None
+    displayname     = "displayname" in json_data and json_data['displayname'] or None
+    avatar          = "avatar" in json_data and json_data['avatar'] or None
+    description     = "description" in json_data and json_data['description'] or None
+    type_id         = "type_id" in json_data and json_data['type_id'] or None
+    logic           = "logic_filename" in json_data and json_data['logic_filename'] or None
+    createdon       = "createdon" in json_data and json_data['createdon'] or None
+    updatedon       = "updatedon" in json_data and json_data['updatedon'] or None
     
     # Build the SQL instruction using our handy function to build sql instructions.
     columns = [shortname and "shortname" or None, fullname and "fullname" or None, displayname and "displayname" or None, type_id and "typeID" or None, logic and "logicFilename" or None, avatar and "avatar" or None, description and "description" or None, createdon and "createdon" or None, updatedon and "updatedon" or None]
@@ -132,13 +132,21 @@ def update_module():
     if (DEBUG): print("[SAM-API]: [PUT]/module - " + sql + " => " + str(values))
     
     # Update 
-    modules.utils.db_execute_update_insert(mysql, sql, values)
+    #modules.utils.db_execute_update_insert(mysql, sql, values)
     
     # Iterate the tree of module in order to update questions an answers of the module
     for node in tree:   
         iterate_tree_nodes(recommendations, "UPDATE", module_id, node)
 
+    
+    # Check if there are any recommendation flagged to be removed, to remove is not the recommentation but the mapping of a recommendation to the current module
+    for recommendation in recommendations:
+        flag_remove = "to_remove" in recommendation and recommendation['to_remove'] or None
+        if (flag_remove):
+            views.recommendation.remove_recommendation_of_module(recommendation['id'], module_id, True)
+    
     return(modules.utils.build_response_json(request.path, 200))  
+
 
 """
 [Summary]: Get modules.
@@ -197,9 +205,10 @@ def find_module(ID):
     # 1. Check if the user has permissions to access this resource
     views.user.isAuthenticated(request)
     
-    # 2 Get the tree of the module
-    tree = (get_module_tree(ID, True)).json
-
+    # 2 Get the tree of the module and other relevant information.
+    tree            = (get_module_tree(ID, True))
+    recommendations = (views.recommendation.find_recommendations_of_module(ID, True))
+    dependency      = (views.dependency.find_dependency_of_module(ID, True))
     # 3. Let's get the modules from the database.
     try:
         conn    = mysql.connect()
@@ -229,6 +238,8 @@ def find_module(ID):
             data['createdon']       = row[8]
             data['updatedon']       = row[9]
             data['tree']            = tree
+            data['recommendations'] = recommendations and recommendations or []
+            data['dependency']      = dependency and dependency['depends_on_module_id'] or None
             datas.append(data)
         cursor.close()
         conn.close()
@@ -284,7 +295,10 @@ def get_module_tree(pID, internal_call=False):
             cursor.close()
             conn.close()
             if (len(IDS) == 1):
-                return(modules.utils.build_response_json(request.path, 404)) 
+                if (not internal_call):
+                    return(modules.utils.build_response_json(request.path, 404))
+                else:
+                    return None
             else:
                 continue
         else:
@@ -308,115 +322,23 @@ def get_module_tree(pID, internal_call=False):
              
 
         if (len(IDS) == 1):    
-            # 5. 'May the Force be with you'.
-            return(modules.utils.build_response_json(request.path, 200, data))
+            # 4. 'May the Force be with you'.
+            if (not internal_call):
+                return(modules.utils.build_response_json(request.path, 200, data))
+            else:
+                #del data[request.path]
+                return(data['tree'])
         else:
             datas.append(data)
     
-
-    return(modules.utils.build_response_json(request.path, 200, datas))
-
-
-    IDS = []
-    if request.method != 'GET': return
-
-    # 1. Check if the user has permissions to access this resource
-    views.user.isAuthenticated(request)
-
-    # 1.1. Check if the user needs information about all modules available on the database.
-    if (pID.lower() == "all"):
-        try:
-            conn    = mysql.connect()
-            cursor  = conn.cursor()
-            cursor.execute("SELECT ID FROM Module ORDER BY ID ASC")
-            res = cursor.fetchall()
-            if (len(res) != 0):
-                for row in res:
-                    IDS.append(int(row[0]))
-            cursor.close()
-            conn.close()
-        except Exception as e:
-            raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+    # 4. 'May the Force be with you'.
+    if (not internal_call):
+        return(modules.utils.build_response_json(request.path, 200, datas))
     else:
-        IDS.append(pID)
+        del datas[request.path]
+        print("### = " + str(datas['tree']))
+        return(datas['tree'])
 
-    datas = []
-    for ID in IDS:
-        print(" Processing Data of Module " + str(ID))
-        # 2. Let's get info about the selected module.
-        try:
-            conn    = mysql.connect()
-            cursor  = conn.cursor()
-            cursor.execute("SELECT module_id, module_displayname, question_id, question, questionorder FROM View_Module_Question WHERE module_id = %s", ID)
-            res = cursor.fetchall()
-        except Exception as e:
-            raise modules.error_handlers.BadRequest(request.path, str(e), 500)
-        
-        # 2.2. Check for empty results - 'Fasten your seatbelts. It's going to be a bumpy night'.
-        if (len(res) == 0):
-            cursor.close()
-            conn.close()
-            if (len(IDS) == 1):
-                return(modules.utils.build_response_json(request.path, 404)) 
-            else:
-                continue
-        else:
-            # 2.2.1. The initial set of the information about the module.
-            for row in res: 
-                data = {"id": row[0], "name": row[1]}
-                break
-            # 2.2.2. Map questions of the module to a JSON Python Object (dic).
-            questions = []
-            for row in res:
-                question = {"id": row[2], "name": row[3], "order": row[4]}
-                questions.append(question)
-            data.update({"questions":  questions})
-
-            cursor.close()
-            conn.close()
-        
-        # 3. Let's get the answers of each, previously found, question.
-        for question in data['questions']:
-            try:
-                conn    = mysql.connect()
-                cursor  = conn.cursor()
-                cursor.execute("SELECT answer_id, answer FROM View_Question_Answer WHERE question_id = %s", question['id'])
-                res = cursor.fetchall()
-            except Exception as e:
-                raise modules.error_handlers.BadRequest(request.path, str(e), 500)
-            # 3.1. 'déjà vu'.
-            if (len(res) == 0):
-                if (conn.open):
-                    cursor.close()
-                    conn.close()
-                # return(modules.utils.build_response_json(request.path, 404))    
-            else:
-                answers = []
-                for row in res:
-                    answer = { "id": row[0], "name": row[1]}
-                    answers.append(answer)
-                question.update({"answers": answers})
-            if (conn.open):
-                cursor.close()
-                conn.close()
-
-        # 4. Recursively get each question child and corresponding data (question, answer, and so on).
-        for question in data['questions']: 
-            childs = []
-            get_children(True, childs, question)
-            # 4.1. Update the current question JSON python object (dic) with childs (i.e., sub-questions).
-            question.update({"childs": childs})
-
-        if (len(IDS) == 1):    
-            # 5. 'May the Force be with you'.
-            return(modules.utils.build_response_json(request.path, 200, data))
-        else:
-            datas.append(data)
-    
-        if (not internal_call):
-            return(modules.utils.build_response_json(request.path, 200, datas))
-        else:
-            return(datas)
 
 """
 [Summary]: Auxiliary function to check if a subquestion is no longer linked to parent one. 
@@ -472,7 +394,6 @@ def parent_changed(question_id, answer_id):
         return(False)
 
 
-
 """
 [Summary]: When a new question or answer is added on the client side an ID is generated for each one. After that, the user is required to add recommendations. 
            These recommendations will be given taking into account if the user has selected a set of answers to a set of questions. The mapping of questions and 
@@ -493,6 +414,7 @@ def update_questions_answers_ids(client_id, database_id, recommendations, is_que
             print("[SAM-API] update_questions_answers_ids() => Trying to find client_question_id = " + str(client_id) + " in recommendations list.")
             
     for recommendation in recommendations:
+        # if ("questions_answers" not in recommendation): continue
         for question_answer in recommendation['questions_answers']:
             # Update the questions to the real ID
             if (is_question):
@@ -509,7 +431,7 @@ def update_questions_answers_ids(client_id, database_id, recommendations, is_que
                         print("[SAM-API] update_questions_answers_ids() => Found it, updating node = " + str(question_answer))
 
 """
-[Summary]: Iterates the module tree that contains the mapping of questions and answers. This is an auxiliary function of add_module().
+[Summary]: Iterates the module tree that contains the mapping of questions and answers. This is an auxiliary function of add_module() and update_module().
 [Arguments]:
     - $module_id$: Id of the newly created module.
     - $node$:  current node of the tree being processed. 
@@ -521,30 +443,39 @@ def iterate_tree_nodes(recommendations, operation, module_id, c_node, p_node=Non
     print("[SAM-API] Processing current node = '"+ str(c_node['name'])+"'")
     operation = operation.upper()
 
+    # In the case of an UPDATE operation, we need to check if this question is available on the database; if not, 
+    # this means that the user has added a new question/answer and the values are in need of being processed with an INSERT operation.
+    # ---> We need to change the operation from UPDATE TO INSERT after encountering this situation. 
+    # ---> We can check if a question/answer is NOT available on the database if c_node['id'] == null
+    if (operation == "UPDATE" and (not c_node['id'])): 
+        operation = "INSERT"
+
     # 1. Check if the current node is a question or an answer.
     if (c_node["type"] == "question"): 
+        
         # 1.1. Add or update question - Table [Question].
         if (operation == "INSERT"):
             sql     = "INSERT INTO Question (content) VALUES (%s)"
             values  = c_node['name']
             exists_flag = False
-            try: exists_flag = modules.utils.db_already_exists(mysql, "SELECT id FROM Question WHERE id=%s", c_node['id'])
-            except: pass
-            if (not exists_flag):
+            # Check if the question already exists (i.e. if c_node['id'] == null)
+            if (not c_node['id']):
                 c_node.update({"id": modules.utils.db_execute_update_insert(mysql, sql, values)})
                 # By knowing the client_id update recommendations questions and answers to the database id (c_node['id']).
                 update_questions_answers_ids(c_node['client_id'], c_node['id'], recommendations, True)
 
             if (debug): print("  -> [" + str(c_node["id"]) + "] = '" + sql + ", " + str(values))
         if (operation == "UPDATE"):
-            sql     = "UPDATE Question SET content=%s WHERE ID=%s"
-            values  = (c_node['name'], c_node['id'])
-            if (debug): print("  -> [" + str(c_node["id"]) + "] = '" + sql + ", " + str(values))
-            modules.utils.db_execute_update_insert(mysql, sql, values)
-
+            if (c_node['id']):
+                sql     = "UPDATE Question SET content=%s WHERE ID=%s"
+                values  = (c_node['name'], c_node['id'])
+                if (debug): print("  -> [" + str(c_node["id"]) + "] = '" + sql + ", " + str(values))
+                modules.utils.db_execute_update_insert(mysql, sql, values)
+            else:
+                print("[SAN] The question does not exist in the database.")
         
         # 1.2. Add link to table [Module_Question] - Link question and the module together.
-        # Be aware, that child questions are not added to this table. That is, questions that are triggered by an answer.
+        # Be aware, that child questions are not added to this table. That is, only questions are mapped to modules.
         if (p_node is None):
             if (operation == "INSERT"):
                 sql     = "INSERT INTO Module_Question (moduleID, questionID, questionOrder) VALUES (%s, %s, %s)"
@@ -556,11 +487,13 @@ def iterate_tree_nodes(recommendations, operation, module_id, c_node, p_node=Non
         # Knowing that the current node is a parent, this is accomplish by checking if the parent was an answer. 
         if (p_node != None):
             if (p_node['type'] == "answer"): 
+
                 if (operation == "INSERT"):
                     sql     = "INSERT INTO Question_has_Child (parent, child, ontrigger, questionOrder) VALUES (%s, %s, %s, %s)"
                     values  = (p_p_node['id'], c_node['id'], p_node['id'], 0)
                     modules.utils.db_execute_update_insert(mysql, sql, values)
                     if (debug): print("  -> [?] = '" + sql + ", " + str(values))
+                
                 if (operation == "UPDATE"):
                     if (subquestion_parent_changed(p_p_node['id'], c_node['id'], p_node['id'])):
                         if (debug): print("  -> [?] New Link detected")
@@ -580,14 +513,14 @@ def iterate_tree_nodes(recommendations, operation, module_id, c_node, p_node=Non
             sql     = "INSERT INTO Answer (content) VALUES (%s)"
             values  = c_node['name']
             exists_flag = False
-            try: exists_flag = modules.utils.db_already_exists(mysql, "SELECT id FROM Answer WHERE id=%s", c_node['id'])
-            except: pass
-            if (not exists_flag):
+            # Check if the answer already exists (i.e. if c_node['id'] == null)
+            if (not c_node['id']):
                 c_node.update({"id": modules.utils.db_execute_update_insert(mysql, sql, values)}) # Store the ID of the newly created answer.
                 # By knowing the client_id update recommendations questions and answers to the database id (c_node['id']).
                 update_questions_answers_ids(c_node['client_id'], c_node['id'], recommendations, False)
 
             if (debug): print("  -> [" + str(c_node["id"]) + "] = '" + sql + ", " + str(values))
+        
         if (operation == "UPDATE"):
             sql     = "UPDATE Answer SET content=%s WHERE ID=%s"
             values  = (c_node['name'], c_node['id'])

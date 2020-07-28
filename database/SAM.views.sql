@@ -1,5 +1,52 @@
 USE SAM;
 
+-- View_Module_Recommendations: Get the recommendations mapped to a module.
+DROP VIEW IF EXISTS View_Module_Recommendations;
+CREATE VIEW View_Module_Recommendations AS
+SELECT DISTINCT
+	M.ID as module_ID,
+    R.ID as recommendation_ID,
+    R.content as recommendation_content,
+    R.createdon,
+    R.updatedon
+FROM 
+	Module as M,
+    Module_Question as MQ,
+    Question as Q,
+    Question_Answer as QA,
+    Recommendation_Question_Answer as RQA,
+    Recommendation as R
+WHERE
+	M.ID = MQ.moduleID AND MQ.questionID = Q.ID AND 
+    Q.ID = QA.questionID AND
+    RQA.questionAnswerID = QA.ID AND RQA.recommendationID = R.ID;
+    
+
+-- View_Module_Recommendations: Get the recommendations, questions and answers mapped to a module.
+DROP VIEW IF EXISTS View_Module_Recommendations_Questions_Answers;
+CREATE VIEW View_Module_Recommendations_Questions_Answers AS
+SELECT DISTINCT
+	M.ID as module_ID,
+    R.ID as recommendation_ID,
+    R.content as recommendation_content,
+    RQA.id as recommendation_question_answer_ID,
+    QA.questionID as question_id,
+    QA.answerID as answer_id,
+    RQA.createdon,
+    RQA.updatedon
+FROM 
+	Module as M,
+    Module_Question as MQ,
+    Question as Q,
+    Question_Answer as QA,
+    Recommendation_Question_Answer as RQA,
+    Recommendation as R
+WHERE
+	M.ID = MQ.moduleID AND MQ.questionID = Q.ID AND 
+    Q.ID = QA.questionID AND
+    RQA.questionAnswerID = QA.ID AND RQA.recommendationID = R.ID;
+
+
 -- View_User_Group: Get groups of user
 DROP VIEW IF EXISTS View_User_Group;
 CREATE VIEW View_User_Group AS
@@ -21,12 +68,15 @@ U.ID = UG.userID;
 DROP VIEW IF EXISTS View_Module_Dependency;
 CREATE VIEW View_Module_Dependency AS
 SELECT
+	D.ID as dependency_ID,
 	D.moduleID as module_id,
     M.shortname as module_shortname,
     M.fullname as module_name,
     M.displayname as display,
     --
-    D.dependsOn as depends_module_id
+    D.dependsOn as depends_module_id,
+    D.createdon,
+    D.updatedon
 FROM 
 	Module as M, Dependency as D
 WHERE 

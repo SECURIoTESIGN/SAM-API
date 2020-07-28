@@ -26,15 +26,27 @@
 """
 import time, hashlib, uuid, flask, json, codecs, os
 from flask import jsonify
+import modules.error_handlers
 
-# ONLY FOR INSERT AND UPDATE
-# builds sql instruction with columns that may or may not be defined and purge None values from the values inputted.
-# SQL = Barebones sql instruction, for example "INSERT INTO User"
-# columns = list of columns that may containg None values, in this case the column is not included in the SQL instruction. eg ["username", "password"]
-# Use example where updatedon maybe null:  values = (content, description, guide, createdon, updatedon)
-# sql = modules.utils.build_sql_instruction("INSERT INTO Recommendation", ["content", "description", "guideFilename", "createdon", updatedon and "updatedon" or None], values)
-# where sql instruction for update calls
-# RETURNS: the sql instruciton and values to be feed into db_execute_update_insert
+"""
+[Summary]: Outputs a message to the terminal.
+"""
+def console_log(function_name, message, exception=False):
+  if (not exception):
+    print("[SAM-API] " + function_name + "() => '" + message + "'")
+  else:
+    print("[SAM-API] " + function_name + "() => Exception error : '" + message + "'")
+
+"""
+[Summary]: Builds SQL INSERT or UPDATE instruction with columns that may or may not be defined. None values are also purged from the values inputted.
+[Arguments]:
+       - $SQL$: Barebones SQL instruction. For example, "INSERT INTO User"
+       - $columns$: List of columns that may containg None values, in this case the column is not included in the SQL instruction (e.g., ["username", "password"]).
+       - $values$: List of values of the SQL instruction.
+[Usage Example]: 
+       sql = modules.utils.build_sql_instruction("INSERT INTO Recommendation", ["content", "description", "guideFilename", "createdon", updatedon and "updatedon" or None], values)
+[Returns]: The final SQL instruction to be feed into the db_execute_update_insert() function.
+"""
 def build_sql_instruction(SQL, columns, values, where=None):
     values                      = [i for i in values if i] # If exists, remove None values.
     columns                     = [i for i in columns if i] # If exists, remove None values.
@@ -63,16 +75,25 @@ def build_sql_instruction(SQL, columns, values, where=None):
     
     return(SQL, values)
 
-
+"""
+[Summary]: Check if an entry exists on the database
+[Arguments]:
+       - $SQL$: Barebones SQL instruction. For example, "INSERT INTO User"
+       - $columns$: List of columns of the table.
+       - $values$: List of values of the SQL instruction.
+[Returns]: True if exists, false otherwise.
+"""
 def db_already_exists(mysql, SQL, values, DEGUG=True): 
+    DEBUG = True
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
+        if (DEBUG): console_log("db_already_exists", "SQL=" + SQL + " | values=" + str(values))
         cursor.execute(SQL, values)
-        print("dldaldaldlal :::: " + SQL + " " + str(values))
         res = cursor.fetchall()
     except Exception as e:
-        raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+        console_log("db_already_exists", str(e), True)
+        return(False)
     
     # Check for empty results. 
     if (len(res) == 0):
@@ -86,11 +107,15 @@ def db_already_exists(mysql, SQL, values, DEGUG=True):
     
     retur(False)
 
-
-# ID = where=%s, (ID)
+"""
+[Summary]: Executes a SQL INSERT or UPDATE instruction
+[Arguments]:
+       - $SQL$: Barebones SQL instruction. For example, "INSERT INTO User"
+       - $columns$: List of columns of the table.
+       - $values$: List of values of the SQL instruction.
+[Returns]: If it is an SQL Insert operation then the return value is the id of the last created entry. 
+"""
 def db_execute_update_insert(mysql, SQL, values, DEBUG=True):
-
-    
     n_id = None
     try:
         conn    = mysql.connect()
@@ -100,7 +125,7 @@ def db_execute_update_insert(mysql, SQL, values, DEBUG=True):
         if ( (str(SQL.lower()).find("insert")) != -1): n_id = conn.insert_id()
         conn.commit()
     except Exception as e:
-        if (DEBUG): print("[SAM-API] Database - " + e)
+        console_log("db_execute_update_insert", str(e), True)
         raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
     finally:
         cursor.close()
@@ -147,8 +172,6 @@ def build_response_json(route, status, data={}):
         # print(data)
         return jsonify({route : data})
     
-    
-
 
 """ 
 [Summary]: Hash a password with some salt

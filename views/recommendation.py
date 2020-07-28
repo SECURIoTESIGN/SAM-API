@@ -268,6 +268,130 @@ def find_recommendations_of_question_answer(question_id, answer_id, internal_cal
         else:
             return(modules.utils.build_response_json(request.path, 200, datas)) 
 
+"""
+[Summary]: Finds the recommendations of a module
+[Returns]: Response result.
+"""
+@app.route('/recommendations/module/<module_id>', methods=['GET'])
+def find_recommendations_of_module(module_id, internal_call=False):
+    if request.method != 'GET': return
+    # Check if the user has permissions to access this resource
+    if (not internal_call): views.user.isAuthenticated(request)
+    
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("SELECT recommendation_ID, recommendation_content, createdon, updatedon FROM View_Module_Recommendations WHERE module_id=%s", module_id)
+        res = cursor.fetchall()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
+
+    # Check for empty results 
+    if (len(res) == 0):
+        cursor.close()
+        conn.close()
+        return(None)    
+    else:
+        recommendations = [] # Create a new nice empty array of dictionaries to be populated with data from the DB.
+        for row in res:
+            recommendation = {}
+            recommendation['id']                  = row[0]
+            recommendation['content']             = row[1]
+            recommendation['createdon']           = row[2]
+            recommendation['updatedon']           = row[3]
+            recommendations.append(recommendation)
+    
+    # Find questions and answers associated or mapped to a particular recommendation and module
+    for recommendation in recommendations:
+        recommendation_id = recommendation['id']
+        try:
+            cursor  = conn.cursor()
+            cursor.execute("SELECT recommendation_question_answer_id, question_id, answer_id, createdon, updatedon FROM View_Module_Recommendations_Questions_Answers WHERE module_id=%s and recommendation_id=%s", (module_id, recommendation_id))
+            res = cursor.fetchall()
+        except Exception as e:
+            raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+        if (len(res) != 0):
+            questions_answers = []
+            for row in res:
+                question_answer = {}
+                question_answer['id']          = row[0]
+                question_answer['question_id'] = row[1]
+                question_answer['answer_id']   = row[2]
+                question_answer['createdon']   = row[3]
+                question_answer['updatedon']   = row[4]
+                questions_answers.append(question_answer)
+            cursor.close()
+            recommendation['questions_answers'] = questions_answers
+    
+    # 'May the Force be with you, young master'.
+    conn.close()
+    if (internal_call):
+        return(recommendations)
+    else:
+        return(modules.utils.build_response_json(request.path, 200, recommendations)) 
+
+
+"""
+[Summary]: Removes the mapping between a module and its recommendations.
+[Returns]: Returns a reponse object.
+"""
+@app.route('/recommendations/module/<module_id>', methods=['DELETE'])
+def remove_recommendations_of_module(module_id, internal_call=False):
+    if not internal_call:
+        if request.method != 'DELETE': return
+
+    # Check if the user has permissions to access this resource
+    if (not internal_call): views.user.isAuthenticated(request)
+   
+    # 2. Connect to the database and delete the resource
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("DELETE FROM recommendation_question_answer WHERE ID IN (SELECT recommendation_question_answer_ID From View_Module_Recommendations_Questions_Answers where module_id=%s);", module_id)
+        conn.commit()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
+    finally:
+        cursor.close()
+        conn.close()
+    
+    # The Delete request was a success, the user 'took the blue pill'.
+    if (not internal_call):
+        return (modules.utils.build_response_json(request.path, 200))
+    else:
+        return(True)
+
+
+"""
+[Summary]: Removes the mapping of a module and a recommendation.
+[Returns]: Returns a reponse object.
+"""
+@app.route('/recommendation/<recommendation_id>/module/<module_id>', methods=['DELETE'])
+def remove_recommendation_of_module(recommendation_id, module_id, internal_call=False):
+    if not internal_call:
+        if request.method != 'DELETE': return
+
+    # Check if the user has permissions to access this resource
+    if (not internal_call): views.user.isAuthenticated(request)
+   
+    # 2. Connect to the database and delete the resource
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("DELETE FROM recommendation_question_answer WHERE ID IN (SELECT recommendation_question_answer_ID From View_Module_Recommendations_Questions_Answers where module_id=%s AND recommendation_id=%s);", (module_id, recommendation_id))
+        conn.commit()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
+    finally:
+        cursor.close()
+        conn.close()
+    
+    # The Delete request was a success, the user 'took the blue pill'.
+    if (not internal_call):
+        return (modules.utils.build_response_json(request.path, 200))
+    else:
+        return(True)
+
 
 """
 [Summary]: Adds a recommendation to a session based on one or more answers given. 

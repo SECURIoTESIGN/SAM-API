@@ -324,6 +324,7 @@ ALTER TABLE Dependency AUTO_INCREMENT = 1;
 INSERT INTO Dependency (moduleID, dependsOn) VALUES (3, 1);
 
 
+
 -- #####################################################################
 -- # Insert recommendations / outputs of each module according to the set of answers given to a set of questions.
 -- # Incomplete!

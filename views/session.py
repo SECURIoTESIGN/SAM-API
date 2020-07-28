@@ -259,7 +259,7 @@ def find_session_closed(ID, internal_call=False):
 
 
 """
-[Summary]: Finds a session by ID (open or closed)
+[Summary]: Finds a session by ID (opened or closed)
 [Returns]: Returns response result.
 """
 @app.route('/session/<ID>', methods=['GET'])

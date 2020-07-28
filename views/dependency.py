@@ -192,7 +192,51 @@ def find_dependency(ID):
         return(modules.utils.build_response_json(request.path, 200, datas)) 
 
 """
-[Summary]: Delete a type.
+[Summary]: Finds a dependency of a module
+[Returns]: Response result.
+"""
+@app.route('/dependency/module/<ID>', methods=['GET'])
+def find_dependency_of_module(ID, internal_call=False):
+    if request.method != 'GET': return
+
+    # 1. Check if the user has permissions to access this resource
+    if (not internal_call): views.user.isAuthenticated(request)
+
+    # 2. Let's get the answeers for the question from the database.
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("SELECT dependency_id, depends_module_id, createdOn, updatedOn FROM View_Module_Dependency WHERE module_ID=%s", ID)
+        res = cursor.fetchall()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+    
+    # 2.2. Check for empty results 
+    if (len(res) == 0):
+        cursor.close()
+        conn.close()
+        if (not internal_call):
+            return(modules.utils.build_response_json(request.path, 404)) 
+        else:
+            return None
+    else:
+        data = {}
+        for row in res:
+            data['id']                      = row[0]
+            data['depends_on_module_id']    = row[1]
+            data['createdon']               = row[2]
+            data['updatedon']               = row[3]
+        cursor.close()
+        conn.close()
+        
+        # 3. 'May the Force be with you, young master'.
+        if (not internal_call): 
+            return(modules.utils.build_response_json(request.path, 200, data)) 
+        else:
+            return(data)
+
+"""
+[Summary]: Delete a dependency.
 [Returns]: Returns a success or error response
 """
 @app.route('/dependency/<ID>', methods=["DELETE"])
@@ -201,7 +245,7 @@ def delete_dependency(ID):
     # 1. Check if the user has permissions to access this resource
     views.user.isAuthenticated(request)
 
-    # 2. Connect to the database and delete the user
+    # 2. Connect to the database and delete the resource
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
