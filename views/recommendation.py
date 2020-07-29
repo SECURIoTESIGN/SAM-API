@@ -39,10 +39,12 @@ import views.user # SAM's views
 @app.route('/recommendation', methods=['POST'])
 def add_recommendation(internal_json=None):
     DEBUG=True
-    if (request.method != 'POST' and (internal_json is not None)): return
+    if (internal_json is None):
+        if (request.method != 'POST'): return
+    
     # Check if the user has permissions to access this resource
-    views.user.isAuthenticated(request)
-
+    if (internal_json is None): views.user.isAuthenticated(request)
+   
     if (internal_json is None):
         json_data = request.get_json()
     else:
@@ -56,19 +58,17 @@ def add_recommendation(internal_json=None):
             return(None)
     
     # Validate if the necessary data is on the provided JSON
+    # Check if the recommendation [id] is null. If not null, it means the module was previsoulyed added and we just need to add the question_answers mapping to table [recommendation_question_answer].
     if (json_data['id'] is None):
         if (not modules.utils.valid_json(json_data, {"content", "description"})):
             raise modules.error_handlers.BadRequest(request.path, "Some required key or value is missing from the JSON object", 400)    
-
-    content         = json_data['content']
-    description     = json_data['description']
-    guide           = "guide"     in json_data and json_data['guide']     or None
-    createdon       = "createdon" in json_data and json_data['createdon'] or None
-    updatedon       = "updatedon" in json_data and json_data['updatedon'] or None
+        
+        content         = json_data['content']
+        description     = json_data['description']
+        guide           = "guide"     in json_data and json_data['guide']     or None
+        createdon       = "createdon" in json_data and json_data['createdon'] or None
+        updatedon       = "updatedon" in json_data and json_data['updatedon'] or None
     
-
-    # Check if the recommendation [id] is null. If not null, it means the module was previsoulyed added and we just need to add the question_answers mapping to table [recommendation_question_answer].
-    if (json_data['id'] is None):
         # Build the SQL instruction using our handy function to build sql instructions.
         values = (content, description, guide, createdon, updatedon)
         sql, values = modules.utils.build_sql_instruction("INSERT INTO Recommendation", ["content", "description", guide and "guidefilename" or None, createdon and "createdon" or None, updatedon and "updatedon" or None], values)
@@ -80,10 +80,10 @@ def add_recommendation(internal_json=None):
             if (internal_json is None):
                 return(modules.utils.build_response_json(request.path, 400))  
             else:
-                return(None)
+                return("None")
     else:
         recommendation_id = json_data['id']
-    
+ 
     # This recommendation is given if a question answer association is defined.
     # question_answer_id is a column in table "Recommendation_Question_Answer"
     questions_answers = "questions_answers" in json_data and json_data['questions_answers'] or None
@@ -96,8 +96,8 @@ def add_recommendation(internal_json=None):
     # Build the SQL instruction using our handy function to build sql instructions.
     for question_answer in questions_answers: 
         question_answer_id = question_answer['id']
-        columns = ["recommendationID", "questionAnswerID", createdon and "createdon" or None, updatedon and "updatedon" or None] 
-        values  = (recommendation_id, question_answer_id, createdon, updatedon)
+        columns = ["recommendationID", "questionAnswerID"] 
+        values  = (recommendation_id, question_answer_id)
         sql, values = modules.utils.build_sql_instruction("INSERT INTO Recommendation_Question_Answer", columns, values)
         if (DEBUG): print("[SAM-API]: [POST]/recomendation - " + sql + " " + str(values))
         # Add

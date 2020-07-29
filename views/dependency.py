@@ -30,26 +30,40 @@ from flask import Flask, abort, request, jsonify, render_template, redirect, url
 from datetime import datetime
 import requests, json, os
 import modules.error_handlers, modules.utils # SAM's modules
-import views.user # SAM's views
+import views.user, views.module # SAM's views
 
 """
 [Summary]: Adds a new dependency to the database.
 [Returns]: Response result.
 """
 @app.route('/dependency', methods=['POST'])
-def add_dependency():
+def add_dependency(json_internal_data=None, internal_call=False):
     DEBUG=True
-    if request.method != 'POST': return
+    if (not internal_call):
+        if request.method != 'POST': return
+    
     # Check if the user has permissions to access this resource
-    views.user.isAuthenticated(request)
+    if (not internal_call): views.user.isAuthenticated(request)
 
-    json_data = request.get_json()
+    if (not internal_call):
+        json_data = request.get_json()
+    else:
+        json_data = json_internal_data
+
     # If the mimetype does not indicate JSON (application/json, see is_json()), this returns None.
-    if (json_data is None): return(modules.utils.build_response_json(request.path, 400)) 
-
+    if (json_data is None): 
+        if (not internal_call):
+            return(modules.utils.build_response_json(request.path, 400))
+        else:
+            modules.utils.console_log("[POST]/dependency", "json_data is None")
+            return(None)
+   
     # Validate if the necessary data is on the provided JSON 
     if (not modules.utils.valid_json(json_data, {"module_id", "depends_on"})):
-        raise modules.error_handlers.BadRequest(request.path, "Some required key or value is missing from the JSON object", 400)    
+        if (not internal_call):
+            raise modules.error_handlers.BadRequest(request.path, "Some required key or value is missing from the JSON object", 400)    
+        else:
+            modules.utils.console_log("[POST]/dependency", "Some required key or value is missing from the JSON object")
 
     module_id   = json_data['module_id']
     depends_on  = json_data['depends_on']
@@ -60,56 +74,87 @@ def add_dependency():
     values  = (module_id, depends_on, createdon, updatedon)
     columns = ["moduleID", "dependsOn", createdon and "createdon" or None, updatedon and "updatedon" or None]
     sql, values = modules.utils.build_sql_instruction("INSERT INTO dependency", columns, values)
-    if (DEBUG): print("[SAM-API]: [POST]/dependency - " + sql)
+    if (DEBUG): modules.utils.console_log("[POST]/dependency", sql)
 
     # Add
     n_id = modules.utils.db_execute_update_insert(mysql, sql, values)
+
     if (n_id is None):
-        return(modules.utils.build_response_json(request.path, 400))  
+        if (not internal_call):
+            return(modules.utils.build_response_json(request.path, 400))
+        else:
+            return(None)
     else:
-        return(modules.utils.build_response_json(request.path, 200, {"id": n_id}))
+        if (not internal_call):
+            return(modules.utils.build_response_json(request.path, 200, {"id": n_id}))
+        else:
+            return(n_id)
 
 """
 [Summary]: Updates a dependency.
 [Returns]: Response result.
 """
 @app.route('/dependency', methods=['PUT'])
-def update_dependency():
+def update_dependency(json_internal_data=None, internal_call=False):
     DEBUG=True
-    if request.method != 'PUT': return
+    if (not internal_call):
+        if request.method != 'PUT': return
+    
     # Check if the user has permissions to access this resource
-    views.user.isAuthenticated(request)
+    if (not internal_call): views.user.isAuthenticated(request)
 
-    json_data = request.get_json()
+    if (not internal_call):
+        json_data = request.get_json()
+    else:
+        json_data = json_internal_data
+    
     # If the mimetype does not indicate JSON (application/json, see is_json()), this returns None.
-    if (json_data is None): return(modules.utils.build_response_json(request.path, 400)) 
+    if (json_data is None): 
+        if (not internal_call):
+            return(modules.utils.build_response_json(request.path, 400)) 
+        else:
+            modules.utils.console_log("[PUT]/dependency", "json_data is None")
+            return(None)
 
+    dependency_id_available = True
     # Validate if the necessary data is on the provided JSON 
     if (not modules.utils.valid_json(json_data, {"id"})):
-        raise modules.error_handlers.BadRequest(request.path, "Some required key or value is missing from the JSON object", 400)    
+        dependency_id_available = False
+        if (not modules.utils.valid_json(json_data, {"module_id", "depends_on", "p_depends_on"})):
+            raise modules.error_handlers.BadRequest(request.path, "Some required key or value is missing from the JSON object", 400)    
+        
 
-    module_id   = "module_id"   in json_data and json_data['module_id'] or None
-    depends_on  = "depends_on"  in json_data and json_data['depends_on'] or None
-    createdon   = "createdon"   in json_data and json_data['createdon'] or None
-    updatedon   = "updatedon"   in json_data and json_data['updatedon'] or None
+    module_id     = "module_id"     in json_data and json_data['module_id'] or None
+    depends_on    = "depends_on"    in json_data and json_data['depends_on'] or None     # New dependency
+    p_depends_on  = "p_depends_on"  in json_data and json_data['p_depends_on'] or None   # Previous dependency
+    createdon     = "createdon"     in json_data and json_data['createdon'] or None
+    updatedon     = "updatedon"     in json_data and json_data['updatedon'] or None
 
-    # If the mimetype does not indicate JSON (application/json, see is_json()), this returns None.
-    if (json_data is None): return(modules.utils.build_response_json(request.path, 400)) 
-
+    # IF required, get the ID of the dependency taking into account the id of the module and the id of the module that it depends on.
+    if (not dependency_id_available):
+        json_tmp = find_dependency_of_module_2(module_id, p_depends_on, True)
+        if (not json_tmp):
+            raise modules.error_handlers.BadRequest(request.path, "Some required key or value is missing from the temporary JSON object", 400)    
+        json_data['id'] = json_tmp['id']
+    
     # Build the SQL instruction using our handy function to build sql instructions.
     values  = (module_id, depends_on, createdon, updatedon)
     columns = [module_id and "moduleID" or None, depends_on and "dependsOn" or None, createdon and "createdon" or None, updatedon and "updatedOn" or None]
     where   = "WHERE id="+str(json_data['id'])
+
     # Check if there is anything to update (i.e. frontend developer has not sent any values to update).
     if (len(values) == 0): return(modules.utils.build_response_json(request.path, 200))   
 
     sql, values = modules.utils.build_sql_instruction("UPDATE dependency", columns, values, where)
-    if (DEBUG): print("[SAM-API]: [PUT]/dependency - " + sql + " " + str(values))
+    if (DEBUG): modules.utils.console_log("[PUT]/dependency", sql + " " + str(values))
 
-    # Update Recommendation
+    # Update resource
     modules.utils.db_execute_update_insert(mysql, sql, values)
 
-    return(modules.utils.build_response_json(request.path, 200))
+    if (not internal_call):
+        return(modules.utils.build_response_json(request.path, 200))
+    else:
+        return(True)
 
 """
 [Summary]: Get dependencies.
@@ -197,7 +242,8 @@ def find_dependency(ID):
 """
 @app.route('/dependency/module/<ID>', methods=['GET'])
 def find_dependency_of_module(ID, internal_call=False):
-    if request.method != 'GET': return
+    if (not internal_call):
+        if request.method != 'GET': return
 
     # 1. Check if the user has permissions to access this resource
     if (not internal_call): views.user.isAuthenticated(request)
@@ -220,10 +266,66 @@ def find_dependency_of_module(ID, internal_call=False):
         else:
             return None
     else:
+        datas = []
+        for row in res:
+            data = {}
+            data['id']                      = row[0]
+            t_module = views.module.find_module(row[1], True)
+            module = {}
+            module['id']                    = t_module[0]['id']
+            module['fullname']              = t_module[0]['fullname']
+            module['displaname']            = t_module[0]['displayname']
+            module['shortname']             = t_module[0]['shortname']
+            data['module']                  = module
+            data['createdon']               = row[2]
+            data['updatedon']               = row[3]
+            datas.append(data)
+        cursor.close()
+        conn.close()
+        
+        # 3. 'May the Force be with you, young master'.
+        if (not internal_call): 
+            return(modules.utils.build_response_json(request.path, 200, datas)) 
+        else:
+            return(datas)
+
+
+"""
+[Summary]: Finds a dependency of a module, taking as arguments the id of the current module and the id of the module that it depends on.
+[Returns]: Response result.
+"""
+@app.route('/dependency/module/<module_id>/depends/<depends_on_module_id>', methods=['GET'])
+def find_dependency_of_module_2(module_id, depends_on_module_id, internal_call=False):
+    if (not internal_call):
+        if request.method != 'GET': return
+
+    # 1. Check if the user has permissions to access this resource
+    if (not internal_call): views.user.isAuthenticated(request)
+
+    # 2. Let's get the answeers for the question from the database.
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        print("--->" + "SELECT dependency_id, module_id, depends_module_id, createdOn, updatedOn FROM View_Module_Dependency WHERE module_ID=%s AND depends_module_id=%s", (module_id, depends_on_module_id))
+        cursor.execute("SELECT dependency_id, module_id, depends_module_id, createdOn, updatedOn FROM View_Module_Dependency WHERE module_ID=%s AND depends_module_id=%s", (module_id, depends_on_module_id))
+        res = cursor.fetchall()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+    
+    # 2.2. Check for empty results 
+    if (len(res) == 0):
+        cursor.close()
+        conn.close()
+        if (not internal_call):
+            return(modules.utils.build_response_json(request.path, 404)) 
+        else:
+            return None
+    else:
         data = {}
         for row in res:
             data['id']                      = row[0]
-            data['depends_on_module_id']    = row[1]
+            data['module_id']               = row[1]
+            data['depends_on_module_id']    = row[2]
             data['createdon']               = row[2]
             data['updatedon']               = row[3]
         cursor.close()
@@ -235,21 +337,24 @@ def find_dependency_of_module(ID, internal_call=False):
         else:
             return(data)
 
+
 """
-[Summary]: Delete a dependency.
+[Summary]: Delete a dependency by id.
 [Returns]: Returns a success or error response
 """
-@app.route('/dependency/<ID>', methods=["DELETE"])
-def delete_dependency(ID):
-    if request.method != 'DELETE': return
-    # 1. Check if the user has permissions to access this resource
-    views.user.isAuthenticated(request)
+@app.route('/dependency/<dependency_id>', methods=["DELETE"])
+def delete_dependency(dependency_id, internal_call=False):
+    if (not internal_call):
+        if request.method != 'DELETE': return
 
-    # 2. Connect to the database and delete the resource
+    # Check if the user has permissions to access this resource
+    if (not internal_call): views.user.isAuthenticated(request)
+
+    # Connect to the database and delete the resource
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("DELETE FROM dependency WHERE ID=%s", ID)
+        cursor.execute("DELETE FROM dependency WHERE ID=%s", dependency_id)
         conn.commit()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
@@ -257,5 +362,8 @@ def delete_dependency(ID):
         cursor.close()
         conn.close()
 
-    # 3. The Delete request was a success, the user 'took the blue pill'.
-    return (modules.utils.build_response_json(request.path, 200))
+    # The Delete request was a success, the user 'took the blue pill'.
+    if (not internal_call):
+        return (modules.utils.build_response_json(request.path, 200))
+    else:
+        return(True)

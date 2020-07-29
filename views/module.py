@@ -56,6 +56,7 @@ def add_module():
     displayname     = json_data['displayname']
     tree            = json_data['tree']
     recommendations = "recommendations" in json_data and json_data['recommendations'] or None
+    dependencies    = "dependencies" in json_data and json_data['dependencies'] or None
     avatar      = "avatar" in json_data and json_data['avatar'] or None
     description = "description" in json_data and json_data['description'] or None
     type_id     = "type_id" in json_data and json_data['type_id'] or None
@@ -89,6 +90,11 @@ def add_module():
     for recommendation in recommendations:
         views.recommendation.add_recommendation(recommendation)
     
+    # Add dependencies, only if the current module depends on another module.
+    if (module_id and dependencies):
+        for dependency in dependencies:
+                views.dependency.add_dependency({"module_id": module_id, "depends_on": dependency['module']['id']}, True)
+
     # 'Do, or do not, there is no try.'
     return(modules.utils.build_response_json(request.path, 200, {"id": module_id, "tree": tree}))  
 
@@ -112,6 +118,7 @@ def update_module():
     module_id       = json_data['id']
     tree            = json_data['tree']
     #
+    dependencies    = "dependencies" in json_data and json_data['dependencies'] or None
     recommendations = "recommendations" in json_data and json_data['recommendations'] or None
     shortname       = "shortname" in json_data and json_data['shortname'] or None
     fullname        = "fullname" in json_data and json_data['fullname'] or None
@@ -120,8 +127,8 @@ def update_module():
     description     = "description" in json_data and json_data['description'] or None
     type_id         = "type_id" in json_data and json_data['type_id'] or None
     logic           = "logic_filename" in json_data and json_data['logic_filename'] or None
-    createdon       = "createdon" in json_data and json_data['createdon'] or None
-    updatedon       = "updatedon" in json_data and json_data['updatedon'] or None
+    createdon       = None
+    updatedon       = datetime.now()
     
     # Build the SQL instruction using our handy function to build sql instructions.
     columns = [shortname and "shortname" or None, fullname and "fullname" or None, displayname and "displayname" or None, type_id and "typeID" or None, logic and "logicFilename" or None, avatar and "avatar" or None, description and "description" or None, createdon and "createdon" or None, updatedon and "updatedon" or None]
@@ -129,24 +136,47 @@ def update_module():
     where   = "WHERE id="+str(module_id)
     
     sql, values = modules.utils.build_sql_instruction("UPDATE Module", columns, values, where)
-    if (DEBUG): print("[SAM-API]: [PUT]/module - " + sql + " => " + str(values))
-    
+    if (DEBUG): modules.utils.console_log("[PUT]/module", str(sql + " => " + str(values) + " " + where))
+
     # Update 
-    #modules.utils.db_execute_update_insert(mysql, sql, values)
+    modules.utils.db_execute_update_insert(mysql, sql, values)
     
     # Iterate the tree of module in order to update questions an answers of the module
     for node in tree:   
         iterate_tree_nodes(recommendations, "UPDATE", module_id, node)
 
-    
+    # Update the dependency
+    if (dependencies):
+        for dependency in dependencies:
+            flag_remove = "to_remove" in dependency and dependency['to_remove'] or None
+            # Remove the dependency
+            if (flag_remove):
+                views.dependency.delete_dependency(dependency['id'], True)
+            else:
+                views.dependency.add_dependency({"module_id": module_id, "depends_on": dependency['module']['id']}, True)
+
     # Check if there are any recommendation flagged to be removed, to remove is not the recommentation but the mapping of a recommendation to the current module
     for recommendation in recommendations:
         flag_remove = "to_remove" in recommendation and recommendation['to_remove'] or None
+        # Remove the recommendation
         if (flag_remove):
             views.recommendation.remove_recommendation_of_module(recommendation['id'], module_id, True)
+        # Add a new recommendation
+        else:
+            # Store the mapping of question_answer and recommendations (DB table Recommendation_Question_Answer)
+            # Get the question_answer id primary key value, through [question_id] and [answer_id]    
+            for question_answer in recommendation['questions_answers']:
+                qa_res = views.question.find_question_answers_2(question_answer['question_id'], question_answer['answer_id'], True)
+                if (qa_res is None): return(modules.utils.build_response_json(request.path, 400)) 
+                qa_res = qa_res[0]
+                if (DEBUG): print("[SAM-API] [POST]/module - question_id = " + str(question_answer['question_id']) + ", answer_id=" + str(question_answer['answer_id']) + " => Question_Answer_id =" + str(qa_res['question_answer_id']))
+                question_answer['id'] = qa_res['question_answer_id']
+                print("!---->" + str(question_answer['id']))
+            
+            # Add the recommendation with the link between questions and answers
+            views.recommendation.add_recommendation(recommendation)
     
     return(modules.utils.build_response_json(request.path, 200))  
-
 
 """
 [Summary]: Get modules.
@@ -193,23 +223,28 @@ def get_modules():
         # 3. 'May the Force be with you, young padawan'.
         return(modules.utils.build_response_json(request.path, 200, datas))    
 
-
 """
 [Summary]: Finds a module.
 [Returns]: Returns a module.
 """
 @app.route('/module/<ID>', methods=['GET'])
-def find_module(ID):
-    if request.method != 'GET': return
+def find_module(ID, internal_call=False):
+    if (not internal_call):
+        if request.method != 'GET': return
 
-    # 1. Check if the user has permissions to access this resource
-    views.user.isAuthenticated(request)
+    # Check if the user has permissions to access this resource
+    if (not internal_call): 
+        views.user.isAuthenticated(request)
     
-    # 2 Get the tree of the module and other relevant information.
-    tree            = (get_module_tree(ID, True))
+    # Get the tree of the module and other relevant information.
+    tree            = (get_module_tree(str(ID), True))
     recommendations = (views.recommendation.find_recommendations_of_module(ID, True))
-    dependency      = (views.dependency.find_dependency_of_module(ID, True))
-    # 3. Let's get the modules from the database.
+    dependencies    = (views.dependency.find_dependency_of_module(ID, True))
+    
+    if (not dependencies): dependencies = []
+    if (not recommendations): recommendations = []
+
+    # Let's get the modules from the database.
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
@@ -218,11 +253,14 @@ def find_module(ID):
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
     
-    # 3.1. Check for empty results. 
+    # Check for empty results. 
     if (len(res) == 0):
         cursor.close()
         conn.close()
-        return(modules.utils.build_response_json(request.path, 404))    
+        if (not internal_call):
+            return(modules.utils.build_response_json(request.path, 404))
+        else:
+            return(None)
     else:
         datas = [] # Create a new nice empty array of dictionaries to be populated with data from the DB.
         for row in res:
@@ -239,13 +277,16 @@ def find_module(ID):
             data['updatedon']       = row[9]
             data['tree']            = tree
             data['recommendations'] = recommendations and recommendations or []
-            data['dependency']      = dependency and dependency['depends_on_module_id'] or None
+            data['dependencies']    = dependencies
             datas.append(data)
         cursor.close()
         conn.close()
 
-        # 4. 'May the Force be with you, young padawan'.
-        return(modules.utils.build_response_json(request.path, 200, datas))    
+        # 'May the Force be with you, young padawan'.
+        if (not internal_call):
+            return(modules.utils.build_response_json(request.path, 200, datas))
+        else:
+            return(datas)
 
 """
 [Summary]: Get the tree of the module. This tree contains all the questions and answers.
@@ -466,13 +507,11 @@ def iterate_tree_nodes(recommendations, operation, module_id, c_node, p_node=Non
 
             if (debug): print("  -> [" + str(c_node["id"]) + "] = '" + sql + ", " + str(values))
         if (operation == "UPDATE"):
-            if (c_node['id']):
-                sql     = "UPDATE Question SET content=%s WHERE ID=%s"
-                values  = (c_node['name'], c_node['id'])
-                if (debug): print("  -> [" + str(c_node["id"]) + "] = '" + sql + ", " + str(values))
-                modules.utils.db_execute_update_insert(mysql, sql, values)
-            else:
-                print("[SAN] The question does not exist in the database.")
+            sql     = "UPDATE Question SET content=%s WHERE ID=%s"
+            values  = (c_node['name'], c_node['id'])
+            if (debug): print("  -> [" + str(c_node["id"]) + "] = '" + sql + ", " + str(values))
+            modules.utils.db_execute_update_insert(mysql, sql, values)
+
         
         # 1.2. Add link to table [Module_Question] - Link question and the module together.
         # Be aware, that child questions are not added to this table. That is, only questions are mapped to modules.

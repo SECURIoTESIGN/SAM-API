@@ -30,6 +30,10 @@ import modules.error_handlers
 
 """
 [Summary]: Outputs a message to the terminal.
+[Arguments]:
+       - $function_name$: The name of the function/method/service where the message originated from. 
+       - $message$: Message to be displayed.
+       - $exception$: Flag the message as an exception.
 """
 def console_log(function_name, message, exception=False):
   if (not exception):
@@ -84,7 +88,6 @@ def build_sql_instruction(SQL, columns, values, where=None):
 [Returns]: True if exists, false otherwise.
 """
 def db_already_exists(mysql, SQL, values, DEGUG=True): 
-    DEBUG = True
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
@@ -132,6 +135,33 @@ def db_execute_update_insert(mysql, SQL, values, DEBUG=True):
         conn.close()
         return(n_id)
 
+"""
+obter ap rimary key tendo em conta outros valores
+"""
+def db_get_primary_key_value(mysql, primary_key, table, where=None, DEBUG=False):
+    primary_key_value = None
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        sql     = "SELECT " + primary_key + " FROM " + table + " " + where
+        cursor.execute(sql)
+        res = cursor.fetchall()
+    except Exception as e:
+        console_log("db_execute_select", str(e), True)
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+    
+    # Check for empty results. 
+    if (len(res) == 0):
+        cursor.close()
+        conn.close()
+        return(None)   
+    else:
+        for row in res:
+            primary_key_value = row[0]
+    
+    cursor.close()
+    conn.close()
+    return(primary_key_value)
 """
 [Summary]: Check if a key/pair value is on a JSON object.
 [Arguments]:
