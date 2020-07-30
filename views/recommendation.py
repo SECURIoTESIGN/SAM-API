@@ -274,7 +274,10 @@ def find_recommendations_of_question_answer(question_id, answer_id, internal_cal
 """
 @app.route('/recommendations/module/<module_id>', methods=['GET'])
 def find_recommendations_of_module(module_id, internal_call=False):
-    if request.method != 'GET': return
+    if (not internal_call):
+        if request.method != 'GET': 
+            return
+    
     # Check if the user has permissions to access this resource
     if (not internal_call): views.user.isAuthenticated(request)
     
@@ -392,27 +395,3 @@ def remove_recommendation_of_module(recommendation_id, module_id, internal_call=
     else:
         return(True)
 
-
-"""
-[Summary]: Adds a recommendation to a session based on one or more answers given. 
-[Returns]: Response result.
-
-@app.route('/recommendation/<ID_r>/session/<ID_s>', methods=['GET'])
-def addRecomendation(ID_r, ID_s):
-    if request.method != 'GET': return
-    # 1. Check if the user has permissions to access this resource
-    views.user.isAuthenticated(request)
-    try:
-        conn    = mysql.connect()
-        cursor  = conn.cursor()
-        cursor.execute("INSERT INTO Session_Recommendation (sessionID, recommendationID) VALUES (%s, %s)", (ID_s, ID_r))
-        conn.commit()
-    except Exception as e:
-        raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
-    finally:
-        cursor.close()
-        conn.close()
-
-    # 5. The Update request was a success, the user 'is in the rabbit hole'
-    return (modules.utils.build_response_json(request.path, 200))
-"""

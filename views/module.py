@@ -297,7 +297,8 @@ def get_module_tree(pID, internal_call=False):
     # Do you want to add recommendations to the tree? For example, if an answer is X than the recommendation is Y, and so on. This feature is still experimental.
     add_recommendations_to_tree = False
     IDS = []
-    if request.method != 'GET': return
+    if (not internal_call):
+        if request.method != 'GET': return
 
     # 1. Check if the user has permissions to access this resource
     if (not internal_call): views.user.isAuthenticated(request)
@@ -377,7 +378,7 @@ def get_module_tree(pID, internal_call=False):
         return(modules.utils.build_response_json(request.path, 200, datas))
     else:
         del datas[request.path]
-        print("### = " + str(datas['tree']))
+        # print("### = " + str(datas['tree']))
         return(datas['tree'])
 
 

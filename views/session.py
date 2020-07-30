@@ -30,7 +30,7 @@ from flask import Flask, abort, request, jsonify, render_template, redirect, url
 from datetime import datetime
 import requests, json, os
 import modules.error_handlers, modules.utils # SAM's modules
-import views.user # SAM's views
+import views.user, views.module # SAM's views
 
 """
 [Summary]: Adds a new session to a user.
@@ -100,6 +100,8 @@ def add_session():
     finally:
         cursor.close()
         conn.close()
+
+    data['module'] = views.module.find_module(obj['module_id'], True)
 
     # 6. The request was a success, the user 'took the blue pill'.
     return (modules.utils.build_response_json(request.path, 200, data))
@@ -179,7 +181,8 @@ def end_session(ID):
 """
 @app.route('/session/<ID>/closed', methods=['GET'])
 def find_session_closed(ID, internal_call=False):
-    if request.method != 'GET': return
+    if (not internal_call):
+        if request.method != 'GET': return
     
     # 0. Check if the user has permissions to access this resource.
     if (not internal_call): views.user.isAuthenticated(request)
@@ -289,7 +292,7 @@ def find_session(ID):
             cursor.close()
             conn.close()
             datas = find_session_closed(ID, True)
-            if (datas == None): 
+            if (datas == None):
                 return(modules.utils.build_response_json(request.path, 404))
             else:
                 return(modules.utils.build_response_json(request.path, 200, datas.json))  
@@ -317,12 +320,12 @@ def find_session(ID):
 def find_recommendations(request, ID):
 
     # 1. Is there a logic file to process the set of answers given in this session? If yes, then, run the logic file. 
-    #    This element will be in charge of calling the service to one or more recommendations, depending on the implemented logic.  
-    #    Otherwise, use the static information present in the database to infer the recommendations.
+    #    This element will be in charge of calling the service to return one or more recommendations, depending on the implemented logic.  
+    #    Otherwise, use the static information present in the database to infer the set of recommendations.
     session = (find_session_closed(ID, True))
     if (session is None):
         raise modules.error_handlers.BadRequest(request.path, "Unable to find recommendations for this session, maybe, there is something wrong with the answers given in this session.", 403) 
-
+    
     if (session['module_logic'] != None):
         try:
             # 2.1. Get information related to the current session. This includes the information about the module, the set of related questions, and the answers given by the user to those questions.
@@ -362,7 +365,7 @@ def find_recommendations(request, ID):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT session_id, recommendation_id, recommendation FROM View_Recommendation WHERE session_id=%s", ID)
+        cursor.execute("SELECT session_id, recommendation_id, recommendation, recommendation_description, guideFileName FROM View_Recommendation WHERE session_id=%s", ID)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -376,9 +379,12 @@ def find_recommendations(request, ID):
     results = []
     for row in res:
         result = {}
-        result['session_id']          = row[0]
-        result['recommendation_id']    = row[1]
-        result['recommendation']       = row[2]
+        result['session_id']                 = row[0]
+        result['recommendation_id']          = row[1]
+        result['recommendation']             = row[2]
+        result['recommendation_description'] = row[3]
+        result['guide_filename']             = row[4]
+        
         results.append(result)
         # 3. Store the recommendations for the current session.
         try:

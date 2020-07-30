@@ -53,7 +53,7 @@ def login_user():
         try:
             conn    = mysql.connect()
             cursor  = conn.cursor()
-            cursor.execute("SELECT ID, email, psw, avatar FROM User WHERE email=%s", email)
+            cursor.execute("SELECT ID, email, psw, avatar, administrator FROM User WHERE email=%s", email)
         except Exception as e:
             raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
         # 2.1. Check if the user exists.
@@ -65,11 +65,12 @@ def login_user():
         dbpsw = ""
         data = {} # Create a new nice empty dictionary to be populated with data from the DB.
         for row in records:
-            data['ID']      = row[0]
-            data['email']   = row[1]
+            data['ID']          = row[0]
+            data['email']       = row[1]
             # For security reasons lets not store the password in the dic.
-            dbpsw           = row[2] 
-            data['avatar']  = row[3]
+            dbpsw               = row[2] 
+            data['avatar']      = row[3]
+            data['is_admin']    = row[4]
             # Set the expiration time of the token, the JWT auth token will not be valid after x seconds
             # Default is a 15 minute session
             data['exp']     = datetime.utcnow() + timedelta(seconds=int(JWT_EXPIRATION_SECONDS))

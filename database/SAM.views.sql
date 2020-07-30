@@ -267,7 +267,9 @@ CREATE VIEW View_Recommendation AS
 Select DISTINCT
 S.ID as session_ID,
 R.ID as recommendation_ID,
-R.content as recommendation
+R.content as recommendation,
+R.description as recommendation_description,
+R.guideFileName
 FROM
 	Session as S,
 	session_user_Answer as SUA,
