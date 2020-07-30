@@ -51,10 +51,10 @@ def list_files():
             files.append(filename)
     return jsonify(files)
 
-@api.route("/file/<filename>", methods=["POST"])
+@app.route("/file/<filename>", methods=["POST"])
 def post_file(filename):
     if request.method != 'POST': return
-    
+
     # Check if the user has permissions to access this resource
     views.user.isAuthenticated(request)
 
