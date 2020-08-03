@@ -99,6 +99,126 @@ def add_module():
     return(modules.utils.build_response_json(request.path, 200, {"id": module_id, "tree": tree}))  
 
 """
+[Summary]: Delete questions linked to a module.
+[Returns]: Returns a success or error response
+"""
+@app.route('/module/<ID>/questions', methods=["DELETE"])
+def delete_module_questions(ID, internal_call=False):
+    if (not internal_call):
+        if request.method != 'DELETE': return
+    
+    # Check if the user has permissions to access this resource
+    if (not internal_call): views.user.isAuthenticated(request)
+
+    # Get the set of questions linked to this module.
+    questions = find_module_questions(ID, True)
+    if (questions):
+        for question in questions:
+            views.question.delete_question(question['id'], True)
+    
+    # Delete the module itself and all the sessions linked to him.
+    # delete_module(ID, True)
+
+    # The Delete request was a success, the user 'took the blue pill'.
+    if (not internal_call):
+        return (modules.utils.build_response_json(request.path, 200))
+    else:
+        return(True)
+
+"""
+[Summary]: Delete answers linked to a module.
+[Returns]: Returns a success or error response
+"""
+@app.route('/module/<ID>/answers', methods=["DELETE"])
+def delete_module_answers(ID, internal_call=False):
+    if (not internal_call): 
+        if request.method != 'DELETE': return
+
+    # Check if the user has permissions to access this resource
+    if (not internal_call): views.user.isAuthenticated(request)
+
+    # Get the set of answers linked to this module.
+        # Get the set of questions linked to this module.
+    answers = find_module_answers(ID, True)
+    if (answers):
+        for answer in answers:
+            views.answer.delete_answer(answer['id'], True)
+    
+    # Delete the module itself and all the sessions linked to him.
+    # delete_module(ID, True)
+    
+    if (not internal_call):
+        return (modules.utils.build_response_json(request.path, 200))
+    else:
+        return(True)
+
+
+"""
+[Summary]: Delete a module (partial delete - Linked questions and answeres are not deleted)
+[Returns]: Returns a success or error response
+"""
+@app.route('/module/<ID>', methods=["DELETE"])
+def delete_module_partial(ID, internal_call=False):
+    if (not internal_call):
+        if request.method != 'DELETE': return
+    
+    # 1. Check if the user has permissions to access this resource
+    if (not internal_call):
+        views.user.isAuthenticated(request)
+
+    # 2. Connect to the database and delete the resource
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("DELETE FROM Module WHERE ID=%s", ID)
+        conn.commit()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
+    finally:
+        cursor.close()
+        conn.close()
+
+    # 3. The Delete request was a success, the user 'took the blue pill'.
+    if (not internal_call): 
+        return (modules.utils.build_response_json(request.path, 200))
+    else:
+        return(True)
+
+"""
+[Summary]: Fully delete a module (including sessions, linked questions and answers)
+[Returns]: Returns a success or error response
+"""
+@app.route('/module/<ID>/full', methods=["DELETE"])
+def delete_module_full(ID, internal_call=False):
+    if (not internal_call): 
+        if request.method != 'DELETE': return
+
+    # Check if the user has permissions to access this resource
+    if (not internal_call): views.user.isAuthenticated(request)
+
+    # Get the set of answers and questions linked to this module.
+    answers = find_module_answers(ID, True)
+    questions = find_module_questions(ID, True)
+
+    if (answers):
+        for answer in answers:
+            print("deleting answer " + str(answer['id']))
+            views.answer.delete_answer(answer['id'], True)
+    
+    if (questions):
+        for question in questions:
+            print("deleting question " + str(question['id']))
+            views.question.delete_question(question['id'], True)
+    
+    # Delete the module itself and all the sessions linked to him.
+    delete_module_partial(ID, True)
+    
+    if (not internal_call):
+        return (modules.utils.build_response_json(request.path, 200))
+    else:
+        return(True)
+
+"""
 [Summary]: Updates a Module.
 [Returns]: returns 200 if the operation was a success, 500 otherwise.
 """
@@ -224,6 +344,87 @@ def get_modules():
         return(modules.utils.build_response_json(request.path, 200, datas))    
 
 """
+[Summary]: Get questions of each module.
+[Returns]: Returns a set of modules.
+"""
+@app.route('/modules/questions', methods=['GET'])
+def get_modules_questions():
+    if request.method != 'GET': return
+
+    # Check if the user has permissions to access this resource
+    views.user.isAuthenticated(request)
+
+    # Let's get the resource from the DB
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("SELECT DISTINCT module_id FROM View_Module_Questions_Answers")
+        res = cursor.fetchall()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+    
+    # Check for empty results. 
+    if (len(res) == 0):
+        cursor.close()
+        conn.close()
+        return(modules.utils.build_response_json(request.path, 404))    
+    else:
+        datas = []
+        # Module IDs first
+        for row in res:
+            module = {}
+            module['id']            = row[0]
+            module['questions']     = find_module_questions(module['id'], True)
+            datas.append(module)
+    cursor.close()
+    conn.close()
+    
+    # 'May the Force be with you, young padawan'.
+    return(modules.utils.build_response_json(request.path, 200, datas))    
+
+
+"""
+[Summary]: Get answers of each module.
+[Returns]: Returns a set of modules.
+"""
+@app.route('/modules/answers', methods=['GET'])
+def get_modules_answers():
+    if request.method != 'GET': return
+
+    # Check if the user has permissions to access this resource
+    views.user.isAuthenticated(request)
+
+    # Let's get the resource from the DB
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("SELECT DISTINCT module_id FROM View_Module_Questions_Answers")
+        res = cursor.fetchall()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+    
+    # Check for empty results. 
+    if (len(res) == 0):
+        cursor.close()
+        conn.close()
+        return(modules.utils.build_response_json(request.path, 404))    
+    else:
+        datas = []
+        # Module IDs first
+        for row in res:
+            module = {}
+            module['id']            = row[0]
+            module['answers']     = find_module_answers(module['id'], True)
+            datas.append(module)
+    cursor.close()
+    conn.close()
+    
+    # 'May the Force be with you, young padawan'.
+    return(modules.utils.build_response_json(request.path, 200, datas))    
+
+
+
+"""
 [Summary]: Finds a module.
 [Returns]: Returns a module.
 """
@@ -287,6 +488,103 @@ def find_module(ID, internal_call=False):
             return(modules.utils.build_response_json(request.path, 200, datas))
         else:
             return(datas)
+
+
+"""
+[Summary]: Finds questions linked to a module.
+[Returns]: Returns a module.
+"""
+@app.route('/module/<ID>/questions', methods=['GET'])
+def find_module_questions(ID, internal_call=False):
+    if (not internal_call):
+        if request.method != 'GET': return
+
+    # Check if the user has permissions to access this resource
+    if (not internal_call): views.user.isAuthenticated(request)
+
+
+    # Let's get the questions of the module
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("SELECT DISTINCT question_id, question, createdon, updatedon FROM View_Module_Question WHERE module_id=%s", ID)
+        res = cursor.fetchall()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+    
+    # Check for empty results. 
+    if (len(res) == 0):
+        cursor.close()
+        conn.close()
+        if (not internal_call):
+            return(modules.utils.build_response_json(request.path, 404))
+        else:
+            return(None)
+    else:
+        datas = [] # Create a new nice empty array to be populated with data from the DB.
+        for row in res:
+            data = {}
+            data['id']              = row[0]
+            data['content']         = row[1]
+            data['createdon']       = row[2]
+            data['updatedon']       = row[3]
+            datas.append(data)
+        cursor.close()
+        conn.close()
+
+        # 'May the Force be with you, young padawan'.
+        if (not internal_call):
+            return(modules.utils.build_response_json(request.path, 200, datas))
+        else:
+            return(datas)
+
+"""
+[Summary]: Finds answers linked to a module.
+[Returns]: Returns a module.
+"""
+@app.route('/module/<ID>/answers', methods=['GET'])
+def find_module_answers(ID, internal_call=False):
+    if (not internal_call):
+        if request.method != 'GET': return
+
+    # Check if the user has permissions to access this resource
+    if (not internal_call): views.user.isAuthenticated(request)
+
+    # Let's get the answers linked to the current module.
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("SELECT DISTINCT answer_id, answer, createdon, updatedon FROM View_Module_Answers WHERE module_id=%s", ID)
+        res = cursor.fetchall()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+    
+    # Check for empty results. 
+    if (len(res) == 0):
+        cursor.close()
+        conn.close()
+        if (not internal_call):
+            return(modules.utils.build_response_json(request.path, 404))
+        else:
+            return(None)
+    else:
+        datas = [] # Create a new nice empty array to be populated with data from the DB.
+        for row in res:
+            data = {}
+            data['id']              = row[0]
+            data['content']         = row[1]
+            data['createdon']       = row[2]
+            data['updatedon']       = row[3]
+            datas.append(data)
+        cursor.close()
+        conn.close()
+
+        # 'May the Force be with you, young padawan'.
+        if (not internal_call):
+            return(modules.utils.build_response_json(request.path, 200, datas))
+        else:
+            return(datas)
+
 
 """
 [Summary]: Get the tree of the module. This tree contains all the questions and answers.

@@ -95,7 +95,12 @@ SELECT
     MQ.questionOrder,
     -- 
     A.ID as answer_ID, 
-    A.content as answer
+    A.content as answer,
+    --
+    Q.createdon as question_createdon,
+    Q.updatedon as question_updatedon,
+    A.createdon as answer_createdon,
+    A.updatedon as answer_updatedon
 FROM 
 	Module as M,Question as Q, 
     Module_Question as MQ, 
@@ -116,9 +121,36 @@ SELECT
     Q.ID as question_ID, 
     q.content as question,
     --
-    MQ.questionOrder
+    MQ.questionOrder,
+    --
+    Q.createdon,
+    Q.updatedon
 FROM Module as M,Question as Q, Module_Question AS MQ WHERE
 M.ID = MQ.moduleID AND Q.ID = MQ.questionID;
+
+-- View_Module_Question: Get answers of a module.
+DROP VIEW IF EXISTS View_Module_Answers;
+CREATE VIEW View_Module_Answers AS
+SELECT 
+	DISTINCT
+	M.ID as module_ID,
+    --
+    A.ID as answer_ID, 
+    A.content as answer,
+    --
+    A.createdon,
+    A.updatedon
+FROM 
+	Module as M,
+    Question as Q, 
+    Module_Question AS MQ,
+    Answer as A, 
+    Question_Answer as QA
+    WHERE
+	M.ID = MQ.moduleID AND 
+    Q.ID = MQ.questionID AND
+    A.ID = QA.answerID AND
+    Q.ID = QA.questionID;
 
 -- View_Module_Question: Get sub-questions of a question (child questions of a parent question).
 DROP VIEW IF EXISTS View_Question_Childs;

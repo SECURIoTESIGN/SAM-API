@@ -68,6 +68,37 @@ def add_question():
     else:
         return(modules.utils.build_response_json(request.path, 200, {"id": n_id}))  
 
+
+"""
+[Summary]: Delete a question
+[Returns]: Returns a success or error response
+"""
+@app.route('/question/<ID>', methods=["DELETE"])
+def delete_question(ID, internal_call=False):
+    if (not internal_call):
+        if request.method != 'DELETE': return
+    
+    # 1. Check if the user has permissions to access this resource
+    if (not internal_call): views.user.isAuthenticated(request)
+
+    # 2. Connect to the database and delete the resource
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("DELETE FROM Question WHERE ID=%s", ID)
+        conn.commit()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
+    finally:
+        cursor.close()
+        conn.close()
+
+    # 3. The Delete request was a success, the user 'took the blue pill'.
+    if (not internal_call):
+        return (modules.utils.build_response_json(request.path, 200))
+    else:
+        return(True)
+
 """
 [Summary]: Updates a question.
 [Returns]: Response result.
