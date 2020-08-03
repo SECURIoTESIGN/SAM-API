@@ -295,7 +295,7 @@ def find_session(ID):
             if (datas == None):
                 return(modules.utils.build_response_json(request.path, 404))
             else:
-                return(modules.utils.build_response_json(request.path, 200, datas.json))  
+                return(modules.utils.build_response_json(request.path, 200, datas))  
         
         datas = [] # Create a new nice empty array of dictionaries to be populated with data from the DB.
         for row in res:

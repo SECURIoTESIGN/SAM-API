@@ -343,7 +343,7 @@ ALTER TABLE recommendation_Question_Answer AUTO_INCREMENT = 1;
 
 
 -- For Module 1
-INSERT INTO recommendation (ID, content, description, guideFileName) VALUES (1, 'Confidentiality', 'The property that ensures that information is not disclosed or made available \to any unauthorized entity. In other words, personal information cannot be  accessed by an unauthorized third party','recommendation_1.md');
+INSERT INTO recommendation (ID, content, description, guideFileName) VALUES (1, 'Confidentiality', 'The property that ensures that information is not disclosed or made available to any unauthorized entity. In other words, personal information cannot be  accessed by an unauthorized third party','recommendation_1.md');
 INSERT INTO recommendation (ID, content) VALUES (2, 'Integrity');
 -- INSERT INTO recommendation (ID, content) VALUES (3, 'Availability');
 -- INSERT INTO recommendation (ID, content) VALUES (4, 'Authentication');

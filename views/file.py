@@ -26,9 +26,9 @@
 """
 from api import app, mysql
 from flask import Flask, request, abort, jsonify, send_from_directory
-import os, views.user
+import os, views.user, modules.utils
 
-UPLOAD_DIRECTORY="./external/guides"
+UPLOAD_DIRECTORY="./external/"
 
 @app.route("/file/<path:path>", methods=['GET'])
 def get_file(path):
@@ -66,4 +66,4 @@ def post_file(filename):
         fp.write(request.data)
 
     # Return 201 CREATED
-    return "", 201
+    return(modules.utils.build_response_json(request.path, 200))    

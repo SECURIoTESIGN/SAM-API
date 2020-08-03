@@ -1,0 +1,20 @@
+{
+  "module": {
+    "questions": [
+      {
+       "id": 1,
+       "content": "RAM size ?",
+       "answers": [ 
+         {"id": 1, "answer_id": null, "input": 16}
+        ]
+      },
+      {
+       "id": 2,
+       "content": "CPU ?",
+       "answers": [ 
+         {"id": 2, "answer_id": null, "input": 32}
+        ]
+      },
+    ]
+  }
+}
