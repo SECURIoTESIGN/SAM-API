@@ -423,7 +423,6 @@ def get_modules_answers():
     return(modules.utils.build_response_json(request.path, 200, datas))    
 
 
-
 """
 [Summary]: Finds a module.
 [Returns]: Returns a module.

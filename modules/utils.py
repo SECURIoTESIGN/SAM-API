@@ -29,7 +29,7 @@ from flask import jsonify
 import modules.error_handlers
 
 """
-[Summary]: Outputs a message to the terminal.
+[Summary]: Outputs a custom message to the terminal.
 [Arguments]:
        - $function_name$: The name of the function/method/service where the message originated from. 
        - $message$: Message to be displayed.

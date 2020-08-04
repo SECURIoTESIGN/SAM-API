@@ -38,6 +38,7 @@ import views.user, views.module # SAM's views
 """
 @app.route('/session', methods=['POST'])
 def add_session():
+    DEBUG = True
     if request.method != 'POST': return
     data = {}
 
@@ -50,12 +51,34 @@ def add_session():
         obj = request.json
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 400) 
-
+    
     # 3. Let's validate the data of our JSON object with a custom function.
     if (not modules.utils.valid_json(obj, {"email", "module_id"})):
         raise modules.error_handlers.BadRequest(request.path, "Some required key or value is missing from the JSON object", 400)
 
-    # 4. Check if there is an identical session closed, 
+    # 4. Before starting a new session, let's just check if there are any dependencies. That is if the user needs to answer questions from any other module before the current one.
+    module_dependencies = views.module.find_module(obj['module_id'], True)[0]['dependencies']
+    
+    if (DEBUG): modules.utils.console_log("['POST']/session", "List of dependencies for module " + str(obj['module_id']) + "=" + str(module_dependencies))
+    if (len(module_dependencies) != 0): 
+        # 4.1. Let's get the sesions of the current user
+        user_sessions = (find_sessions_of_user(obj['email'], True))
+        if (DEBUG): modules.utils.console_log("['POST']/session", "List of sessions of '" + str(obj['email']) + "' =" + str(user_sessions))
+        
+        # 4.2. Let's iterate the list of dependencies and check if the user was answered the questions to that module (i.e., a closed session exists)
+        for module_dependency in module_dependencies:
+            dep_module_id = module_dependency['module']['id']
+            found = False
+            for user_session in user_sessions:
+                if (user_session['ended'] == 0): continue # We only want sessions closed.
+                if (user_session['module_id'] == dep_module_id): found = True
+            if (not found):
+                data = {}
+                data['message']      = "A session was not created, the module dependencies are not fulfilled, the module is dependent on one or more modules."
+                data['dependencies'] = module_dependencies
+                return (modules.utils.build_response_json(request.path, 404, data))
+
+    # 5. Check if there is an identical session closed, 
     #    if true, notify the user on the return response object that a new session will be created; otherwise, 
     #    delete all that of the previously opened session.
     destroySessionID = -1
@@ -88,7 +111,7 @@ def add_session():
             cursor.close()
 
     
-    # 5. Connect to the database and add a new session.
+    # 6. Connect to the database and add a new session.
     try:
         cursor  = conn.cursor()
         cursor.execute("INSERT INTO SESSION (userID, moduleID) VALUES ((SELECT ID FROM User WHERE email=%s), %s)", (obj['email'],obj['module_id']))
@@ -103,7 +126,7 @@ def add_session():
 
     data['module'] = views.module.find_module(obj['module_id'], True)
 
-    # 6. The request was a success, the user 'took the blue pill'.
+    # 7. The request was a success, the user 'took the blue pill'.
     return (modules.utils.build_response_json(request.path, 200, data))
 
 """
@@ -149,6 +172,47 @@ def update_session(ID):
     # 5. The Update request was a success, the user 'is in the rabbit hole'
     return (modules.utils.build_response_json(request.path, 200))
 
+
+"""
+[Summary]: Get sessions (opened and closed)
+[Returns]: Returns response result.
+"""
+@app.route('/sessions', methods=['GET'])
+def get_sessions():
+    if request.method != 'GET': return
+
+    # 1. Check if the user has permissions to access this resource
+    views.user.isAuthenticated(request)
+
+    # 2. Let's existing sessions from the database.
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("SELECT ID, userID, moduleID, ended, createdOn, updatedOn FROM Session")
+        res = cursor.fetchall()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+    
+    # 2.1. Check for empty results.
+    if (len(res) == 0):
+        cursor.close()
+        conn.close()
+        return(modules.utils.build_response_json(request.path, 404))    
+    else:
+        datas = [] # Create a new nice empty array of dictionaries to be populated with data from the DB.
+        for row in res:
+            data = {}
+            data['id']          = row[0]
+            data['user_id']     = row[1]
+            data['module_id']   = row[2]
+            data['ended']       = row[3]
+            data['createdOn']   = row[4]
+            data['updatedOn']   = row[5]
+            datas.append(data)
+        cursor.close()
+        conn.close()
+        # 3. 'May the Force be with you'.
+        return(modules.utils.build_response_json(request.path, 200, datas))    
 
 """
 [Summary]: Ends a user's session.
@@ -311,6 +375,58 @@ def find_session(ID):
         conn.close()
         # 3. 'May the Force be with you'.
         return(modules.utils.build_response_json(request.path, 200, datas))    
+
+
+"""
+[Summary]: Finds a session by user ID (opened or closed)
+[Returns]: Returns response result.
+"""
+@app.route('/sessions/user/<user_email>', methods=['GET'])
+def find_sessions_of_user(user_email, internal_call=False):
+    if (not internal_call):
+        if request.method != 'GET': return
+
+    # Check if the user has permissions to access this resource
+    if (not internal_call): 
+        views.user.isAuthenticated(request)
+
+    # Let's existing sessions from the database.
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("SELECT session_id, user_id, user_email, moduleID, ended, createdon, updatedon FROM View_User_Sessions WHERE user_email=%s", user_email)
+        res = cursor.fetchall()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+    
+    # Check for empty results.
+    if (len(res) == 0):
+        cursor.close()
+        conn.close()
+        if (not internal_call):
+            return(modules.utils.build_response_json(request.path, 404))
+        else:
+            return(None)
+    else:
+        datas = [] # Create a new nice empty array of dictionaries to be populated with data from the DB.
+        for row in res:
+            data = {}
+            data['id']          = row[0]
+            data['user_id']     = row[1]
+            data['user_email']  = row[2]
+            data['module_id']   = row[3]
+            data['ended']       = row[4]
+            data['createdOn']   = row[5]
+            data['updatedOn']   = row[6]
+            datas.append(data)
+        cursor.close()
+        conn.close()
+        
+        # 'May the Force be with you'.
+        if (not internal_call):
+            return(modules.utils.build_response_json(request.path, 200, datas))
+        else:
+            return(datas)
 
 
 """

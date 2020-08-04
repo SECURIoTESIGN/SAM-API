@@ -205,6 +205,24 @@ WHERE
     R.ID = RQA.recommendationID AND QA.ID = RQA.questionAnswerID;
 
 
+-- View_Session_Input_Answer: Get sessions of users.
+DROP VIEW IF EXISTS View_User_Sessions;
+CREATE VIEW View_User_Sessions AS
+SELECT
+	S.id as session_id,
+    U.id as user_id,
+    U.email as user_email,    
+	S.moduleID,
+    S.ended,
+    S.createdon,
+    S.updatedon
+FROM
+	Session as S,
+    User as U
+WHERE
+	U.ID = S.userID;
+
+
 -- View_Session_Input_Answer: Get answers of a question.
 DROP VIEW IF EXISTS View_Session_Answers;
 CREATE VIEW View_Session_Answers AS
