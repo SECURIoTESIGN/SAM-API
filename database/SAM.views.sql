@@ -333,6 +333,23 @@ WHERE
     QA.ID = RQA.questionAnswerID AND
     RQA.recommendationID = R.ID;
     
+-- View_Session_recommendation: Get recommendations to be stored in a session that were computed using some logic.
+DROP VIEW IF EXISTS View_Recommendation_Logic;
+CREATE VIEW View_Recommendation_Logic AS
+Select DISTINCT
+S.ID as session_ID,
+R.ID as recommendation_ID,
+R.content as recommendation,
+R.description as recommendation_description,
+R.guideFileName
+FROM
+	Session as S,
+    Session_Recommendation as SR,
+    Recommendation as R
+WHERE
+	S.ID = SR.sessionID AND
+    R.ID = SR.recommendationID;
+    
 DROP VIEW IF EXISTS View_Question_Answer_Recommendation;
 CREATE VIEW View_Question_Answer_Recommendation AS
 SELECT

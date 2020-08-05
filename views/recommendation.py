@@ -161,10 +161,12 @@ def update_recommendation():
 [Returns]: Response result.
 """
 @app.route('/recommendations', methods=['GET'])
-def get_recommendations():
-    if request.method != 'GET': return
+def get_recommendations(internal_call=False):
+    if (not internal_call): 
+        if request.method != 'GET': return
     # 1. Check if the user has permissions to access this resource
-    views.user.isAuthenticated(request)
+    if (not internal_call): 
+        views.user.isAuthenticated(request)
 
     # 2. Let's get the set of available recommendations
     results = []
@@ -188,17 +190,21 @@ def get_recommendations():
         cursor.close()
         conn.close()
         # 3. The request was a success, the user 'is in the rabbit hole'
-        return(modules.utils.build_response_json(request.path, 200, results)) 
+        if (not internal_call):
+            return(modules.utils.build_response_json(request.path, 200, results))
+        else:
+            return(results)
 
 """
 [Summary]: Finds recommendation by ID.
 [Returns]: Response result.
 """
 @app.route('/recommendation/<ID>', methods=['GET'])
-def find_recommendation(ID):
-    if request.method != 'GET': return
+def find_recommendation(ID, internal_call=False):
+    if (not internal_call): 
+        if request.method != 'GET': return
     # 1. Check if the user has permissions to access this resource
-    views.user.isAuthenticated(request)
+    if (not internal_call): views.user.isAuthenticated(request)
 
     # 2. Let's get the set of available recommendations
     results = []
@@ -221,9 +227,12 @@ def find_recommendation(ID):
     finally:
         cursor.close()
         conn.close()
+        
         # 3. The request was a success, the user 'is in the rabbit hole'
-        return(modules.utils.build_response_json(request.path, 200, results)) 
-
+        if (not internal_call):
+            return(modules.utils.build_response_json(request.path, 200, results)) 
+        else:
+            return(results)
 """
 [Summary]: Finds the recommendations of question, answer association.
 [Returns]: Response result.

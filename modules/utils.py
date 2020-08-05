@@ -52,8 +52,13 @@ def console_log(function_name, message, exception=False):
 [Returns]: The final SQL instruction to be feed into the db_execute_update_insert() function.
 """
 def build_sql_instruction(SQL, columns, values, where=None):
-    values                      = [i for i in values if i] # If exists, remove None values.
-    columns                     = [i for i in columns if i] # If exists, remove None values.
+    if type(values) is tuple: 
+        values    = [i for i in values if i]  # If exists, remove None values.
+    else: 
+        values = (str(values)) 
+
+    columns  = [i for i in columns if i] 
+
     table_columns, table_values = (str(SQL.lower()).find("update")) == 0 and "SET " or "", ""
     
     if ((str(SQL.lower()).find("insert")) == 0):
@@ -76,7 +81,7 @@ def build_sql_instruction(SQL, columns, values, where=None):
             table_columns   += (i!=len(columns)-1) and (column +"=%s,") or (column +"=%s")
             i = i + 1
         SQL = SQL + " " + table_columns + table_values + " " + str(where)
-    
+    print(SQL)
     return(SQL, values)
 
 """
@@ -118,9 +123,10 @@ def db_already_exists(mysql, SQL, values, DEGUG=True):
        - $values$: List of values of the SQL instruction.
 [Returns]: If it is an SQL Insert operation then the return value is the id of the last created entry. 
 """
-def db_execute_update_insert(mysql, SQL, values, DEBUG=True):
+def db_execute_update_insert(mysql, SQL, values, DEBUG=False):
     n_id = None
     try:
+        if (DEBUG): console_log("db_execute_update_insert", "SQL=" + SQL + " | Values=" + str(values))
         conn    = mysql.connect()
         cursor  = conn.cursor()
         cursor.execute(SQL, values)

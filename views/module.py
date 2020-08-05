@@ -65,8 +65,8 @@ def add_module():
     updatedon   = "updatedon" in json_data and json_data['updatedon'] or None
     
     # Build the SQL instruction using our handy function to build sql instructions.
-    columns = ["shortname", "fullname", "displayname", type_id and "typeID" or None, logic and "logicFilename" or None, avatar and "avatar" or None, description and "description" or None, createdon and "createdon" or None, updatedon and "updatedon" or None]
-    values  = (shortname, fullname, displayname, type_id, logic, avatar, description, createdon, updatedon)
+    columns = ["shortname", "fullname", "displayname", type_id and "typeID" or None, avatar and "avatar" or None, description and "description" or None, createdon and "createdon" or None, updatedon and "updatedon" or None]
+    values  = (shortname, fullname, displayname, type_id, avatar, description, createdon, updatedon)
     
     sql, values = modules.utils.build_sql_instruction("INSERT INTO Module", columns, values)
     if (DEBUG): print("[SAM-API]: [POST]/module - " + sql + " => " + str(values))
@@ -77,23 +77,30 @@ def add_module():
         iterate_tree_nodes(recommendations, "INSERT", module_id, node)
     
     # Store the mapping of question_answer and recommendations (DB table Recommendation_Question_Answer)
-    # Get the question_answer id primary key value, through [question_id] and [answer_id]    
-    for recommendation in recommendations:
-        for question_answer in recommendation['questions_answers']:
-            qa_res = views.question.find_question_answers_2(question_answer['question_id'], question_answer['answer_id'], True)
-            if (qa_res is None): return(modules.utils.build_response_json(request.path, 400)) 
-            qa_res = qa_res[0]
-            if (DEBUG): print("[SAM-API] [POST]/module - question_id = " + str(question_answer['question_id']) + ", answer_id=" + str(question_answer['answer_id']) + " => Question_Answer_id =" + str(qa_res['question_answer_id']))
-            question_answer['id'] = qa_res['question_answer_id']
+    # Get the question_answer id primary key value, through [question_id] and [answer_id]
+    if recommendations:
+        for recommendation in recommendations:
+            for question_answer in recommendation['questions_answers']:
+                qa_res = views.question.find_question_answers_2(question_answer['question_id'], question_answer['answer_id'], True)
+                if (qa_res is None): return(modules.utils.build_response_json(request.path, 400)) 
+                qa_res = qa_res[0]
+                if (DEBUG): print("[SAM-API] [POST]/module - question_id = " + str(question_answer['question_id']) + ", answer_id=" + str(question_answer['answer_id']) + " => Question_Answer_id =" + str(qa_res['question_answer_id']))
+                question_answer['id'] = qa_res['question_answer_id']
     
-    # Add the recommendation with the link between questions and answers
-    for recommendation in recommendations:
-        views.recommendation.add_recommendation(recommendation)
+        # Add the recommendation with the link between questions and answers
+        for recommendation in recommendations:
+            views.recommendation.add_recommendation(recommendation)
     
     # Add dependencies, only if the current module depends on another module.
     if (module_id and dependencies):
         for dependency in dependencies:
                 views.dependency.add_dependency({"module_id": module_id, "depends_on": dependency['module']['id']}, True)
+
+    # If availabe, set the logic filename after knowing the database id of the module
+    if logic and module_id:
+        final_logic_filename = "logic_" + str(module_id) + ".py"
+        sql, values = modules.utils.build_sql_instruction("UPDATE Module", ["logicFilename"], final_logic_filename, "WHERE id="+str(module_id))
+        modules.utils.db_execute_update_insert(mysql, sql, values, True)
 
     # 'Do, or do not, there is no try.'
     return(modules.utils.build_response_json(request.path, 200, {"id": module_id, "tree": tree}))  
@@ -751,23 +758,24 @@ def update_questions_answers_ids(client_id, database_id, recommendations, is_que
             print("[SAM-API] update_questions_answers_ids() => Trying to find client_question_id = " + str(client_id) + " in recommendations list.")
         else:
             print("[SAM-API] update_questions_answers_ids() => Trying to find client_question_id = " + str(client_id) + " in recommendations list.")
-            
-    for recommendation in recommendations:
-        # if ("questions_answers" not in recommendation): continue
-        for question_answer in recommendation['questions_answers']:
-            # Update the questions to the real ID
-            if (is_question):
-                if ("client_question_id" in question_answer):
-                    if (question_answer['client_question_id'] == client_id):
-                        del question_answer['client_question_id']
-                        question_answer['question_id'] = database_id
-                        print("[SAM-API] update_questions_answers_ids() => Found it, updating node = " + str(question_answer))
-            else:
-                if ("client_answer_id" in question_answer):
-                    if (question_answer['client_answer_id'] == client_id):
-                        del question_answer['client_answer_id']
-                        question_answer['answer_id'] = database_id
-                        print("[SAM-API] update_questions_answers_ids() => Found it, updating node = " + str(question_answer))
+    
+    if (recommendations):
+        for recommendation in recommendations:
+            # if ("questions_answers" not in recommendation): continue
+            for question_answer in recommendation['questions_answers']:
+                # Update the questions to the real ID
+                if (is_question):
+                    if ("client_question_id" in question_answer):
+                        if (question_answer['client_question_id'] == client_id):
+                            del question_answer['client_question_id']
+                            question_answer['question_id'] = database_id
+                            print("[SAM-API] update_questions_answers_ids() => Found it, updating node = " + str(question_answer))
+                else:
+                    if ("client_answer_id" in question_answer):
+                        if (question_answer['client_answer_id'] == client_id):
+                            del question_answer['client_answer_id']
+                            question_answer['answer_id'] = database_id
+                            print("[SAM-API] update_questions_answers_ids() => Found it, updating node = " + str(question_answer))
 
 """
 [Summary]: Iterates the module tree that contains the mapping of questions and answers. This is an auxiliary function of add_module() and update_module().

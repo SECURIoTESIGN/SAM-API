@@ -27,6 +27,7 @@
 from api import app, mysql
 from flask import Flask, request, abort, jsonify, send_from_directory
 import os, views.user, modules.utils
+from werkzeug.utils import secure_filename
 
 UPLOAD_DIRECTORY="./external/"
 
@@ -54,7 +55,7 @@ def list_files():
 @app.route("/file/<filename>", methods=["POST"])
 def post_file(filename):
     if request.method != 'POST': return
-
+    file = request.files['file']
     # Check if the user has permissions to access this resource
     views.user.isAuthenticated(request)
 
@@ -62,8 +63,9 @@ def post_file(filename):
         # Return 400 BAD REQUEST
         abort(400, "no subdirectories directories allowed")
 
-    with open(os.path.join(UPLOAD_DIRECTORY, filename), "wb") as fp:
-        fp.write(request.data)
+    if file:
+        filename = secure_filename(filename)
+        file.save(UPLOAD_DIRECTORY + filename)
 
     # Return 201 CREATED
-    return(modules.utils.build_response_json(request.path, 200))    
+    return(modules.utils.build_response_json(request.path, 201))    

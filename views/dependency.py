@@ -74,10 +74,9 @@ def add_dependency(json_internal_data=None, internal_call=False):
     values  = (module_id, depends_on, createdon, updatedon)
     columns = ["moduleID", "dependsOn", createdon and "createdon" or None, updatedon and "updatedon" or None]
     sql, values = modules.utils.build_sql_instruction("INSERT INTO dependency", columns, values)
-    if (DEBUG): modules.utils.console_log("[POST]/dependency", sql)
-
+    
     # Add
-    n_id = modules.utils.db_execute_update_insert(mysql, sql, values)
+    n_id = modules.utils.db_execute_update_insert(mysql, sql, values, True)
 
     if (n_id is None):
         if (not internal_call):

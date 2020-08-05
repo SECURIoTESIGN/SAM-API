@@ -69,9 +69,10 @@ def add_session():
         for module_dependency in module_dependencies:
             dep_module_id = module_dependency['module']['id']
             found = False
-            for user_session in user_sessions:
-                if (user_session['ended'] == 0): continue # We only want sessions closed.
-                if (user_session['module_id'] == dep_module_id): found = True
+            if (user_sessions):
+                for user_session in user_sessions:
+                    if (user_session['ended'] == 0): continue # We only want sessions closed.
+                    if (user_session['module_id'] == dep_module_id): found = True
             if (not found):
                 data = {}
                 data['message']      = "A session was not created, the module dependencies are not fulfilled, the module is dependent on one or more modules."
@@ -273,9 +274,9 @@ def find_session_closed(ID, internal_call=False):
         data = {}
         # 3. Let's get the info about the session.
         for row in res:
-            data['ID']           = row[0]
-            data['userID']       = row[1]
-            data['moduleID']     = row[2]
+            data['id']           = row[0]
+            data['user_id']       = row[1]
+            data['module_id']     = row[2]
             data['module_logic'] = row[9]
             data['ended']        = row[3]
             data['createdOn']    = row[4]
@@ -330,11 +331,12 @@ def find_session_closed(ID, internal_call=False):
 [Returns]: Returns response result.
 """
 @app.route('/session/<ID>', methods=['GET'])
-def find_session(ID):
-    if request.method != 'GET': return
+def find_session(ID, internal_call=False):
+    if (not internal_call):
+        if request.method != 'GET': return
 
     # 1. Check if the user has permissions to access this resource
-    views.user.isAuthenticated(request)
+    if (not internal_call): views.user.isAuthenticated(request)
 
     # 2. Let's existing sessions from the database.
     try:
@@ -349,7 +351,10 @@ def find_session(ID):
     if (len(res) == 0):
         cursor.close()
         conn.close()
-        return(modules.utils.build_response_json(request.path, 404))    
+        if (not internal_call):
+            return(modules.utils.build_response_json(request.path, 404))
+        else:
+            return(None)
     else:
         # 2.2. Check if the session requested was ended.
         if (res[0][3] == 1):
@@ -357,14 +362,20 @@ def find_session(ID):
             conn.close()
             datas = find_session_closed(ID, True)
             if (datas == None):
-                return(modules.utils.build_response_json(request.path, 404))
+                if (not internal_call):
+                    return(modules.utils.build_response_json(request.path, 404))
+                else: 
+                    return(None)
             else:
-                return(modules.utils.build_response_json(request.path, 200, datas))  
+                if (not internal_call):
+                    return(modules.utils.build_response_json(request.path, 200, datas)) 
+                else:
+                    return(datas)
         
         datas = [] # Create a new nice empty array of dictionaries to be populated with data from the DB.
         for row in res:
             data = {}
-            data['ID']          = row[0]
+            data['id']          = row[0]
             data['user_id']     = row[1]
             data['module_id']   = row[2]
             data['ended']       = row[3]
@@ -373,9 +384,12 @@ def find_session(ID):
             datas.append(data)
         cursor.close()
         conn.close()
-        # 3. 'May the Force be with you'.
-        return(modules.utils.build_response_json(request.path, 200, datas))    
 
+        # 3. 'May the Force be with you'.
+        if (not internal_call):
+            return(modules.utils.build_response_json(request.path, 200, datas))    
+        else:
+            return(datas)
 
 """
 [Summary]: Finds a session by user ID (opened or closed)
@@ -434,7 +448,7 @@ def find_sessions_of_user(user_email, internal_call=False):
 [Returns]: Response result.
 """
 def find_recommendations(request, ID):
-
+    DEBUG = False
     # 1. Is there a logic file to process the set of answers given in this session? If yes, then, run the logic file. 
     #    This element will be in charge of calling the service to return one or more recommendations, depending on the implemented logic.  
     #    Otherwise, use the static information present in the database to infer the set of recommendations.
@@ -445,35 +459,28 @@ def find_recommendations(request, ID):
     if (session['module_logic'] != None):
         try:
             # 2.1. Get information related to the current session. This includes the information about the module, the set of related questions, and the answers given by the user to those questions.
-            r = requests.get(request.url_root+"session/"+str(ID), headers={'content-type': 'application/json', 'Authorization': dict(request.headers)['Authorization']})
-            r.raise_for_status()
-            json_module = json.loads(r.text)
-            json_module["Module"] = json_module.pop("/session/"+str(ID))
+            json_session = json.loads(json.dumps(find_session(ID, True), indent=4, sort_keys=False, default=str))
+            if (DEBUG): modules.utils.console_log("find_recommendations()", json_session)
 
             # 2.2. Get the set of available recommendations.
-            r = requests.get(request.url_root+"recommendations", headers={'content-type': 'application/json', 'Authorization': dict(request.headers)['Authorization']})
-            r.raise_for_status()
-            json_recommendations = json.loads(r.text)
-            json_recommendations["Recommendations"] = json_recommendations.pop("/recommendations")
+            json_recommendations = json.loads(json.dumps(views.recommendation.get_recommendations(True), indent=4, sort_keys=False, default=str))
+            if (DEBUG): modules.utils.console_log("find_recommendations()", json_recommendations)
             
+            module_logic_filename = session['module_logic']
+            module_logic_filename = module_logic_filename[0: module_logic_filename.rfind('.')]
             # 2.2. Dynamically load the logic element for the current session.
-            name = "external.elements." + session['module_logic'] + "." + session['module_logic']
-            mod = __import__(name, fromlist=[''])
-            provided_recommendations = mod.run(json_module, json_recommendations)
+            name = "external." + module_logic_filename + "." + module_logic_filename
+            mod = __import__('external.' + module_logic_filename, fromlist=[''])
+            provided_recommendations = mod.run(json_session, json_recommendations)
 
             # 2.3. Make the recommendations taking into account the results of the logic element.
             if (len(provided_recommendations) != 0):
-                for rec in provided_recommendations:
-                    s_name = request.url_root+'recommendation/'+str(rec)+'/session/' + str(ID)
-                    print("-->"+s_name)
-                    r = requests.get(s_name, headers={'content-type': 'application/json', 'Authorization': dict(request.headers)['Authorization']})
-                    r.raise_for_status()
+                for recommendation_id in provided_recommendations:
+                    add_logic_session_recommendation(ID, recommendation_id)
+
         except Exception as e:
             raise modules.error_handlers.BadRequest(request.path, str(e), 500)
-        return(modules.utils.build_response_json(request.path, 200))
-
-
-         #   raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+   
     
     # 2. Get the list of recommendations to be stored in the session.
     #    -> Some redundancy is expected to exist on the database, however, it avoids further 
@@ -481,7 +488,12 @@ def find_recommendations(request, ID):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT session_id, recommendation_id, recommendation, recommendation_description, guideFileName FROM View_Recommendation WHERE session_id=%s", ID)
+        if (session['module_logic'] != None):
+            table_name = "View_Recommendation_Logic"
+        else:
+            table_name = "View_Recommendation"
+        
+        cursor.execute("SELECT session_id, recommendation_id, recommendation, recommendation_description, guideFileName FROM " + table_name + " WHERE session_id=%s", ID)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -502,19 +514,40 @@ def find_recommendations(request, ID):
         result['guide_filename']             = row[4]
         
         results.append(result)
-        # 3. Store the recommendations for the current session.
-        try:
-            conn2    = mysql.connect()
-            cursor2  = conn2.cursor()
-            cursor2.execute("INSERT INTO Session_Recommendation (sessionID, recommendationID) VALUES (%s, %s)", (ID, result['recommendation_id']))
-            conn2.commit()
-        except Exception as e:
-            raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
-        finally:
-            cursor2.close()
-            conn2.close()
+        # 3. Store the recommendations for the current session, only for those module that are not using any kind of external logic. 
+        if (session['module_logic'] == None):
+            try:
+                conn2    = mysql.connect()
+                cursor2  = conn2.cursor()
+                cursor2.execute("INSERT INTO Session_Recommendation (sessionID, recommendationID) VALUES (%s, %s)", (ID, result['recommendation_id']))
+                conn2.commit()
+            except Exception as e:
+                raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
+            finally:
+                cursor2.close()
+                conn2.close()
     cursor.close()
     conn.close()
 
     # 4. 'May the Force be with you'.
     return(modules.utils.build_response_json(request.path, 200, results))  
+
+
+"""
+[Summary]: Adds a recommendation to a session, this method is exclusively used after the logic of a module is executed.
+[Returns]: 
+"""
+def add_logic_session_recommendation(session_id, recommendation_id):
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("INSERT INTO Session_Recommendation (sessionID, recommendationID) VALUES (%s, %s)", (session_id, recommendation_id))
+        conn.commit()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
+    finally:
+        cursor.close()
+        conn.close()
+
+    # The recommendation is linked to the session.
+    return (True)
