@@ -29,36 +29,125 @@
 """
 import json
 """
-############# Python Object Session EXAMPLE #############
+############# JSON Session EXAMPLE #############
 {
-    "id": 4,
-    "user_id": 1,
-    "module_id": 6,
-    "module_logic": "logic_6.py",
-    "ended": 1,
-    "createdOn": "2020-08-05 17:55:24",
-    "updatedOn": "2020-08-05 17:55:24",
-    "questions": [
-        {
-            "ID": 38,
-            "content": "Q1Y",
-            "answer": {
-                "ID": -1,
-                "content": "3"
+  "id": 3,
+  "user_id": 1,
+  "module_id": 6,
+  "module_logic": "logic_6.py",
+  "ended": 1,
+  "createdOn": "2020-08-06 12:26:10",
+  "updatedOn": "2020-08-06 12:26:10",
+  "questions": [
+    {
+      "id": 38,
+      "content": "Q1Y",
+      "answer": {
+        "id": -1,
+        "content": "2"
+      }
+    },
+    {
+      "id": 39,
+      "content": "Q2Y",
+      "answer": {
+        "ID": -1,
+        "content": "2"
+      }
+    }
+  ],
+  "dependencies": [
+    {
+      "module": {
+        "id": 1,
+        "fullname": "Security Requirements Elicitation",
+        "displayname": "Security Requirements",
+        "shortname": "SRE",
+        "last_session": {
+          "id": 1,
+          "user_id": 1,
+          "module_id": 1,
+          "module_logic": null,
+          "ended": 1,
+          "createdOn": "2020-08-06 11:41:50",
+          "updatedOn": "2020-08-06 11:41:50",
+          "questions": [
+            {
+              "id": 1,
+              "content": "State the domain type for your IoT system",
+              "answer": {
+                "id": 1,
+                "content": "Smart Home"
+              }
+            },
+            {
+              "id": 2,
+              "content": "Will the system have a user?",
+              "answer": {
+                "id": 10,
+                "content": "Yes"
+              }
             }
-        },
-        {
-            "ID": 39,
-            "content": "Q2Y",
-            "answer": {
-                "ID": -1,
-                "content": "4"
+          ],
+          "recommendations": [
+            {
+              "ID": 1,
+              "content": "Confidentiality",
+              "description": null,
+              "recommendation_guide": "recommendation_1.md"
             }
+          ]
         }
-    ]
+      }
+    },
+    {
+      "module": {
+        "id": 5,
+        "fullname": "Module X",
+        "displayname": "Module X",
+        "shortname": "MX",
+        "last_session": {
+          "id": 2,
+          "user_id": 1,
+          "module_id": 5,
+          "module_logic": null,
+          "ended": 1,
+          "createdOn": "2020-08-06 11:06:16",
+          "updatedOn": "2020-08-06 11:06:16",
+          "questions": [
+            {
+              "id": 37,
+              "content": "Q3X",
+              "answer": {
+                "ID": 54,
+                "content": "A1X"
+              }
+            },
+            {
+              "id": 35,
+              "content": "Q1X",
+              "answer": {
+                "id": -1,
+                "content": "2"
+              }
+            }
+            
+          ],
+          "recommendations": [
+            {
+              "id": 2,
+              "content": "Integrity",
+              "description": null,
+              "recommendation_guide": null
+            }
+          ]
+        }
+      }
+    }
+  ]
 }
 
-############# Python Object Recommendations EXAMPLE #############
+############# JSON Recommendations EXAMPLE #############
 [
     {
         "id": 1,
@@ -80,18 +169,19 @@ import json
 
 [Summary]: Default SAM's logic main method.
 [Arguments]:
-    - $session$: Python object (from a JSON string) that includes information about a session, including questions and user selected and/or user inputted answers (see example above).
-    - $recommendations$: Array of Python objects (from a JSON string) that includes information about the available set of recommendations (see example above).
+    - $session$: Python object that includes information about a session - Questions and user selected and/or user inputted answers (see example above).
+    - $recommendations$: Array of Python objects that includes information about the available set of recommendations (see example above).
 [Returns]: MUST return an array of recommendation IDs.
 """
 def run(session, recommendations):
     DEBUG = False
-    
+
     # This is the default array that will contain the list of recommendation IDs (integers), the array must be populated after some logic (see below for an example).
     returned_recommendations = []
     if (DEBUG):
-        print(session)
-        print(recommendations)
+        # Print Python Object as a JSON string
+        print(json.dumps(session))
+        print(json.dumps(recommendations))
 
     # 1. Do some logic with the answers given by the user to one or more questions for the current parsed module. 
     if ( int(session['questions'][0]['answer']['content']) >= 0 and int(session['questions'][1]['answer']['content']) >= 0):

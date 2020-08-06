@@ -30,7 +30,7 @@ from flask import Flask, abort, request, jsonify, render_template, redirect, url
 from datetime import datetime
 import requests, json, os
 import modules.error_handlers, modules.utils # SAM's modules
-import views.user, views.module # SAM's views
+import views.user, views.module, views.dependency # SAM's views
 
 """
 [Summary]: Adds a new session to a user.
@@ -147,7 +147,7 @@ def update_session(ID):
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 400) 
     
-    print(obj)
+    # print(obj)
     answer_user_inputted = False
     # 3. Let's validate the data of our JSON object with a custom function.
     if (not modules.utils.valid_json(obj, {"question_id","answer_id"})):
@@ -286,7 +286,7 @@ def find_session_closed(ID, internal_call=False):
         questions = []
         for row in res:
             question = {}
-            question['ID']           = row[6]
+            question['id']           = row[6]
             question['content']      = row[7]
             # Let's check if the answer was user inputted, or selected from the database.
             if (row[8] != None):
@@ -310,7 +310,7 @@ def find_session_closed(ID, internal_call=False):
         recommendations = []
         for row in res:
             recommendation = {}
-            recommendation['ID']                  = row[0]
+            recommendation['id']                  = row[0]
             recommendation['content']             = row[1]
             recommendation['description']         = row[2]
             recommendation['recommendation_guide'] = row[3]
@@ -392,7 +392,7 @@ def find_session(ID, internal_call=False):
             return(datas)
 
 """
-[Summary]: Finds a session by user ID (opened or closed)
+[Summary]: Finds sessions by user email (opened or closed)
 [Returns]: Returns response result.
 """
 @app.route('/sessions/user/<user_email>', methods=['GET'])
@@ -442,6 +442,58 @@ def find_sessions_of_user(user_email, internal_call=False):
         else:
             return(datas)
 
+"""
+[Summary]: Finds sessions by module ID and user email (closed)
+[Returns]: Returns response result.
+"""
+@app.route('/sessions/module/<module_id>/user/<user_id>', methods=['GET'])
+def find_sessions_of_user_module(module_id, user_id, internal_call=False):
+    if (not internal_call):
+        if request.method != 'GET': return
+
+    # Check if the user has permissions to access this resource
+    if (not internal_call): 
+        views.user.isAuthenticated(request)
+
+    # Let's existing sessions from the database.
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("SELECT session_id, user_id, user_email, moduleID, ended, createdon, updatedon FROM View_User_Sessions WHERE moduleID=%s AND user_id=%s AND ended=1 ORDER BY session_id DESC", (module_id, user_id))
+        res = cursor.fetchall()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+    
+    # Check for empty results.
+    if (len(res) == 0):
+        cursor.close()
+        conn.close()
+        if (not internal_call):
+            return(modules.utils.build_response_json(request.path, 404))
+        else:
+            return(None)
+    else:
+        datas = [] # Create a new nice empty array of dictionaries to be populated with data from the DB.
+        for row in res:
+            data = {}
+            data['id']          = row[0]
+            data['user_id']     = row[1]
+            data['user_email']  = row[2]
+            data['module_id']   = row[3]
+            data['ended']       = row[4]
+            data['createdOn']   = row[5]
+            data['updatedOn']   = row[6]
+            datas.append(data)
+        cursor.close()
+        conn.close()
+        
+        # 'May the Force be with you'.
+        if (not internal_call):
+            return(modules.utils.build_response_json(request.path, 200, datas))
+        else:
+            return(datas)
+
+
 
 """
 [Summary]: After closing the session we need to find the recommendations based on the answers given on that session <ID>.
@@ -460,20 +512,37 @@ def find_recommendations(request, ID):
         try:
             # 2.1. Get information related to the current session. This includes the information about the module, the set of related questions, and the answers given by the user to those questions.
             json_session = json.loads(json.dumps(find_session(ID, True), indent=4, sort_keys=False, default=str))
-            if (DEBUG): modules.utils.console_log("find_recommendations()", json_session)
-
+            
             # 2.2. Get the set of available recommendations.
             json_recommendations = json.loads(json.dumps(views.recommendation.get_recommendations(True), indent=4, sort_keys=False, default=str))
-            if (DEBUG): modules.utils.console_log("find_recommendations()", json_recommendations)
             
+            # 2.3 Get dependencies of the current module, including the last sessions there were flagged has being closed.
+            module_id   = json_session['module_id']
+            user_id     = json_session['user_id'] 
+            dependencies = views.dependency.find_dependency_of_module(module_id, True)
+            
+            if (dependencies):
+                for dependency in dependencies:
+                    del dependency['id']
+                    del dependency['createdon']
+                    del dependency['updatedon']
+                    dep_module_id = dependency['module']['id']
+                    # Get the last session of each dependency
+                    last_session_id    = (find_sessions_of_user_module(dep_module_id, user_id, True)[0])['id']
+                    # Get the answers given to that last session 
+                    last_session = find_session(last_session_id, True)
+                    dependency['module']['last_session'] = last_session
+            
+            json_session['dependencies'] =  json.loads(json.dumps(dependencies, indent=4, sort_keys=False, default=str))
+            
+            # 2.4. Dynamically load the logic element for the current session.
             module_logic_filename = session['module_logic']
-            module_logic_filename = module_logic_filename[0: module_logic_filename.rfind('.')]
-            # 2.2. Dynamically load the logic element for the current session.
+            module_logic_filename = module_logic_filename[0: module_logic_filename.rfind('.')] # Remove file extension
             name = "external." + module_logic_filename + "." + module_logic_filename
             mod = __import__('external.' + module_logic_filename, fromlist=[''])
             provided_recommendations = mod.run(json_session, json_recommendations)
 
-            # 2.3. Make the recommendations taking into account the results of the logic element.
+            # 2.5. Make the recommendations taking into account the results of the logic element.
             if (len(provided_recommendations) != 0):
                 for recommendation_id in provided_recommendations:
                     add_logic_session_recommendation(ID, recommendation_id)
@@ -481,7 +550,7 @@ def find_recommendations(request, ID):
         except Exception as e:
             raise modules.error_handlers.BadRequest(request.path, str(e), 500)
    
-    
+
     # 2. Get the list of recommendations to be stored in the session.
     #    -> Some redundancy is expected to exist on the database, however, it avoids further 
     #       processing when checking the history of sessions.

@@ -38,7 +38,7 @@ import views.user # SAM's views
 """
 @app.route('/recommendation', methods=['POST'])
 def add_recommendation(internal_json=None):
-    DEBUG=True
+    DEBUG=False
     if (internal_json is None):
         if (request.method != 'POST'): return
     
@@ -119,7 +119,7 @@ def add_recommendation(internal_json=None):
 """
 @app.route('/recommendation', methods=['PUT'])
 def update_recommendation():
-    DEBUG=True
+    DEBUG=False
     if request.method != 'PUT': return
     # Check if the user has permissions to access this resource
     views.user.isAuthenticated(request)
