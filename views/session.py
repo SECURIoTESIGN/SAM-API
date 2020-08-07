@@ -327,6 +327,50 @@ def find_session_closed(ID, internal_call=False):
 
 
 """
+[Summary]: Gets closed sessions. A session is considered closed when all answers were given by the end user.
+[Returns]: Response result.
+"""
+@app.route('/sessions/closed', methods=['GET'])
+def get_sessions_closed(internal_call=False):
+    if (not internal_call):
+        if request.method != 'GET': return
+    
+    # Check if the user has permissions to access this resource.
+    if (not internal_call): views.user.isAuthenticated(request)
+
+    # Let's get the list of sessions from the db.
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("SELECT id FROM Session WHERE ended =1")
+        res = cursor.fetchall()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+    
+    # Check for empty results.
+    if (len(res) == 0):
+        cursor.close()
+        conn.close()
+        if (internal_call):
+            return(None)
+        else:
+            return(modules.utils.build_response_json(request.path, 400))
+
+    sessions = []
+    for row in res:
+        session = find_session_closed(row[0], True)
+        if (session): sessions.append(session)
+    cursor.close()
+    conn.close()
+
+    # 'May the Force be with you'.
+    if (internal_call): 
+        return(sessions) 
+    else: 
+        return(modules.utils.build_response_json(request.path, 200, sessions))
+
+
+"""
 [Summary]: Finds a session by ID (opened or closed)
 [Returns]: Returns response result.
 """
@@ -428,10 +472,20 @@ def find_sessions_of_user(user_email, internal_call=False):
             data['id']          = row[0]
             data['user_id']     = row[1]
             data['user_email']  = row[2]
-            data['module_id']   = row[3]
             data['ended']       = row[4]
             data['createdOn']   = row[5]
             data['updatedOn']   = row[6]
+            session         = find_session_closed(data['id'], True)
+            if ("questions" in session): 
+                questions               = session['questions']
+                data['questions']       = questions
+            if ("recommendations" in session):
+                recommendations         = session['recommendations']
+                data['recommendations'] = recommendations
+            module = views.module.find_module(row[3], True)
+            del module[0]['recommendations']
+            del module[0]['tree']
+            if (module): data['module'] = module[0]
             datas.append(data)
         cursor.close()
         conn.close()
@@ -572,23 +626,24 @@ def find_recommendations(request, ID):
         cursor.close()
         conn.close()
         return(modules.utils.build_response_json(request.path, 404))
-
-    results = []
+    
+    result = {}
+    recommendations = []
+    result['recommendations'] = recommendations
     for row in res:
-        result = {}
-        result['session_id']                 = row[0]
-        result['recommendation_id']          = row[1]
-        result['recommendation']             = row[2]
-        result['recommendation_description'] = row[3]
-        result['guide_filename']             = row[4]
-        
-        results.append(result)
+        if ("id" not in result): result['id']   = row[0]
+        recommendation = {}
+        recommendation['id']                    = row[1]
+        recommendation['content']               = row[2]
+        recommendation['description']           = row[3]
+        recommendation['recommendation_guide']  = row[4]
+        recommendations.append(recommendation)
         # 3. Store the recommendations for the current session, only for those module that are not using any kind of external logic. 
         if (session['module_logic'] == None):
             try:
                 conn2    = mysql.connect()
                 cursor2  = conn2.cursor()
-                cursor2.execute("INSERT INTO Session_Recommendation (sessionID, recommendationID) VALUES (%s, %s)", (ID, result['recommendation_id']))
+                cursor2.execute("INSERT INTO Session_Recommendation (sessionID, recommendationID) VALUES (%s, %s)", (ID, recommendation['id']))
                 conn2.commit()
             except Exception as e:
                 raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
@@ -599,7 +654,7 @@ def find_recommendations(request, ID):
     conn.close()
 
     # 4. 'May the Force be with you'.
-    return(modules.utils.build_response_json(request.path, 200, results))  
+    return(modules.utils.build_response_json(request.path, 200, result))  
 
 
 """
