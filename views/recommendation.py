@@ -30,7 +30,8 @@ from flask import Flask, abort, request, jsonify, render_template, redirect, url
 from datetime import datetime
 import requests, json, os
 import modules.error_handlers, modules.utils # SAM's modules
-import views.user # SAM's views
+import views.user, views.module # SAM's views
+
 
 """
 [Summary]: Adds a new recommendation to the database.
@@ -84,6 +85,14 @@ def add_recommendation(internal_json=None):
     else:
         recommendation_id = json_data['id']
  
+    # If availabe, set the final guide filename after knowing the database id of the new recommendation
+    if guide and recommendation_id:
+        # Get the file extension of the guide uploaded (it can be txt or md) in order to create the final name of the file.
+        file_extension = guide[guide.rfind("."): len(guide)]
+        final_recommendation_filename = "recommendation_" + str(recommendation_id) + file_extension
+        sql, values = modules.utils.build_sql_instruction("UPDATE Recommendation", ["guideFileName"], final_recommendation_filename, "WHERE id="+str(recommendation_id))
+        modules.utils.db_execute_update_insert(mysql, sql, values, True)
+
     # This recommendation is given if a question answer association is defined.
     # question_answer_id is a column in table "Recommendation_Question_Answer"
     questions_answers = "questions_answers" in json_data and json_data['questions_answers'] or None
@@ -113,6 +122,41 @@ def add_recommendation(internal_json=None):
             return(modules.utils.build_response_json(request.path, 200, {"id": recommendation_id}))   
         else:
             return({"id", recommendation_id})
+
+"""
+[Summary]: Delete a recommendation.
+[Returns]: Returns a success or error response
+"""
+@app.route('/recommendation/<recommendation_id>', methods=["DELETE"])
+def delete_recommendation(recommendation_id):
+    if request.method != 'DELETE': return
+    # 1. Check if the user has permissions to access this resource
+    views.user.isAuthenticated(request)
+    
+    # 2. If any, get the filename of the guide linked to the recommendation.
+    recommendation_guide = find_recommendation(recommendation_id, True)[0]['guide']
+
+    # 3. Connect to the database and delete the resource
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("DELETE FROM Recommendation WHERE ID=%s", recommendation_id)
+        conn.commit()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
+    finally:
+        cursor.close()
+        conn.close()
+        # 3.1. If guide available, remove the file from the server.
+        if (recommendation_guide): 
+            try:
+                os.remove(os.path.join(views.file.UPLOAD_DIRECTORY, recommendation_guide))
+            except Exception as e:
+                pass # For some reason, the file may not exist.
+
+    # 4. The Delete request was a success, the user 'took the blue pill'.
+    return (modules.utils.build_response_json(request.path, 200))
+
 """
 [Summary]: Updates a recommendation
 [Returns]: Response result.
@@ -140,6 +184,19 @@ def update_recommendation():
 
     # If the mimetype does not indicate JSON (application/json, see is_json()), this returns None.
     if (json_data is None): return(modules.utils.build_response_json(request.path, 400)) 
+
+    # If availabe, set the final guide filename after knowing the database id of the new recommendation
+
+    if guide and json_data['id']:
+        # Remove previous guide.
+        previous_guide = find_recommendation(json_data['id'], True)[0]['guide']
+        if (guide != previous_guide): 
+            os.remove(os.path.join(views.file.UPLOAD_DIRECTORY, previous_guide))
+
+        # Get the file extension of the guide uploaded (it can be txt or md) in order to create the final name of the file.
+        file_extension = guide[guide.rfind("."): len(guide)]
+        final_recommendation_filename = "recommendation_" + str(json_data['id']) + file_extension
+        guide = final_recommendation_filename
 
     # Build the SQL instruction using our handy function to build sql instructions.
     values  = (content, description, guide, createdon, updatedon)
@@ -169,31 +226,50 @@ def get_recommendations(internal_call=False):
         views.user.isAuthenticated(request)
 
     # 2. Let's get the set of available recommendations
-    results = []
+    recommendations = []
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
         cursor.execute("SELECT ID, content, description, guideFileName, createdon, updatedon FROM Recommendation")
         res = cursor.fetchall()
         for row in res:
-            result = {}
-            result['id']          = row[0]
-            result['content']     = row[1]
-            result['description'] = row[2]
-            result['guide']       = row[3]
-            result['createdOn']   = row[4]
-            result['updatedOn']   = row[5]
-            results.append(result)
+            recommendation = {}
+            recommendation['id']          = row[0]
+            recommendation['content']     = row[1]
+            recommendation['description'] = row[2]
+            recommendation['guide']       = row[3]
+            recommendation['createdOn']   = row[4]
+            recommendation['updatedOn']   = row[5]
+            recommendation['modules']     = []
+            recommendations.append(recommendation)
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
     finally:
+
+        # 3. Let's get the info about the modules linked to each recommendation.
         cursor.close()
+        for recommendation in recommendations:
+            try:
+                cursor  = conn.cursor()
+                cursor.execute("SELECT module_id FROM VIEW_module_recommendations WHERE recommendation_id=%s", recommendation['id'])
+                res = cursor.fetchall()
+                for row in res:
+                    module = views.module.find_module(row[0], True)[0]
+                    # Remove unnecessary information from the object
+                    if ("tree" in module): del module['tree']
+                    if ("recommendations" in module): del module['recommendations']
+                    if ("dependencies" in module): del module['dependencies']
+                    recommendation['modules'].append(module)
+            except Exception as e:
+                raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
+            cursor.close()
+        
         conn.close()
-        # 3. The request was a success, the user 'is in the rabbit hole'
+        # 4. The request was a success, the user 'is in the rabbit hole'
         if (not internal_call):
-            return(modules.utils.build_response_json(request.path, 200, results))
+            return(modules.utils.build_response_json(request.path, 200, recommendations))
         else:
-            return(results)
+            return(recommendations)
 
 """
 [Summary]: Finds recommendation by ID.

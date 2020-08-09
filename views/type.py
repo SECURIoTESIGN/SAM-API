@@ -197,10 +197,10 @@ def find_type(ID):
 @app.route('/type/<ID>', methods=["DELETE"])
 def delete_type(ID):
     if request.method != 'DELETE': return
-    # 1. Check if the user has permissions to access this resource
+    # 1. Check if the user has permissions to access this resource.
     views.user.isAuthenticated(request)
 
-    # 2. Connect to the database and delete the user
+    # 2. Connect to the database and delete the resource.
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()

@@ -4,10 +4,12 @@ USE SAM;
 DROP VIEW IF EXISTS View_Module_Recommendations;
 CREATE VIEW View_Module_Recommendations AS
 SELECT DISTINCT
-	M.ID as module_ID,
-    R.ID as recommendation_ID,
+	R.ID as recommendation_ID,
+    M.ID as module_ID,
     R.content as recommendation_content,
-    R.createdon,
+    R.description as recommendation_description,
+    R.guidefilename as recommendation_guide,
+	R.createdon,
     R.updatedon
 FROM 
 	Module as M,
