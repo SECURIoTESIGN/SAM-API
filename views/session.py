@@ -476,12 +476,13 @@ def find_sessions_of_user(user_email, internal_call=False):
             data['createdOn']   = row[5]
             data['updatedOn']   = row[6]
             session         = find_session_closed(data['id'], True)
-            if ("questions" in session): 
-                questions               = session['questions']
-                data['questions']       = questions
-            if ("recommendations" in session):
-                recommendations         = session['recommendations']
-                data['recommendations'] = recommendations
+            if session:
+                if ("questions" in session): 
+                    questions               = session['questions']
+                    data['questions']       = questions
+                if ("recommendations" in session):
+                    recommendations         = session['recommendations']
+                    data['recommendations'] = recommendations
             module = views.module.find_module(row[3], True)
             del module[0]['recommendations']
             del module[0]['tree']

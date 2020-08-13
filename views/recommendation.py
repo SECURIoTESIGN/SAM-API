@@ -61,18 +61,18 @@ def add_recommendation(internal_json=None):
     # Validate if the necessary data is on the provided JSON
     # Check if the recommendation [id] is null. If not null, it means the module was previsoulyed added and we just need to add the question_answers mapping to table [recommendation_question_answer].
     if (json_data['id'] is None):
-        if (not modules.utils.valid_json(json_data, {"content", "description"})):
+        if (not modules.utils.valid_json(json_data, {"content"})):
             raise modules.error_handlers.BadRequest(request.path, "Some required key or value is missing from the JSON object", 400)    
         
         content         = json_data['content']
-        description     = json_data['description']
+        description     = "description" in json_data and json_data['description']     or None
         guide           = "guide"     in json_data and json_data['guide']     or None
         createdon       = "createdon" in json_data and json_data['createdon'] or None
         updatedon       = "updatedon" in json_data and json_data['updatedon'] or None
     
         # Build the SQL instruction using our handy function to build sql instructions.
         values = (content, description, guide, createdon, updatedon)
-        sql, values = modules.utils.build_sql_instruction("INSERT INTO Recommendation", ["content", "description", guide and "guidefilename" or None, createdon and "createdon" or None, updatedon and "updatedon" or None], values)
+        sql, values = modules.utils.build_sql_instruction("INSERT INTO Recommendation", ["content", description and "description" or None, guide and "guidefilename" or None, createdon and "createdon" or None, updatedon and "updatedon" or None], values)
         if (DEBUG): print("[SAM-API]: [POST]/recomendation - " + sql + " " + str(values))
 
         # Add
@@ -82,16 +82,19 @@ def add_recommendation(internal_json=None):
                 return(modules.utils.build_response_json(request.path, 400))  
             else:
                 return("None")
+        
+        # If availabe, set the final guide filename after knowing the database id of the new recommendation
+        if guide and recommendation_id:
+            # Get the file extension of the guide uploaded (it can be txt or md) in order to create the final name of the file.
+            file_extension = guide[guide.rfind("."): len(guide)]
+            final_recommendation_filename = "recommendation_" + str(recommendation_id) + file_extension
+            sql, values = modules.utils.build_sql_instruction("UPDATE Recommendation", ["guideFileName"], final_recommendation_filename, "WHERE id="+str(recommendation_id))
+            modules.utils.db_execute_update_insert(mysql, sql, values, True)
+        
     else:
         recommendation_id = json_data['id']
  
-    # If availabe, set the final guide filename after knowing the database id of the new recommendation
-    if guide and recommendation_id:
-        # Get the file extension of the guide uploaded (it can be txt or md) in order to create the final name of the file.
-        file_extension = guide[guide.rfind("."): len(guide)]
-        final_recommendation_filename = "recommendation_" + str(recommendation_id) + file_extension
-        sql, values = modules.utils.build_sql_instruction("UPDATE Recommendation", ["guideFileName"], final_recommendation_filename, "WHERE id="+str(recommendation_id))
-        modules.utils.db_execute_update_insert(mysql, sql, values, True)
+
 
     # This recommendation is given if a question answer association is defined.
     # question_answer_id is a column in table "Recommendation_Question_Answer"

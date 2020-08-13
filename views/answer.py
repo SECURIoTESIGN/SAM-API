@@ -30,7 +30,7 @@ from flask import Flask, abort, request, jsonify, render_template, redirect, url
 from datetime import datetime
 import requests, json, os
 import modules.error_handlers, modules.utils # SAM's modules
-import views.user # SAM's views
+import views.user, views.question # SAM's views
 
 """
 [Summary]: Adds a new question to the database.
@@ -171,9 +171,10 @@ def get_answers():
         datas = [] # Create a new nice empty array of dictionaries to be populated with data from the DB.
         for row in res:
             data = {}
-            data['ID']          = row[0]
+            data['id']          = row[0]
             data['content']     = row[1]
             data['description'] = row[2]
+            data['questions']   = find_questions_of_answer(row[0])
             data['createdon']   = row[3]
             data['updatedon']   = row[4]
             datas.append(data)
@@ -181,6 +182,37 @@ def get_answers():
         conn.close()
         # 3. 'May the Force be with you, young master'.
         return(modules.utils.build_response_json(request.path, 200, datas))
+
+"""
+[Summary]: Finds the list of questions linked to an answer.
+[Returns]: A list of questions or an empty array if None are found.
+"""
+def find_questions_of_answer(answer_id):
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("SELECT questionID FROM Question_Answer WHERE answerID=%s", answer_id)
+        res = cursor.fetchall()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+    
+    # Check for empty results 
+    if (len(res) == 0):
+        cursor.close()
+        conn.close()
+        return([]) 
+       
+    else:
+        questions = [] # Create a new nice empty array of dictionaries to be populated with data from the DB.
+        for row in res:
+            question = views.question.find_question(row[0], True)[0]
+            questions.append(question)
+        cursor.close()
+        conn.close()
+       
+        # 'May the Force be with you, young master'.
+        return(questions)
+
 
 """
 [Summary]: Finds Answer.
@@ -211,7 +243,7 @@ def find_answer(ID, internal_call=False):
         datas = [] # Create a new nice empty array of dictionaries to be populated with data from the DB.
         for row in res:
             data = {}
-            data['ID']          = row[0]
+            data['id']          = row[0]
             data['content']     = row[1]
             data['description'] = row[2]
             data['createdon']   = row[3]

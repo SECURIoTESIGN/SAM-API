@@ -55,6 +55,7 @@ CREATE VIEW View_User_Group AS
 SELECT
 	U.ID as user_id,
     U.email as user_email,
+    G.id as group_id,
     G.designation as user_group
 FROM
 SAm.Group as G,
@@ -120,8 +121,9 @@ SELECT
 	M.ID as module_ID,
     M.displayname as module_displayname,
     --
-    Q.ID as question_ID, 
-    q.content as question,
+    Q.ID as question_ID,
+    Q.content as question,
+    Q.description as question_description,
     --
     MQ.questionOrder,
     --

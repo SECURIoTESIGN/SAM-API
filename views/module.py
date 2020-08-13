@@ -38,7 +38,7 @@ import views.user, views.recommendation, views.question, views.dependency # SAM'
 """
 @app.route('/module', methods=['POST'])
 def add_module():
-    DEBUG=True
+    DEBUG=False
     if request.method != 'POST': return
     # Check if the user has permissions to access this resource
     views.user.isAuthenticated(request)
@@ -282,7 +282,7 @@ def update_module():
             else:
                 views.dependency.add_dependency({"module_id": module_id, "depends_on": dependency['module']['id']}, True)
 
-    # Check if there are any recommendation flagged to be removed, to remove is not the recommentation but the mapping of a recommendation to the current module
+    # Check if there are any recommendation flagged to be removed, what is removed is not the recommentation but the mapping of a recommendation to the current module
     for recommendation in recommendations:
         flag_remove = "to_remove" in recommendation and recommendation['to_remove'] or None
         # Remove the recommendation
@@ -389,7 +389,6 @@ def get_modules_questions():
     # 'May the Force be with you, young padawan'.
     return(modules.utils.build_response_json(request.path, 200, datas))    
 
-
 """
 [Summary]: Get answers of each module.
 [Returns]: Returns a set of modules.
@@ -428,7 +427,6 @@ def get_modules_answers():
     
     # 'May the Force be with you, young padawan'.
     return(modules.utils.build_response_json(request.path, 200, datas))    
-
 
 """
 [Summary]: Finds a module.
@@ -494,7 +492,6 @@ def find_module(ID, internal_call=False):
             return(modules.utils.build_response_json(request.path, 200, datas))
         else:
             return(datas)
-
 
 """
 [Summary]: Finds questions linked to a module.
@@ -591,7 +588,6 @@ def find_module_answers(ID, internal_call=False):
         else:
             return(datas)
 
-
 """
 [Summary]: Get the tree of the module. This tree contains all the questions and answers.
 [Returns]: A set of questions, its children, and its answers.
@@ -626,7 +622,7 @@ def get_module_tree(pID, internal_call=False):
 
     datas = []
     for ID in IDS:
-        print(" Processing Data of Module " + str(ID))
+        # print(" Processing Data of Module " + str(ID))
         # 2. Let's get the main questions of the module.
         try:
             conn    = mysql.connect()
@@ -739,7 +735,6 @@ def parent_changed(question_id, answer_id):
         conn.close()
         return(False)
 
-
 """
 [Summary]: When a new question or answer is added on the client side an ID is generated for each one. After that, the user is required to add recommendations. 
            These recommendations will be given taking into account if the user has selected a set of answers to a set of questions. The mapping of questions and 
@@ -752,7 +747,7 @@ def parent_changed(question_id, answer_id):
     - $is_question$: Flag to ascertain if the mapping operation of client_id => database_id is to be performed on a question or an answer.
 """
 def update_questions_answers_ids(client_id, database_id, recommendations, is_question):
-    DEBUG = True
+    DEBUG = False
     if (DEBUG):
         if (is_question):
             print("[SAM-API] update_questions_answers_ids() => Trying to find client_question_id = " + str(client_id) + " in recommendations list.")
@@ -769,13 +764,13 @@ def update_questions_answers_ids(client_id, database_id, recommendations, is_que
                         if (question_answer['client_question_id'] == client_id):
                             del question_answer['client_question_id']
                             question_answer['question_id'] = database_id
-                            print("[SAM-API] update_questions_answers_ids() => Found it, updating node = " + str(question_answer))
+                            if (DEBUG): print("[SAM-API] update_questions_answers_ids() => Found it, updating node = " + str(question_answer))
                 else:
                     if ("client_answer_id" in question_answer):
                         if (question_answer['client_answer_id'] == client_id):
                             del question_answer['client_answer_id']
                             question_answer['answer_id'] = database_id
-                            print("[SAM-API] update_questions_answers_ids() => Found it, updating node = " + str(question_answer))
+                            if (DEBUG): print("[SAM-API] update_questions_answers_ids() => Found it, updating node = " + str(question_answer))
 
 """
 [Summary]: Iterates the module tree that contains the mapping of questions and answers. This is an auxiliary function of add_module() and update_module().
@@ -786,8 +781,8 @@ def update_questions_answers_ids(client_id, database_id, recommendations, is_que
     - $p_p_node$: Parent of the parent node.
 """
 def iterate_tree_nodes(recommendations, operation, module_id, c_node, p_node=None, p_p_node=None):
-    debug=True
-    print("[SAM-API] Processing current node = '"+ str(c_node['name'])+"'")
+    debug=False
+    # print("[SAM-API] Processing current node = '"+ str(c_node['name'])+"'")
     operation = operation.upper()
 
     # In the case of an UPDATE operation, we need to check if this question is available on the database; if not, 
@@ -860,7 +855,15 @@ def iterate_tree_nodes(recommendations, operation, module_id, c_node, p_node=Non
             exists_flag = False
             # Check if the answer already exists (i.e. if c_node['id'] == null)
             if (not c_node['id']):
-                c_node.update({"id": modules.utils.db_execute_update_insert(mysql, sql, values)}) # Store the ID of the newly created answer.
+                # Check if the answer is similar or equal to one already available on the database, if so, use the id of the one that is equal
+                # This is performed by checking the contents of an answer. No need to create a new answer on the database if one similar is already available.
+                node_id = (modules.utils.db_already_exists(mysql, "SELECT id, content FROM Answer WHERE content LIKE %s", c_node['name']))
+                print(node_id)
+                if (node_id == -1):
+                    c_node.update({"id": modules.utils.db_execute_update_insert(mysql, sql, values)}) # Store the ID of the newly created answer.
+                else:
+                    c_node.update({"id": node_id}) # Store the ID of an answer that was previsouly inserted on the database. 
+
                 # By knowing the client_id update recommendations questions and answers to the database id (c_node['id']).
                 update_questions_answers_ids(c_node['client_id'], c_node['id'], recommendations, False)
 
@@ -878,6 +881,7 @@ def iterate_tree_nodes(recommendations, operation, module_id, c_node, p_node=Non
             values  = (p_node['id'], c_node['id'])
             modules.utils.db_execute_update_insert(mysql, sql, values)
             if (debug): print("  -> [?] = '" + sql + ", " + str(values))
+        
         if (operation == "UPDATE"):
             # Check if the link between the current answer node and a question was changed (i.e., parent change).
             # If true remove the previous link and assigned the new one

@@ -50,15 +50,15 @@ def console_log(function_name, message, exception=False):
 [Usage Example]: 
        sql = modules.utils.build_sql_instruction("INSERT INTO Recommendation", ["content", "description", "guideFilename", "createdon", updatedon and "updatedon" or None], values)
 [Returns]: The final SQL instruction to be feed into the db_execute_update_insert() function.
+TODO: This function needs work. 
 """
 def build_sql_instruction(SQL, columns, values, where=None):
-    if type(values) is tuple: 
-        values    = [i for i in values if i]  # If exists, remove None values.
+    if type(values) is tuple:
+        values = [i for i in values if i]  # If exists, remove None values.
     else: 
         values = (str(values)) 
-
+    
     columns  = [i for i in columns if i] 
-
     table_columns, table_values = (str(SQL.lower()).find("update")) == 0 and "SET " or "", ""
     
     if ((str(SQL.lower()).find("insert")) == 0):
@@ -73,7 +73,11 @@ def build_sql_instruction(SQL, columns, values, where=None):
             value = "%s"
             table_values    += (i==0) and (" VALUES (" + value) or ((i==len(values)-1) and (","+value+")") or (","+value)) 
             i = i + 1
+        if (table_columns.rfind(")") == -1): table_columns += ")"
+        if (table_values.rfind(")") == -1):  table_values += ")"
+        
         SQL = SQL + " " + table_columns + table_values
+    
     if ((str(SQL.lower()).find("update")) == 0):
         # Proc. columns 
         i = 0
@@ -87,12 +91,13 @@ def build_sql_instruction(SQL, columns, values, where=None):
 """
 [Summary]: Check if an entry exists on the database
 [Arguments]:
-       - $SQL$: Barebones SQL instruction. For example, "INSERT INTO User"
+       - $SQL$: Barebones SQL instruction. For example, "Select id FROM User"
        - $columns$: List of columns of the table.
        - $values$: List of values of the SQL instruction.
-[Returns]: True if exists, false otherwise.
+[Returns]: the id of the entry if exists, -1 otherwise.
 """
-def db_already_exists(mysql, SQL, values, DEGUG=True): 
+def db_already_exists(mysql, SQL, values):
+    DEBUG = True
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
@@ -100,20 +105,24 @@ def db_already_exists(mysql, SQL, values, DEGUG=True):
         cursor.execute(SQL, values)
         res = cursor.fetchall()
     except Exception as e:
-        console_log("db_already_exists", str(e), True)
-        return(False)
+        console_log("db_already_exists()", str(e), True)
+        return(-1)
     
     # Check for empty results. 
     if (len(res) == 0):
         cursor.close()
         conn.close()
-        return(False)    
+        return(-1)    
     else:
+        primary_key_value = -1
+        for row in res: 
+            primary_key_value = int(row[0])
+            break
         cursor.close()
         conn.close()
-        return(True)
+        return(primary_key_value)
     
-    retur(False)
+    return(-1)
 
 """
 [Summary]: Executes a SQL INSERT or UPDATE instruction

@@ -65,7 +65,7 @@ def login_user():
         dbpsw = ""
         data = {} # Create a new nice empty dictionary to be populated with data from the DB.
         for row in records:
-            data['ID']          = row[0]
+            data['id']          = row[0]
             data['email']       = row[1]
             # For security reasons lets not store the password in the dic.
             dbpsw               = row[2] 
@@ -159,7 +159,7 @@ def logout_user():
         # 3.1. Let's clean the house - Remove possible expired tokens from the user of the token
         res_dic  = jwt.decode(token_parsed, JWT_SECRET_TOKEN, algorithms=['HS256'])
        
-        userID = int(res_dic['ID'])
+        userID = int(res_dic['id'])
         if not clear_expired_blacklisted_JWT(userID): # Sanity check
             return (modules.utils.build_response_json(request.path, 500))
         # 3.2. Let's add the token to the blacklist table on the database for the current user
@@ -294,7 +294,7 @@ def get_users():
         datas = [] 
         for row in res:
             data = {}
-            data['ID']          = row[0]
+            data['id']          = row[0]
             data['email']       = row[1]
             data['firstName']   = row[2]
             data['lastName']    = row[3]
@@ -307,7 +307,7 @@ def get_users():
         cursor.close()
         conn.close()
         # 4. Return information about the user (except the password) and 'May the Force be with you'.
-        return(modules.utils.build_response_json(request.path, 200, data))    
+        return(modules.utils.build_response_json(request.path, 200, datas))    
 
 """
 [Summary]: Finds a user by email.
@@ -315,11 +315,13 @@ def get_users():
 """
 # Check if a user exists
 @app.route('/user/<email>', methods=['GET'])
-def find_user(email):
-    if request.method != 'GET': return
+def find_user(email, internal_call=False):
+    if (not internal_call):
+        if request.method != 'GET': return
 
     # 1. Check if the user has permissions to access this resource
-    isAuthenticated(request)
+    if (not internal_call):
+        isAuthenticated(request)
        
     # 2. Let's validate the email, invalid emails from this point are not allowed.
     try:
@@ -340,19 +342,26 @@ def find_user(email):
     if (len(res) == 0):
         cursor.close()
         conn.close()
-        return(modules.utils.build_response_json(request.path, 404))    
+        if (not internal_call):
+            return(modules.utils.build_response_json(request.path, 404))
+        else:
+            return(None)
     else:
         data = {} # Create a new nice empty dictionary to be populated with data from the DB.
         for row in res:
-            data['ID']          = row[0]
+            data['id']          = row[0]
             data['email']       = row[1]
             data['firstName']   = row[2]
             data['lastName']    = row[3]
             data['avatar']      = row[4]
         cursor.close()
         conn.close()
+
         # 4. Return information about the user (except the password) and 'May the Force be with you'.
-        return(modules.utils.build_response_json(request.path, 200, data))    
+        if (not internal_call):
+            return(modules.utils.build_response_json(request.path, 200, data))
+        else:
+            return(data)
 
 """
 [Summary]: Delete a user
@@ -518,14 +527,13 @@ def isAuthenticated(request):
     # 2. Check if the Authorization header name was parsed.
     if 'Authorization' not in headers: raise modules.error_handlers.BadRequest(request.path, "Authentication failure - You don't have the permission to access this resource. Please, provide an authorization token.", 403) 
     parsedToken = headers['Authorization']
-    # print("Parsed Token:" + parsedToken)
-
+    
     # 3. Decode the authorization token to get the User object.
     try:
         # Decode will raise an exception if anything goes wrong within the decoding process (i.e., perform validation of the JWT).
         res_dic  = jwt.decode(parsedToken, JWT_SECRET_TOKEN, algorithms=['HS256'])
         # Get the ID of the user.
-        userID = int(res_dic['ID'])
+        userID = int(res_dic['id'])
         # Debug only: print(str(json.dumps(res_dic)))
        
         conn    = mysql.connect()

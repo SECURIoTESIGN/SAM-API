@@ -142,6 +142,7 @@ def get_types():
             data['id']          = row[0]
             data['name']        = row[1]
             data['description'] = row[2]
+            data['modules']     = find_modules_of_type(row[0])
             data['createdon']   = row[3]
             data['updatedon']   = row[4]
             datas.append(data)
@@ -149,6 +150,38 @@ def get_types():
         conn.close()
         # 3. 'May the Force be with you, young master'.
         return(modules.utils.build_response_json(request.path, 200, datas)) 
+
+"""
+[Summary]: Finds the list of modules linked to a type.
+[Returns]: A list of modules or an empty array if None are found.
+"""
+def find_modules_of_type(type_id):
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("SELECT ID FROM Module WHERE typeID=%s", type_id)
+        res = cursor.fetchall()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+    
+    # Check for empty results 
+    if (len(res) == 0):
+        cursor.close()
+        conn.close()
+        return([]) 
+    else:
+        modules = [] # Create a new nice empty array of dictionaries to be populated with data from the DB.
+        for row in res:
+            module = views.module.find_module(row[0], True)[0]
+            del module['tree']
+            del module['dependencies']
+            del module['recommendations']
+            modules.append(module)
+        cursor.close()
+        conn.close()
+       
+        # 'May the Force be with you, young master'.
+        return(modules)
 
 """
 [Summary]: Finds a Type.

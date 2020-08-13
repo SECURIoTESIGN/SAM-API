@@ -30,7 +30,7 @@ from flask import Flask, abort, request, jsonify, render_template, redirect, url
 from datetime import datetime
 import requests, json, os
 import modules.error_handlers, modules.utils # SAM's modules
-import views.user, views.answer # SAM's views
+import views.user, views.answer, views.module # SAM's views
 
 """
 [Summary]: Adds a new question to the database.
@@ -156,7 +156,7 @@ def get_questions():
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT ID as question_id, content, description, createdOn, updatedOn FROM Question")
+        cursor.execute("SELECT id, content, description, createdOn, updatedOn FROM Question")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -170,9 +170,13 @@ def get_questions():
         datas = [] # Create a new nice empty array of dictionaries to be populated with data from the DB.
         for row in res:
             data = {}
-            data['ID']      = row[0]
+            data['id']      = row[0]
             data['content'] = row[1]
+            data['description'] = row[2]
             data['type']    = 'question'
+            data['modules'] = find_modules_of_question(data['id'])
+            data['createdon']   = row[3]
+            data['updatedon']   = row[4]
             datas.append(data)
         cursor.close()
         conn.close()
@@ -180,15 +184,76 @@ def get_questions():
         return(modules.utils.build_response_json(request.path, 200, datas)) 
 
 """
+[Summary]: Finds the list of modules linked to a question
+[Returns]: A list of modules or an empty array if None are found.
+"""
+def find_modules_of_question(question_id):
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("SELECT module_id FROM View_Module_Question WHERE question_id=%s", question_id)
+        res = cursor.fetchall()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+    
+    # Check for empty results 
+    if (len(res) == 0):
+        cursor.close()
+        # Check if this question is a child of another question, triggered by an answer, were the parent belongs to a module.
+        # We need to do this because sub-questions, triggered by an answer, are not directly linked to a module. 
+        # In order to find the module that the sub-question belongs, we need to find its parent.
+        try:
+            conn    = mysql.connect()
+            cursor  = conn.cursor()
+            cursor.execute("SELECT parent FROM Question_has_Child WHERE child=%s", question_id)
+            res = cursor.fetchall()
+        except Exception as e:
+            raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+        
+        if (len(res) == 0):
+            cursor.close()
+            conn.close()
+            return([]) 
+        else:
+            l_modules = []
+            for row in res:
+                modules = find_modules_of_question(row[0])
+                l_modules.append(modules)
+            #
+            f_list_modules = []
+            for modules in l_modules:
+                for module in modules:
+                    if module not in f_list_modules:
+                        f_list_modules.append(module)
+            return(f_list_modules)
+            cursor.close()
+            conn.close()
+    else:
+        modules = [] # Create a new nice empty array of dictionaries to be populated with data from the DB.
+        for row in res:
+            module = views.module.find_module(row[0], True)[0]
+            del module['tree']
+            del module['dependencies']
+            del module['recommendations']
+            modules.append(module)
+        cursor.close()
+        conn.close()
+       
+        # 'May the Force be with you, young master'.
+        return(modules)
+
+"""
 [Summary]: Finds Question.
 [Returns]: Response result.
 """
 @app.route('/question/<ID>', methods=['GET'])
-def find_question(ID):
-    if request.method != 'GET': return
+def find_question(ID, internal_call=False):
+    if (not internal_call):
+        if request.method != 'GET': return
 
     # 1. Check if the user has permissions to access this resource
-    views.user.isAuthenticated(request)
+    if (not internal_call):
+        views.user.isAuthenticated(request)
 
     # 2. Let's get the answeers for the question from the database.
     try:
@@ -208,15 +273,18 @@ def find_question(ID):
         datas = [] # Create a new nice empty array of dictionaries to be populated with data from the DB.
         for row in res:
             data = {}
-            data['ID']      = row[0]
+            data['id']      = row[0]
             data['content'] = row[1]
             data['type']    = 'question'
             datas.append(data)
         cursor.close()
         conn.close()
+        
         # 3. 'May the Force be with you, young master'.
-        return(modules.utils.build_response_json(request.path, 200, datas)) 
-
+        if (not internal_call): 
+            return(modules.utils.build_response_json(request.path, 200, datas)) 
+        else:
+            return(datas)
 
 """
 [Summary]: Finds Answers of a Question by question ID ans answerID- [Question_Answer] Table.
