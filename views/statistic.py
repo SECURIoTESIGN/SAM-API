@@ -36,12 +36,19 @@ import os, views.user, modules.utils, views.recommendation, views.module, views.
 @app.route("/statistics", methods=['GET'])
 def get_global_stats():
     stats = {}
-    stats['users']              = get_stats_user(True)['size']
-    stats['modules']            = get_stats_modules(True)['size']
-    stats['questions']          = get_stats_questions(True)['size']
-    stats['answers']            = get_stats_answers(True)['size']
-    stats['sessions']           = get_stats_sessions(True)['size']
-    stats['recommendations']    = get_stats_recommendations(True)['size']
+    tmp_users = get_stats_user(True)
+    tmp_modules = get_stats_modules(True)
+    tmp_questions = get_stats_questions(True)
+    tmp_answers = get_stats_answers(True)
+    tmp_sessions = get_stats_sessions(True)
+    tmp_recommendations = get_stats_recommendations(True)
+
+    stats['users']              = tmp_users and tmp_users['size'] or 0
+    stats['modules']            = tmp_modules and tmp_modules['size'] or 0
+    stats['questions']          = tmp_questions and tmp_questions['size'] or 0
+    stats['answers']            = tmp_answers and tmp_answers['size'] or 0
+    stats['sessions']           = tmp_sessions and tmp_sessions['size'] or 0
+    stats['recommendations']    = tmp_recommendations and tmp_recommendations['size'] or 0
 
     # 'May the Force be with you.'
     return(modules.utils.build_response_json(request.path, 200, stats)) 
