@@ -71,9 +71,8 @@ def add_session():
             found = False
             if (user_sessions):
                 for user_session in user_sessions:
-                    if (DEBUG): modules.utils.console_log("['POST']/session", str(user_session))
                     if (user_session['ended'] == 0): continue # We only want sessions closed.
-                    if (user_session['module']['id'] == dep_module_id): found = True
+                    if (user_session['module_id'] == dep_module_id): found = True
             if (not found):
                 data = {}
                 data['message']      = "A session was not created, the module dependencies are not fulfilled, the module is dependent on one or more modules."
@@ -278,7 +277,7 @@ def find_session_closed(ID, internal_call=False):
             data['id']           = row[0]
             data['user_id']       = row[1]
             data['module_id']     = row[2]
-            # data['module_logic'] = row[9] 
+            data['module_logic'] = row[9]
             data['ended']        = row[3]
             data['createdOn']    = row[4]
             data['updatedOn']    = row[5]
@@ -556,21 +555,17 @@ def find_sessions_of_user_module(module_id, user_id, internal_call=False):
 [Returns]: Response result.
 """
 def find_recommendations(request, ID):
+    DEBUG = False
     # 1. Is there a logic file to process the set of answers given in this session? If yes, then, run the logic file. 
     #    This element will be in charge of calling the service to return one or more recommendations, depending on the implemented logic.  
     #    Otherwise, use the static information present in the database to infer the set of recommendations.
     session = (find_session_closed(ID, True))
     if (session is None):
         raise modules.error_handlers.BadRequest(request.path, "Unable to find recommendations for this session, maybe, there is something wrong with the answers given in this session.", 403) 
-
-    module = views.module.find_module(session['module_id'], True)
-
-    # modules.utils.console_log("find_recommendations", str(module[0]['logic_filename']))
-    #if (session['module_logic'] != None):
-    if (module[0]['logic_filename'] != None):
+    
+    if (session['module_logic'] != None):
         try:
             # 2.1. Get information related to the current session. This includes the information about the module, the set of related questions, and the answers given by the user to those questions.
-            # modules.utils.console_log("find_recommendations", "###############" + str(find_session(ID, True)))
             json_session = json.loads(json.dumps(find_session(ID, True), indent=4, sort_keys=False, default=str))
             
             # 2.2. Get the set of available recommendations.
@@ -580,7 +575,7 @@ def find_recommendations(request, ID):
             module_id   = json_session['module_id']
             user_id     = json_session['user_id'] 
             dependencies = views.dependency.find_dependency_of_module(module_id, True)
-
+            
             if (dependencies):
                 for dependency in dependencies:
                     del dependency['id']
@@ -596,23 +591,21 @@ def find_recommendations(request, ID):
             json_session['dependencies'] =  json.loads(json.dumps(dependencies, indent=4, sort_keys=False, default=str))
             
             # 2.4. Dynamically load the logic element for the current session.
-            module_logic_filename = module[0]['logic_filename']
+            module_logic_filename = session['module_logic']
             module_logic_filename = module_logic_filename[0: module_logic_filename.rfind('.')] # Remove file extension
             name = "external." + module_logic_filename + "." + module_logic_filename
             mod = __import__('external.' + module_logic_filename, fromlist=[''])
             provided_recommendations = mod.run(json_session, json_recommendations)
-            
-            # modules.utils.console_log("find_recommendations", str(provided_recommendations))
+
             # 2.5. Make the recommendations taking into account the results of the logic element.
             if (len(provided_recommendations) != 0):
                 for recommendation_id in provided_recommendations:
                     add_logic_session_recommendation(ID, recommendation_id)
 
         except Exception as e:
-            # modules.utils.console_log("find_recommendations",str(e))
             raise modules.error_handlers.BadRequest(request.path, str(e), 500)
-    else:
-        modules.utils.console_log("find_recommmendations", str("entrei no else"))
+   
+
     # 2. Get the list of recommendations to be stored in the session.
     #    -> Some redundancy is expected to exist on the database, however, it avoids further 
     #       processing when checking the history of sessions.
