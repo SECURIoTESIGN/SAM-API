@@ -184,9 +184,15 @@ def run(session, recommendations):
         print(json.dumps(recommendations))
 
     # 1. Do some logic with the answers given by the user to one or more questions for the current parsed module. 
-    if ( int(session['questions'][0]['answer']['content']) >= 0 and int(session['questions'][1]['answer']['content']) >= 0):
+    # If the answer is 16 Recommend to upgrade from a 16bit CPU to a 32bit CPU.
+    if (int(session['questions'][0]['answer']['content']) == 16):
         # 1.1. Based on the answers, give an output or recomendation based on the available set of recomendations.
-        returned_recommendations.append(recommendations[0]['id'])
-        returned_recommendations.append(recommendations[1]['id'])
+        returned_recommendations.append(recommendations[18]['id'])
+    
+    # If the answer is 32 Recommend to upgrade from a 32bit CPU to a 64bit CPU.
+    if (int(session['questions'][0]['answer']['content']) == 32):
+        # 1.1. Based on the answers, give an output or recomendation based on the available set of recomendations.
+        returned_recommendations.append(recommendations[19]['id'])
+
    
     return(returned_recommendations)
