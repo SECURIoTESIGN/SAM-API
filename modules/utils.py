@@ -51,7 +51,7 @@ def console_log(function_name, message, exception=False):
        sql = modules.utils.build_sql_instruction("INSERT INTO Recommendation", ["content", "description", "guideFilename", "createdon", updatedon and "updatedon" or None], values)
 [Returns]: The final SQL instruction to be feed into the db_execute_update_insert() function.
 TODO: This function needs work. 
-"""
+""" 
 def build_sql_instruction(SQL, columns, values, where=None):
     if type(values) is tuple:
         values = [i for i in values if i]  # If exists, remove None values.
@@ -245,3 +245,20 @@ def check_password(hashed_password, user_password):
     # Let's combine the salt and the password
     password, salt = hashed_password.split(':')
     return password == hashlib.sha256(salt.encode() + user_password.encode()).hexdigest()
+
+"""
+[Summary]: Orders the questions, answered by user, based on the module tree.
+[Returns]: Returns the ordered questions.
+"""
+def order_questions(tree, session_questions, ordered_questions=[]):
+    for obj in tree:
+        if obj['type'] == 'question':
+            for question in session_questions:
+                if question['id'] == obj['id']:
+                    ordered_questions.append(question)
+                    break
+
+        for children in obj['children']:
+            order_questions([children], session_questions, ordered_questions)
+    
+    return ordered_questions

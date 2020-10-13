@@ -231,7 +231,7 @@ WHERE
 DROP VIEW IF EXISTS View_Session_Answers;
 CREATE VIEW View_Session_Answers AS
 -- ## Shows user selected answers
-SELECT 
+SELECT DISTINCT
 S.ID as session_ID, 
 S.userID as session_userID,
 S.moduleID as session_moduleID,
@@ -253,13 +253,13 @@ FROM
     Session_User_Answer as SUA,
     Question as Q,
     Question_Answer as QA,
-    Answer as A
+    Answer as A,
+    Module as M
 WHERE
 	S.ID = SUA.sessionID AND
     SUA.questionAnswerID = QA.ID AND
     QA.questionID = Q.ID AND
     QA.answerID = A.ID
-
 UNION
 -- ## Shows user inputted answers
 SELECT DISTINCT

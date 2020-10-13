@@ -14,7 +14,7 @@ CREATE TRIGGER Trigger_Question_Delete BEFORE DELETE on Question
 FOR EACH ROW
 	-- Delete sessions linked to this question
     DELETE FROM Session WHERE 
-    Session.id = (SELECT SessionID FROM Session_User_Answer WHERE questionID = OLD.id OR questionAnswerID IN (SELECT ID FROM Question_Answer WHERE questionID = OLD.ID));
+    Session.id IN (SELECT SessionID FROM Session_User_Answer WHERE questionID = OLD.id OR questionAnswerID IN (SELECT ID FROM Question_Answer WHERE questionID = OLD.ID));
 
 -- Trigger_Answer_Delete: After deleting an answer that cascades to other tables, also delete linked sessions. These sessions become invalid.
 DROP TRIGGER IF EXISTS Trigger_Answer_Delete;
@@ -22,7 +22,7 @@ CREATE TRIGGER Trigger_Answer_Delete BEFORE DELETE on Answer
 FOR EACH ROW
 	-- Delete sessions linked to this question
     DELETE FROM Session WHERE 
-    Session.id = (SELECT SessionID FROM Session_User_Answer WHERE questionAnswerID IN (SELECT ID FROM Question_Answer WHERE answerID = OLD.ID));
+    Session.id IN (SELECT SessionID FROM Session_User_Answer WHERE questionAnswerID IN (SELECT ID FROM Question_Answer WHERE answerID = OLD.ID));
 
 -- Before updating an entry, set NOW() into the 'updatedon' date, apply this to the following tables:
 DROP TRIGGER IF EXISTS Trigger_Question_Update;

@@ -253,7 +253,7 @@ def update_module():
     avatar          = "avatar" in json_data and json_data['avatar'] or None
     description     = "description" in json_data and json_data['description'] or None
     type_id         = "type_id" in json_data and json_data['type_id'] or None
-    logic           = "logic_filename" in json_data and json_data['logic_filename'] or None
+    logic           = "logic_filename" in json_data and "logic_"+str(module_id)+".py" or None
     createdon       = None
     updatedon       = datetime.now()
     
@@ -261,7 +261,7 @@ def update_module():
     columns = [shortname and "shortname" or None, fullname and "fullname" or None, displayname and "displayname" or None, type_id and "typeID" or None, logic and "logicFilename" or None, avatar and "avatar" or None, description and "description" or None, createdon and "createdon" or None, updatedon and "updatedon" or None]
     values  = (shortname, fullname, displayname, type_id, logic, avatar, description, createdon, updatedon)
     where   = "WHERE id="+str(module_id)
-    
+
     sql, values = modules.utils.build_sql_instruction("UPDATE Module", columns, values, where)
     if (DEBUG): modules.utils.console_log("[PUT]/module", str(sql + " => " + str(values) + " " + where))
 
@@ -282,28 +282,29 @@ def update_module():
             else:
                 views.dependency.add_dependency({"module_id": module_id, "depends_on": dependency['module']['id']}, True)
 
-    # Check if there are any recommendation flagged to be removed, what is removed is not the recommentation but the mapping of a recommendation to the current module
-    for recommendation in recommendations:
-        flag_remove = "to_remove" in recommendation and recommendation['to_remove'] or None
-        # Remove the recommendation
-        if (flag_remove):
-            views.recommendation.remove_recommendation_of_module(recommendation['id'], module_id, True)
-        # Add a new recommendation
-        else:
-            # Store the mapping of question_answer and recommendations (DB table Recommendation_Question_Answer)
-            # Get the question_answer id primary key value, through [question_id] and [answer_id]    
-            for question_answer in recommendation['questions_answers']:
-                qa_res = views.question.find_question_answers_2(question_answer['question_id'], question_answer['answer_id'], True)
-                if (qa_res is None): return(modules.utils.build_response_json(request.path, 400)) 
-                qa_res = qa_res[0]
-                if (DEBUG): print("[SAM-API] [POST]/module - question_id = " + str(question_answer['question_id']) + ", answer_id=" + str(question_answer['answer_id']) + " => Question_Answer_id =" + str(qa_res['question_answer_id']))
-                question_answer['id'] = qa_res['question_answer_id']
-                print("!---->" + str(question_answer['id']))
-            
-            # Add the recommendation with the link between questions and answers
-            views.recommendation.add_recommendation(recommendation)
+    if (recommendations):
+        # Check if there are any recommendation flagged to be removed, what is removed is not the recommentation but the mapping of a recommendation to the current module
+        for recommendation in recommendations:
+            flag_remove = "to_remove" in recommendation and recommendation['to_remove'] or None
+            # Remove the recommendation
+            if (flag_remove):
+                views.recommendation.remove_recommendation_of_module(recommendation['id'], module_id, True)
+            # Add a new recommendation
+            else:
+                # Store the mapping of question_answer and recommendations (DB table Recommendation_Question_Answer)
+                # Get the question_answer id primary key value, through [question_id] and [answer_id]    
+                for question_answer in recommendation['questions_answers']:
+                    qa_res = views.question.find_question_answers_2(question_answer['question_id'], question_answer['answer_id'], True)
+                    if (qa_res is None): return(modules.utils.build_response_json(request.path, 400)) 
+                    qa_res = qa_res[0]
+                    if (DEBUG): print("[SAM-API] [POST]/module - question_id = " + str(question_answer['question_id']) + ", answer_id=" + str(question_answer['answer_id']) + " => Question_Answer_id =" + str(qa_res['question_answer_id']))
+                    question_answer['id'] = qa_res['question_answer_id']
+                    print("!---->" + str(question_answer['id']))
+                
+                # Add the recommendation with the link between questions and answers
+                views.recommendation.add_recommendation(recommendation)
     
-    return(modules.utils.build_response_json(request.path, 200))  
+    return(modules.utils.build_response_json(request.path, 200, {"id": module_id}))  
 
 """
 [Summary]: Get modules.
