@@ -1,3 +1,4 @@
+.flaskenv
 instance/
 external/
 venv/
