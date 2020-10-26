@@ -1,0 +1,385 @@
+security_requirement, need_stream_cipher, sensitive_domain, circuit_area_min, circuit_area_max, throughput_min, throughput_max, hardware_type, energy, recommendation_id
+Confidentiality,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Grain_v1-128
+Confidentiality,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Enocoro_v2-128
+Confidentiality,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Trivium-80
+Confidentiality,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,No algorithm for confidentiality
+Confidentiality,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,No algorithm for confidentiality
+Confidentiality,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Grain_v1-128
+Confidentiality,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Grain_v1-128
+Confidentiality,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Grain_v1-128
+Confidentiality,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Grain_v1-128
+Confidentiality,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,MICKEY_2.0-80
+Confidentiality,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,No algorithm for confidentiality
+Confidentiality,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,No algorithm for confidentiality
+Confidentiality,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Grain_v1-128
+Confidentiality,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Grain_v1-128
+Confidentiality,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,TWINE64/80
+Confidentiality,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,TWINE64/128
+Confidentiality,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Midori128/128
+Confidentiality,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,SIMON64/128
+Confidentiality,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Piccolo64/80
+Confidentiality,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Piccolo64/128
+Confidentiality,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Piccolo64/128
+Confidentiality,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,TWINE64/80
+Confidentiality,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Midori64/128
+Confidentiality,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Clefia128/128
+Confidentiality,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,SIMON64/96
+Confidentiality,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Piccolo64/80
+Confidentiality,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Piccolo64/128
+Confidentiality,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Piccolo64/128
+Confidentiality,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Grain_v1-80
+Confidentiality,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Grain_v1-128
+Confidentiality,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Enocoro_v2-128
+Confidentiality,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,No algorithm for confidentiality
+Confidentiality,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,No algorithm for confidentiality
+Confidentiality,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Grain_v1-80
+Confidentiality,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Grain_v1-80
+Confidentiality,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Grain_v1-80
+Confidentiality,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Grain_v1-128
+Confidentiality,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Trivium-80
+Confidentiality,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,No algorithm for confidentiality
+Confidentiality,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,No algorithm for confidentiality
+Confidentiality,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Grain_v1-80
+Confidentiality,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Grain_v1-80
+Confidentiality,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Midori64/128
+Confidentiality,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,TWINE64/80
+Confidentiality,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,TWINE64/128
+Confidentiality,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,SIMON64/128
+Confidentiality,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,SIMON64/128
+Confidentiality,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Piccolo64/80
+Confidentiality,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Midori64/128
+Confidentiality,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,TWINE64/80
+Confidentiality,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Midori64/128
+Confidentiality,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Midori64/128
+Confidentiality,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,SIMON64/96
+Confidentiality,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,SIMON64/96
+Confidentiality,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,SIMON64/128
+Confidentiality,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,SIMON64/128
+Confidentiality,1,1,1571,1799, 2.6,200,Application-specific Integrated Circuit (ASIC),Low Power,Grain_v1-128
+Confidentiality,1,1,1800,2500, 2.8, 193.9,Application-specific Integrated Circuit (ASIC),Low Power,Enocoro_v2-128
+Confidentiality,1,1,2501,8600, 133.3, 6400.1,Application-specific Integrated Circuit (ASIC),Low Power,Trivium-80
+Confidentiality,1,1,810,970, 4.2, 5.1,Application-specific Integrated Circuit (ASIC),Low Power,No algorithm for confidentiality
+Confidentiality,1,1,971,1110, 3.4, 16.3,Application-specific Integrated Circuit (ASIC),Low Power,No algorithm for confidentiality
+Confidentiality,1,1,1111,1400, 3.0, 12.1,Application-specific Integrated Circuit (ASIC),Low Power,Grain_v1-128
+Confidentiality,1,1,1401,1570, 177.8,237,Application-specific Integrated Circuit (ASIC),Low Power,Grain_v1-128
+Confidentiality,1,0,1571,1799, 2.6,200,Application-specific Integrated Circuit (ASIC),Low Power,Grain_v1-128
+Confidentiality,1,0,1800,2500, 2.8, 193.9,Application-specific Integrated Circuit (ASIC),Low Power,Grain_v1-128
+Confidentiality,1,0,2501,8600, 133.3, 6400.1,Application-specific Integrated Circuit (ASIC),Low Power,MICKEY_2.0-80
+Confidentiality,1,0,810,970, 4.2, 5.1,Application-specific Integrated Circuit (ASIC),Low Power,No algorithm for confidentiality
+Confidentiality,1,0,971,1110, 3.4, 16.3,Application-specific Integrated Circuit (ASIC),Low Power,No algorithm for confidentiality
+Confidentiality,1,0,1111,1400, 3.0, 12.1,Application-specific Integrated Circuit (ASIC),Low Power,Grain_v1-128
+Confidentiality,1,0,1401,1570, 177.8,237,Application-specific Integrated Circuit (ASIC),Low Power,Grain_v1-128
+Confidentiality,0,1,1571,1799, 2.6,200,Application-specific Integrated Circuit (ASIC),Low Power,TWINE64/80
+Confidentiality,0,1,1800,2500, 2.8, 193.9,Application-specific Integrated Circuit (ASIC),Low Power,TWINE64/128
+Confidentiality,0,1,2501,8600, 133.3, 6400.1,Application-specific Integrated Circuit (ASIC),Low Power,Midori128/128
+Confidentiality,0,1,810,970, 4.2, 5.1,Application-specific Integrated Circuit (ASIC),Low Power,SIMON64/128
+Confidentiality,0,1,971,1110, 3.4, 16.3,Application-specific Integrated Circuit (ASIC),Low Power,Piccolo64/80
+Confidentiality,0,1,1111,1400, 3.0, 12.1,Application-specific Integrated Circuit (ASIC),Low Power,Piccolo64/128
+Confidentiality,0,1,1401,1570, 177.8,237,Application-specific Integrated Circuit (ASIC),Low Power,Piccolo64/128
+Confidentiality,0,0,1571,1799, 2.6,200,Application-specific Integrated Circuit (ASIC),Low Power,TWINE64/80
+Confidentiality,0,0,1800,2500, 2.8, 193.9,Application-specific Integrated Circuit (ASIC),Low Power,Midori64/128
+Confidentiality,0,0,2501,8600, 133.3, 6400.1,Application-specific Integrated Circuit (ASIC),Low Power,Clefia128/128
+Confidentiality,0,0,810,970, 4.2, 5.1,Application-specific Integrated Circuit (ASIC),Low Power,SIMON64/96
+Confidentiality,0,0,971,1110, 3.4, 16.3,Application-specific Integrated Circuit (ASIC),Low Power,Piccolo64/80
+Confidentiality,0,0,1111,1400, 3.0, 12.1,Application-specific Integrated Circuit (ASIC),Low Power,Piccolo64/128
+Confidentiality,0,0,1401,1570, 177.8,237,Application-specific Integrated Circuit (ASIC),Low Power,Piccolo64/128
+Confidentiality,1,1,1571,1799, 2.6,200,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Grain_v1-80
+Confidentiality,1,1,1800,2500, 2.8, 193.9,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Grain_v1-128
+Confidentiality,1,1,2501,8600, 133.3, 6400.1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Enocoro_v2-128
+Confidentiality,1,1,810,970, 4.2, 5.1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,No algorithm for confidentiality
+Confidentiality,1,1,971,1110, 3.4, 16.3,Application-specific Integrated Circuit (ASIC),Ultra-low Power,No algorithm for confidentiality
+Confidentiality,1,1,1111,1400, 3.0, 12.1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Grain_v1-80
+Confidentiality,1,1,1401,1570, 177.8,237,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Grain_v1-80
+Confidentiality,1,0,1571,1799, 2.6,200,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Grain_v1-80
+Confidentiality,1,0,1800,2500, 2.8, 193.9,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Grain_v1-128
+Confidentiality,1,0,2501,8600, 133.3, 6400.1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Trivium-80
+Confidentiality,1,0,810,970, 4.2, 5.1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,No algorithm for confidentiality
+Confidentiality,1,0,971,1110, 3.4, 16.3,Application-specific Integrated Circuit (ASIC),Ultra-low Power,No algorithm for confidentiality
+Confidentiality,1,0,1111,1400, 3.0, 12.1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Grain_v1-80
+Confidentiality,1,0,1401,1570, 177.8,237,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Grain_v1-80
+Confidentiality,0,1,1571,1799, 2.6,200,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Midori64/128
+Confidentiality,0,1,1800,2500, 2.8, 193.9,Application-specific Integrated Circuit (ASIC),Ultra-low Power,TWINE64/80
+Confidentiality,0,1,2501,8600, 133.3, 6400.1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,TWINE64/128
+Confidentiality,0,1,810,970, 4.2, 5.1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,SIMON64/128
+Confidentiality,0,1,971,1110, 3.4, 16.3,Application-specific Integrated Circuit (ASIC),Ultra-low Power,SIMON64/128
+Confidentiality,0,1,1111,1400, 3.0, 12.1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Piccolo64/80
+Confidentiality,0,1,1401,1570, 177.8,237,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Midori64/128
+Confidentiality,0,0,1571,1799, 2.6,200,Application-specific Integrated Circuit (ASIC),Ultra-low Power,TWINE64/80
+Confidentiality,0,0,1800,2500, 2.8, 193.9,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Midori64/128
+Confidentiality,0,0,2501,8600, 133.3, 6400.1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Midori64/128
+Confidentiality,0,0,810,970, 4.2, 5.1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,SIMON64/96
+Confidentiality,0,0,971,1110, 3.4, 16.3,Application-specific Integrated Circuit (ASIC),Ultra-low Power,SIMON64/96
+Confidentiality,0,0,1111,1400, 3.0, 12.1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,SIMON64/128
+Confidentiality,0,0,1401,1570, 177.8,237,Application-specific Integrated Circuit (ASIC),Ultra-low Power,SIMON64/128
+Integrity, ,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,PHOTON-80/20/16
+Integrity, ,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,PHOTON-80/20/16
+Integrity, ,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,PHOTON-80/20/16
+Integrity, ,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Keccak-f[100]
+Integrity, ,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,SPONGENT-128/128/8
+Integrity, ,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,PHOTON-256/32/32
+Integrity, ,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,SPONGENT-88/80/8
+Integrity, ,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,SPONGENT-128/128/8
+Integrity, ,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,SPONGENT-88/80/8
+Integrity, ,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,PHOTON-80/20/16
+Integrity, ,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,U-QUARK
+Integrity, ,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,U-QUARK
+Integrity, ,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,SPONGENT-88/80/8
+Integrity, ,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,SPONGENT-128/128/8
+Integrity, ,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,PHOTON-128/16/16
+Integrity, ,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,SPONGENT-128/128/8
+Integrity, ,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,SPONGENT-128/128/8
+Integrity, ,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,SPONGENT-160/160/16
+Integrity, ,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,SPONGENT-88/80/8
+Integrity, ,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,SPONGENT-128/128/8
+Integrity, ,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,SPONGENT-128/128/8
+Integrity, ,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,PHOTON-160/36/36
+Integrity, ,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,PHOTON-256/32/32
+Integrity, ,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,S-QUARK
+Integrity, ,1,738,864, 0.8,1,Application-specific Integrated Circuit (ASIC),Low Power,PHOTON-80/20/16
+Integrity, ,1,865,1060, 0.3, 2.8,Application-specific Integrated Circuit (ASIC),Low Power,PHOTON-80/20/16
+Integrity, ,1,1061,1127, 0.5, 17.8,Application-specific Integrated Circuit (ASIC),Low Power,PHOTON-80/20/16
+Integrity, ,1,1128,1396,1, 2.7,Application-specific Integrated Circuit (ASIC),Low Power,Keccak-f[100]
+Integrity, ,1,1397,2190, 2.7, 17.8,Application-specific Integrated Circuit (ASIC),Low Power,SPONGENT-128/128/8
+Integrity, ,1,2191,4362, 0.4, 50.0,Application-specific Integrated Circuit (ASIC),Low Power,PHOTON-256/32/32
+Integrity, ,0,738,864, 0.8,1,Application-specific Integrated Circuit (ASIC),Low Power,SPONGENT-88/80/8
+Integrity, ,0,865,1060, 0.3, 2.8,Application-specific Integrated Circuit (ASIC),Low Power,SPONGENT-128/128/8
+Integrity, ,0,1061,1127, 0.5, 17.8,Application-specific Integrated Circuit (ASIC),Low Power,SPONGENT-88/80/8
+Integrity, ,0,1128,1396,1, 2.7,Application-specific Integrated Circuit (ASIC),Low Power,PHOTON-80/20/16
+Integrity, ,0,1397,2190, 2.7, 17.8,Application-specific Integrated Circuit (ASIC),Low Power,U-QUARK
+Integrity, ,0,2191,4362, 0.4, 50.0,Application-specific Integrated Circuit (ASIC),Low Power,U-QUARK
+Integrity, ,1,738,864, 0.8,1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,SPONGENT-88/80/8
+Integrity, ,1,865,1060, 0.3, 2.8,Application-specific Integrated Circuit (ASIC),Ultra-low Power,SPONGENT-128/128/8
+Integrity, ,1,1061,1127, 0.5, 17.8,Application-specific Integrated Circuit (ASIC),Ultra-low Power,PHOTON-128/16/16
+Integrity, ,1,1128,1396,1, 2.7,Application-specific Integrated Circuit (ASIC),Ultra-low Power,SPONGENT-128/128/8
+Integrity, ,1,1397,2190, 2.7, 17.8,Application-specific Integrated Circuit (ASIC),Ultra-low Power,SPONGENT-128/128/8
+Integrity, ,1,2191,4362, 0.4, 50.0,Application-specific Integrated Circuit (ASIC),Ultra-low Power,SPONGENT-160/160/16
+Integrity, ,0,738,864, 0.8,1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,SPONGENT-88/80/8
+Integrity, ,0,865,1060, 0.3, 2.8,Application-specific Integrated Circuit (ASIC),Ultra-low Power,SPONGENT-128/128/8
+Integrity, ,0,1061,1127, 0.5, 17.8,Application-specific Integrated Circuit (ASIC),Ultra-low Power,SPONGENT-128/128/8
+Integrity, ,0,1128,1396,1, 2.7,Application-specific Integrated Circuit (ASIC),Ultra-low Power,PHOTON-160/36/36
+Integrity, ,0,1397,2190, 2.7, 17.8,Application-specific Integrated Circuit (ASIC),Ultra-low Power,PHOTON-256/32/32
+Integrity, ,0,2191,4362, 0.4, 50.0,Application-specific Integrated Circuit (ASIC),Ultra-low Power,S-QUARK
+Authentication, ,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,No algorithm for authentication
+Authentication, ,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,No algorithm for authentication
+Authentication, ,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,No algorithm for authentication
+Authentication, ,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,No algorithm for authentication
+Authentication, ,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,No algorithm for authentication
+Authentication, ,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,No algorithm for authentication
+Authentication, ,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,No algorithm for authentication
+Authentication, ,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,No algorithm for authentication
+Authentication, ,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,No algorithm for authentication
+Authentication, ,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,No algorithm for authentication
+Authentication, ,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,No algorithm for authentication
+Authentication, ,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,No algorithm for authentication
+Authentication, ,1,1,1,1,1,Application-specific Integrated Circuit (ASIC),Low Power,No algorithm for authentication
+Authentication, ,1,1,1,1,1,Application-specific Integrated Circuit (ASIC),Low Power,No algorithm for authentication
+Authentication, ,1,1,1,1,1,Application-specific Integrated Circuit (ASIC),Low Power,No algorithm for authentication
+Authentication, ,0,1,1,1,1,Application-specific Integrated Circuit (ASIC),Low Power,No algorithm for authentication
+Authentication, ,0,1,1,1,1,Application-specific Integrated Circuit (ASIC),Low Power,No algorithm for authentication
+Authentication, ,0,1,1,1,1,Application-specific Integrated Circuit (ASIC),Low Power,No algorithm for authentication
+Authentication, ,1,1,1,1,1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,No algorithm for authentication
+Authentication, ,1,1,1,1,1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,No algorithm for authentication
+Authentication, ,1,1,1,1,1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,No algorithm for authentication
+Authentication, ,0,1,1,1,1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,No algorithm for authentication
+Authentication, ,0,1,1,1,1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,No algorithm for authentication
+Authentication, ,0,1,1,1,1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,No algorithm for authentication
+Privacy,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Grain_v1-80
+Privacy,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Trivium-80
+Privacy,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Trivium-80
+Privacy,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,No algorithm for privacy
+Privacy,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,No algorithm for privacy
+Privacy,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Grain_v1-80
+Privacy,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Grain_v1-80
+Privacy,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Grain_v1-80
+Privacy,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Grain_v1-128
+Privacy,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,MICKEY_2.0-80
+Privacy,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,No algorithm for privacy
+Privacy,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,No algorithm for privacy
+Privacy,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Grain_v1-80
+Privacy,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Grain_v1-80
+Privacy,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,TWINE64/80
+Privacy,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,TWINE64/128
+Privacy,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Midori128/128
+Privacy,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,SIMON64/128
+Privacy,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Piccolo64/80
+Privacy,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Piccolo64/128
+Privacy,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Piccolo64/128
+Privacy,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,TWINE64/80
+Privacy,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Midori64/128
+Privacy,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Clefia128/128
+Privacy,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,SIMON64/96
+Privacy,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Piccolo64/80
+Privacy,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Piccolo64/128
+Privacy,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,Piccolo64/128
+Privacy,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Grain_v1-80
+Privacy,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Grain_v1-128
+Privacy,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Enocoro_v2-128
+Privacy,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,No algorithm for privacy
+Privacy,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,No algorithm for privacy
+Privacy,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Grain_v1-80
+Privacy,1,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Grain_v1-80
+Privacy,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Grain_v1-80
+Privacy,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Grain_v1-128
+Privacy,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Trivium-80
+Privacy,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,No algorithm for privacy
+Privacy,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,No algorithm for privacy
+Privacy,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Grain_v1-80
+Privacy,1,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Grain_v1-80
+Privacy,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Clefia128/192
+Privacy,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Midori64/128
+Privacy,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,TWINE64/128
+Privacy,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,SIMON64/128
+Privacy,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,SIMON64/128
+Privacy,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Midori64/128
+Privacy,0,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Midori64/128
+Privacy,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,TWINE64/80
+Privacy,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,TWINE64/80
+Privacy,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,Midori64/128
+Privacy,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,SIMON64/96
+Privacy,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,SIMON64/96
+Privacy,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,SIMON64/128
+Privacy,0,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,SIMON64/128
+Privacy,1,1,1571,1799, 2.6,200,Application-specific Integrated Circuit (ASIC),Low Power,Grain_v1-80
+Privacy,1,1,1800,2500, 2.8, 193.9,Application-specific Integrated Circuit (ASIC),Low Power,Enocoro_v2-128
+Privacy,1,1,2501,8600, 133.3, 6400.1,Application-specific Integrated Circuit (ASIC),Low Power,Trivium-80
+Privacy,1,1,810,970, 4.2, 5.1,Application-specific Integrated Circuit (ASIC),Low Power,No algorithm for privacy
+Privacy,1,1,971,1110, 3.4, 16.3,Application-specific Integrated Circuit (ASIC),Low Power,No algorithm for privacy
+Privacy,1,1,1111,1400, 3.0, 12.1,Application-specific Integrated Circuit (ASIC),Low Power,Grain_v1-80
+Privacy,1,1,1401,1570, 177.8,237,Application-specific Integrated Circuit (ASIC),Low Power,Grain_v1-80
+Privacy,1,0,1571,1799, 2.6,200,Application-specific Integrated Circuit (ASIC),Low Power,Grain_v1-80
+Privacy,1,0,1800,2500, 2.8, 193.9,Application-specific Integrated Circuit (ASIC),Low Power,Grain_v1-128
+Privacy,1,0,2501,8600, 133.3, 6400.1,Application-specific Integrated Circuit (ASIC),Low Power,MICKEY_2.0-80
+Privacy,1,0,810,970, 4.2, 5.1,Application-specific Integrated Circuit (ASIC),Low Power,No algorithm for privacy
+Privacy,1,0,971,1110, 3.4, 16.3,Application-specific Integrated Circuit (ASIC),Low Power,No algorithm for privacy
+Privacy,1,0,1111,1400, 3.0, 12.1,Application-specific Integrated Circuit (ASIC),Low Power,Grain_v1-80
+Privacy,1,0,1401,1570, 177.8,237,Application-specific Integrated Circuit (ASIC),Low Power,Grain_v1-80
+Privacy,0,1,1571,1799, 2.6,200,Application-specific Integrated Circuit (ASIC),Low Power,TWINE64/80
+Privacy,0,1,1800,2500, 2.8, 193.9,Application-specific Integrated Circuit (ASIC),Low Power,TWINE64/128
+Privacy,0,1,2501,8600, 133.3, 6400.1,Application-specific Integrated Circuit (ASIC),Low Power,Midori128/128
+Privacy,0,1,810,970, 4.2, 5.1,Application-specific Integrated Circuit (ASIC),Low Power,SIMON64/128
+Privacy,0,1,971,1110, 3.4, 16.3,Application-specific Integrated Circuit (ASIC),Low Power,Piccolo64/80
+Privacy,0,1,1111,1400, 3.0, 12.1,Application-specific Integrated Circuit (ASIC),Low Power,Piccolo64/128
+Privacy,0,1,1401,1570, 177.8,237,Application-specific Integrated Circuit (ASIC),Low Power,Piccolo64/128
+Privacy,0,0,1571,1799, 2.6,200,Application-specific Integrated Circuit (ASIC),Low Power,TWINE64/80
+Privacy,0,0,1800,2500, 2.8, 193.9,Application-specific Integrated Circuit (ASIC),Low Power,Midori64/128
+Privacy,0,0,2501,8600, 133.3, 6400.1,Application-specific Integrated Circuit (ASIC),Low Power,Clefia128/128
+Privacy,0,0,810,970, 4.2, 5.1,Application-specific Integrated Circuit (ASIC),Low Power,SIMON64/96
+Privacy,0,0,971,1110, 3.4, 16.3,Application-specific Integrated Circuit (ASIC),Low Power,Piccolo64/80
+Privacy,0,0,1111,1400, 3.0, 12.1,Application-specific Integrated Circuit (ASIC),Low Power,Piccolo64/128
+Privacy,0,0,1401,1570, 177.8,237,Application-specific Integrated Circuit (ASIC),Low Power,Piccolo64/128
+Privacy,1,1,1571,1799, 2.6,200,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Grain_v1-80
+Privacy,1,1,1800,2500, 2.8, 193.9,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Grain_v1-128
+Privacy,1,1,2501,8600, 133.3, 6400.1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Enocoro_v2-128
+Privacy,1,1,810,970, 4.2, 5.1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,No algorithm for privacy
+Privacy,1,1,971,1110, 3.4, 16.3,Application-specific Integrated Circuit (ASIC),Ultra-low Power,No algorithm for privacy
+Privacy,1,1,1111,1400, 3.0, 12.1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Grain_v1-80
+Privacy,1,1,1401,1570, 177.8,237,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Grain_v1-80
+Privacy,1,0,1571,1799, 2.6,200,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Grain_v1-80
+Privacy,1,0,1800,2500, 2.8, 193.9,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Grain_v1-128
+Privacy,1,0,2501,8600, 133.3, 6400.1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Trivium-80
+Privacy,1,0,810,970, 4.2, 5.1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,No algorithm for privacy
+Privacy,1,0,971,1110, 3.4, 16.3,Application-specific Integrated Circuit (ASIC),Ultra-low Power,No algorithm for privacy
+Privacy,1,0,1111,1400, 3.0, 12.1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Grain_v1-80
+Privacy,1,0,1401,1570, 177.8,237,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Grain_v1-80
+Privacy,0,1,1571,1799, 2.6,200,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Clefia128/192
+Privacy,0,1,1800,2500, 2.8, 193.9,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Midori64/128
+Privacy,0,1,2501,8600, 133.3, 6400.1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,TWINE64/128
+Privacy,0,1,810,970, 4.2, 5.1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,SIMON64/128
+Privacy,0,1,971,1110, 3.4, 16.3,Application-specific Integrated Circuit (ASIC),Ultra-low Power,SIMON64/128
+Privacy,0,1,1111,1400, 3.0, 12.1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Midori64/128
+Privacy,0,1,1401,1570, 177.8,237,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Midori64/128
+Privacy,0,0,1571,1799, 2.6,200,Application-specific Integrated Circuit (ASIC),Ultra-low Power,TWINE64/80
+Privacy,0,0,1800,2500, 2.8, 193.9,Application-specific Integrated Circuit (ASIC),Ultra-low Power,TWINE64/80
+Privacy,0,0,2501,8600, 133.3, 6400.1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Midori64/128
+Privacy,0,0,810,970, 4.2, 5.1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,SIMON64/96
+Privacy,0,0,971,1110, 3.4, 16.3,Application-specific Integrated Circuit (ASIC),Ultra-low Power,SIMON64/96
+Privacy,0,0,1111,1400, 3.0, 12.1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,SIMON64/128
+Privacy,0,0,1401,1570, 177.8,237,Application-specific Integrated Circuit (ASIC),Ultra-low Power,SIMON64/128
+Non-repudiation, ,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,No algorithm for non-repudiation
+Non-repudiation, ,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,No algorithm for non-repudiation
+Non-repudiation, ,1,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,No algorithm for non-repudiation
+Non-repudiation, ,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,No algorithm for non-repudiation
+Non-repudiation, ,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,No algorithm for non-repudiation
+Non-repudiation, ,0,1,1,1,1,Field-programmable Gate Array (FPGA),Low Power,No algorithm for non-repudiation
+Non-repudiation, ,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,No algorithm for non-repudiation
+Non-repudiation, ,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,No algorithm for non-repudiation
+Non-repudiation, ,1,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,No algorithm for non-repudiation
+Non-repudiation, ,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,No algorithm for non-repudiation
+Non-repudiation, ,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,No algorithm for non-repudiation
+Non-repudiation, ,0,1,1,1,1,Field-programmable Gate Array (FPGA),Ultra-low Power,No algorithm for non-repudiation
+Non-repudiation, ,1,1,1,1,1,Application-specific Integrated Circuit (ASIC),Low Power,No algorithm for non-repudiation
+Non-repudiation, ,1,1,1,1,1,Application-specific Integrated Circuit (ASIC),Low Power,No algorithm for non-repudiation
+Non-repudiation, ,1,1,1,1,1,Application-specific Integrated Circuit (ASIC),Low Power,No algorithm for non-repudiation
+Non-repudiation, ,0,1,1,1,1,Application-specific Integrated Circuit (ASIC),Low Power,No algorithm for non-repudiation
+Non-repudiation, ,0,1,1,1,1,Application-specific Integrated Circuit (ASIC),Low Power,No algorithm for non-repudiation
+Non-repudiation, ,0,1,1,1,1,Application-specific Integrated Circuit (ASIC),Low Power,No algorithm for non-repudiation
+Non-repudiation, ,1,1,1,1,1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,No algorithm for non-repudiation
+Non-repudiation, ,1,1,1,1,1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,No algorithm for non-repudiation
+Non-repudiation, ,1,1,1,1,1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,No algorithm for non-repudiation
+Non-repudiation, ,0,1,1,1,1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,No algorithm for non-repudiation
+Non-repudiation, ,0,1,1,1,1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,No algorithm for non-repudiation
+Non-repudiation, ,0,1,1,1,1,Application-specific Integrated Circuit (ASIC),Ultra-low Power,No algorithm for non-repudiation
+"Confidentiality,Authenticity",1,1,1348,4500,1, 256.9,Field-programmable Gate Array (FPGA),Low Power,AES-GCM
+"Confidentiality,Authenticity",1,1,891, 1347.9, 1.0, 280.9,Field-programmable Gate Array (FPGA),Low Power,ACORN
+"Confidentiality,Authenticity",1,1,413, 890.9,1,347,Field-programmable Gate Array (FPGA),Low Power,ACORN
+"Confidentiality,Authenticity",1,1,135, 412.9,1,389,Field-programmable Gate Array (FPGA),Low Power,ACORN
+"Confidentiality,Authenticity",1,0,1348,4500,1, 256.9,Field-programmable Gate Array (FPGA),Low Power,AES-GCM
+"Confidentiality,Authenticity",1,0,891, 1347.9, 1.0, 280.9,Field-programmable Gate Array (FPGA),Low Power,ACORN
+"Confidentiality,Authenticity",1,0,413, 890.9,1,347,Field-programmable Gate Array (FPGA),Low Power,ACORN
+"Confidentiality,Authenticity",1,0,135, 412.9,1,389,Field-programmable Gate Array (FPGA),Low Power,ACORN
+"Confidentiality,Authenticity",0,1,1348,4500,1, 256.9,Field-programmable Gate Array (FPGA),Low Power,ACORN
+"Confidentiality,Authenticity",0,1,891, 1347.9, 1.0, 280.9,Field-programmable Gate Array (FPGA),Low Power,SILC-PRESENT
+"Confidentiality,Authenticity",0,1,413, 890.9,1,347,Field-programmable Gate Array (FPGA),Low Power,SILC-AES
+"Confidentiality,Authenticity",0,1,135, 412.9,1,389,Field-programmable Gate Array (FPGA),Low Power,Deoxys
+"Confidentiality,Authenticity",0,0,1348,4500,1, 256.9,Field-programmable Gate Array (FPGA),Low Power,AES-OTR
+"Confidentiality,Authenticity",0,0,891, 1347.9, 1.0, 280.9,Field-programmable Gate Array (FPGA),Low Power,SILC-PRESENT
+"Confidentiality,Authenticity",0,0,413, 890.9,1,347,Field-programmable Gate Array (FPGA),Low Power,Ascon
+"Confidentiality,Authenticity",0,0,135, 412.9,1,389,Field-programmable Gate Array (FPGA),Low Power,ACORN
+"Confidentiality,Authenticity",1,1,1348,4500,1, 256.9,Field-programmable Gate Array (FPGA),Ultra-low Power,AES-GCM
+"Confidentiality,Authenticity",1,1,891, 1347.9, 1.0, 280.9,Field-programmable Gate Array (FPGA),Ultra-low Power,ACORN
+"Confidentiality,Authenticity",1,1,413, 890.9,1,347,Field-programmable Gate Array (FPGA),Ultra-low Power,ACORN
+"Confidentiality,Authenticity",1,1,135, 412.9,1,389,Field-programmable Gate Array (FPGA),Ultra-low Power,ACORN
+"Confidentiality,Authenticity",1,0,1348,4500,1, 256.9,Field-programmable Gate Array (FPGA),Ultra-low Power,AES-GCM
+"Confidentiality,Authenticity",1,0,891, 1347.9, 1.0, 280.9,Field-programmable Gate Array (FPGA),Ultra-low Power,ACORN
+"Confidentiality,Authenticity",1,0,413, 890.9,1,347,Field-programmable Gate Array (FPGA),Ultra-low Power,ACORN
+"Confidentiality,Authenticity",1,0,135, 412.9,1,389,Field-programmable Gate Array (FPGA),Ultra-low Power,ACORN
+"Confidentiality,Authenticity",0,1,1348,4500,1, 256.9,Field-programmable Gate Array (FPGA),Ultra-low Power,SILC-AES
+"Confidentiality,Authenticity",0,1,891, 1347.9, 1.0, 280.9,Field-programmable Gate Array (FPGA),Ultra-low Power,AES-OTR
+"Confidentiality,Authenticity",0,1,413, 890.9,1,347,Field-programmable Gate Array (FPGA),Ultra-low Power,Ascon
+"Confidentiality,Authenticity",0,1,135, 412.9,1,389,Field-programmable Gate Array (FPGA),Ultra-low Power,ACORN
+"Confidentiality,Authenticity",0,0,1348,4500,1, 256.9,Field-programmable Gate Array (FPGA),Ultra-low Power,CLOC-AES
+"Confidentiality,Authenticity",0,0,891, 1347.9, 1.0, 280.9,Field-programmable Gate Array (FPGA),Ultra-low Power,AES-OTR
+"Confidentiality,Authenticity",0,0,413, 890.9,1,347,Field-programmable Gate Array (FPGA),Ultra-low Power,Ascon
+"Confidentiality,Authenticity",0,0,135, 412.9,1,389,Field-programmable Gate Array (FPGA),Ultra-low Power,JAMBU-AES
+"Confidentiality,Authenticity",1,1,7950,9000,1, 5.5,Application-specific Integrated Circuit (ASIC),Low Power,AES-GCM
+"Confidentiality,Authenticity",1,1,6000,7949,1, 5.3,Application-specific Integrated Circuit (ASIC),Low Power,ACORN
+"Confidentiality,Authenticity",1,1,3100,5999,1,6,Application-specific Integrated Circuit (ASIC),Low Power,ACORN
+"Confidentiality,Authenticity",1,1,2860,3099,1,5,Application-specific Integrated Circuit (ASIC),Low Power,ACORN
+"Confidentiality,Authenticity",1,0,7950,9000,1, 5.5,Application-specific Integrated Circuit (ASIC),Low Power,AES-GCM
+"Confidentiality,Authenticity",1,0,6000,7949,1, 5.3,Application-specific Integrated Circuit (ASIC),Low Power,ACORN
+"Confidentiality,Authenticity",1,0,3100,5999,1,6,Application-specific Integrated Circuit (ASIC),Low Power,ACORN
+"Confidentiality,Authenticity",1,0,2860,3099,1,5,Application-specific Integrated Circuit (ASIC),Low Power,ACORN
+"Confidentiality,Authenticity",0,1,7950,9000,1, 5.5,Application-specific Integrated Circuit (ASIC),Low Power,ACORN
+"Confidentiality,Authenticity",0,1,6000,7949,1, 5.3,Application-specific Integrated Circuit (ASIC),Low Power,SILC-PRESENT
+"Confidentiality,Authenticity",0,1,3100,5999,1,6,Application-specific Integrated Circuit (ASIC),Low Power,SILC-AES
+"Confidentiality,Authenticity",0,1,2860,3099,1,5,Application-specific Integrated Circuit (ASIC),Low Power,Deoxys
+"Confidentiality,Authenticity",0,0,7950,9000,1, 5.5,Application-specific Integrated Circuit (ASIC),Low Power,AES-OTR
+"Confidentiality,Authenticity",0,0,6000,7949,1, 5.3,Application-specific Integrated Circuit (ASIC),Low Power,SILC-PRESENT
+"Confidentiality,Authenticity",0,0,3100,5999,1,6,Application-specific Integrated Circuit (ASIC),Low Power,Ascon
+"Confidentiality,Authenticity",0,0,2860,3099,1,5,Application-specific Integrated Circuit (ASIC),Low Power,ACORN
+"Confidentiality,Authenticity",1,1,7950,9000,1, 5.5,Application-specific Integrated Circuit (ASIC),Ultra-low Power,AES-GCM
+"Confidentiality,Authenticity",1,1,6000,7949,1, 5.3,Application-specific Integrated Circuit (ASIC),Ultra-low Power,ACORN
+"Confidentiality,Authenticity",1,1,3100,5999,1,6,Application-specific Integrated Circuit (ASIC),Ultra-low Power,ACORN
+"Confidentiality,Authenticity",1,1,2860,3099,1,5,Application-specific Integrated Circuit (ASIC),Ultra-low Power,ACORN
+"Confidentiality,Authenticity",1,0,7950,9000,1, 5.5,Application-specific Integrated Circuit (ASIC),Ultra-low Power,AES-GCM
+"Confidentiality,Authenticity",1,0,6000,7949,1, 5.3,Application-specific Integrated Circuit (ASIC),Ultra-low Power,ACORN
+"Confidentiality,Authenticity",1,0,3100,5999,1,6,Application-specific Integrated Circuit (ASIC),Ultra-low Power,ACORN
+"Confidentiality,Authenticity",1,0,2860,3099,1,5,Application-specific Integrated Circuit (ASIC),Ultra-low Power,ACORN
+"Confidentiality,Authenticity",0,1,7950,9000,1, 5.5,Application-specific Integrated Circuit (ASIC),Ultra-low Power,SILC-AES
+"Confidentiality,Authenticity",0,1,6000,7949,1, 5.3,Application-specific Integrated Circuit (ASIC),Ultra-low Power,AES-OTR
+"Confidentiality,Authenticity",0,1,3100,5999,1,6,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Ascon
+"Confidentiality,Authenticity",0,1,2860,3099,1,5,Application-specific Integrated Circuit (ASIC),Ultra-low Power,ACORN
+"Confidentiality,Authenticity",0,0,7950,9000,1, 5.5,Application-specific Integrated Circuit (ASIC),Ultra-low Power,CLOC-AES
+"Confidentiality,Authenticity",0,0,6000,7949,1, 5.3,Application-specific Integrated Circuit (ASIC),Ultra-low Power,AES-OTR
+"Confidentiality,Authenticity",0,0,3100,5999,1,6,Application-specific Integrated Circuit (ASIC),Ultra-low Power,Ascon
+"Confidentiality,Authenticity",0,0,2860,3099,1,5,Application-specific Integrated Circuit (ASIC),Ultra-low Power,JAMBU-AES

@@ -1,6 +1,5 @@
 .flaskenv
 instance/
-external/
 venv/
 .vscode/
 __pycache__/
