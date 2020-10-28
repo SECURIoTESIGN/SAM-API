@@ -600,7 +600,11 @@ def find_recommendations(request, ID):
             module_logic_filename = module_logic_filename[0: module_logic_filename.rfind('.')] # Remove file extension
             # name = "external." + module_logic_filename + "." + module_logic_filename
             mod = __import__('external.' + module_logic_filename, fromlist=[''])
-            provided_recommendations = mod.run(json_session, json_recommendations)
+            try:
+                provided_recommendations = mod.run(json_session, json_recommendations)
+            except Exception as e:
+                modules.utils.console_log("logic_file", str(e))
+                raise modules.error_handlers.BadRequest(request.path, str(e), 500)
             
             # 2.5. Make the recommendations taking into account the results of the logic element.
             if (len(provided_recommendations) != 0):
