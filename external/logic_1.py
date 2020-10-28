@@ -26,11 +26,6 @@
 """
 import json
 
-# This is the default array that will contain the list of recommendation IDs (integers), the array must be populated after some logic (see below for an example).
-returned_recommendations = []
-security_requirements = {}
-answer_num = 0
-
 def recommendations_based_domain(application_domain):
     
     if (application_domain == "Smart Home"):
@@ -258,8 +253,12 @@ def get_answer_content():
 [Returns]: MUST return an array of recommendation IDs.
 """
 def run(session, recommendations):
-    global returned_recommendations, security_requirements, _session
+    global returned_recommendations, security_requirements, _session, answer_num
+    # This is the default array that will contain the list of recommendation IDs (integers), the array must be populated after some logic (see below for an example).
     _session = session
+    returned_recommendations = []
+    security_requirements = {}
+    answer_num = 0
 
     # 1. Do some logic with the answers given by the user to one or more questions for the current parsed module. 
     security_requirements = {
