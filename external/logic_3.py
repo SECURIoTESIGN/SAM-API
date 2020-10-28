@@ -23,9 +23,6 @@
 //  from FCT/COMPETE/FEDER (Projects with reference numbers UID/EEA/50008/2013 and 
 //  POCI-01-0145-FEDER-030657) 
 // ---------------------------------------------------------------------------
-##############################################################################
-                        SAM - LOGIC EXAMPLE FILE
-##############################################################################  
 """
 import json
 
@@ -58,7 +55,7 @@ def run(session, recommendations):
     if(DEBUG): 
         modules.utils.console_log("Main_logic", str(session))
         modules.utils.console_log("Main_logic", str(recommendations))
-
+    
     if request_type == "Software":
         return external.Software.run(session, recommendations)
     else:

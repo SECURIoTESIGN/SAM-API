@@ -100,6 +100,7 @@ def select_requirement_algorithm_planning(csv_filename, recommendations, cpu_bit
 
     for security_requirement in security_requirements:
         no_rcmd_name = "No algorithm for "+security_requirement.lower()
+        print(no_rcmd_name)
         no_rcmd_id = get_recommendation_id(recommendations, no_rcmd_name)
         p_recommendations.append(no_rcmd_id)
 
@@ -119,7 +120,7 @@ def select_requirement_algorithm_planning(csv_filename, recommendations, cpu_bit
                 p_recommendations.remove(no_rcmd_id)
                 p_recommendations.append(rcmd_id)
                 break
-        
+
     return p_recommendations
 
 """
@@ -151,10 +152,11 @@ def belongs_sensitive_domain(application_area):
     - $question_number$: An integer that declares the question number, array format (0, length-1).
 [Returns]: Answer content for specified question.
 """
-def get_answer_content(session, question_number):
-    global answer_num 
+def get_answer_content():
+    global answer_num, _session
+    answer = _session['questions'][answer_num]['answer']['content']
     answer_num += 1
-    return session['questions'][question_number]['answer']['content']
+    return answer
 
 """
 [Summary]: Common method to get recommendations from a dependency module.
@@ -198,18 +200,31 @@ def get_recommendation_id(recommendations, recommendation_name):
 [Returns]: MUST return an array of recommendation IDs.
 """
 def run(session, recommendations):
-    global answer_num
+    global answer_num, _session
+    _session = session
     answer_num = 1
 
-    existing_system = get_answer_content(session, answer_num)
-    hardware_type = get_answer_content(session, answer_num)
-    cpu_arch = get_answer_content(session, answer_num)
-    cpu = float(get_answer_content(session, answer_num)) if cpu_arch == 'Other' else float(cpu_arch.split(sep="-", maxsplit=1)[0])
-    flash_memory_size = float(get_answer_content(session, answer_num))
-    ram_size = float(get_answer_content(session, answer_num))
-    cpu_clock = float(get_answer_content(session, answer_num))
-    application_area = get_answer_content(session, answer_num)
-    payload_size = get_answer_content(session, answer_num)
+    existing_system = get_answer_content()
+    hardware_type = get_answer_content()
+    cpu_arch = get_answer_content()
+    cpu = float(get_answer_content()) if cpu_arch == 'Other' else float(cpu_arch.split(sep="-", maxsplit=1)[0])
+    try:
+        flash_memory_size = float(get_answer_content())
+    except ValueError:
+        raise Exception("Flash memory size must be a numeric value.")
+
+    try: 
+        ram_size = float(get_answer_content())
+    except ValueError:
+        raise Exception("RAM size must be a numeric value.")
+
+    try:
+        cpu_clock = float(get_answer_content())
+    except ValueError:
+        raise Exception("CPU clock must be a numeric value.")
+
+    application_area = get_answer_content()
+    payload_size = get_answer_content()
 
     sre_dependency_recommendations = get_dependency_recommendations(session, 0)
     security_requirements = get_recommendation_content(sre_dependency_recommendations)
