@@ -207,20 +207,24 @@ def run(session, recommendations):
     existing_system = get_answer_content()
     hardware_type = get_answer_content()
     cpu_arch = get_answer_content()
-    cpu = float(get_answer_content()) if cpu_arch == 'Other' else float(cpu_arch.split(sep="-", maxsplit=1)[0])
+    try:
+        cpu = float(get_answer_content()) if cpu_arch == 'Other' else float(cpu_arch.split(sep="-", maxsplit=1)[0])
+    except (ValueError, TypeError):
+        raise Exception("CPU bit must be a numeric value.")
+    
     try:
         flash_memory_size = float(get_answer_content())
-    except ValueError:
+    except (ValueError, TypeError):
         raise Exception("Flash memory size must be a numeric value.")
 
     try: 
         ram_size = float(get_answer_content())
-    except ValueError:
+    except (ValueError, TypeError):
         raise Exception("RAM size must be a numeric value.")
 
     try:
         cpu_clock = float(get_answer_content())
-    except ValueError:
+    except (ValueError, TypeError):
         raise Exception("CPU clock must be a numeric value.")
 
     application_area = get_answer_content()

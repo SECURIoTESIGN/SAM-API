@@ -140,8 +140,16 @@ def get_recommendation_id(recommendations, recommendation_name):
 def run(session, recommendations):
     hardware_type = get_answer_content(session, 1)
     energy_performance = get_answer_content(session, 2)
-    circuit_area_requirement = float(get_answer_content(session, 3))
-    throughput_requirement = float(get_answer_content(session, 4))
+    try:
+        circuit_area_requirement = float(get_answer_content(session, 3))
+    except (ValueError, TypeError):
+        raise Exception("Circuit area must be a numeric value.")
+    
+    try:
+        throughput_requirement = float(get_answer_content(session, 4))
+    except (ValueError, TypeError):
+        raise Exception("Throughput must be a numeric value.")
+
     application_area = get_answer_content(session, 5)
     payload_size = get_answer_content(session, 6)
 
