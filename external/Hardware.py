@@ -38,10 +38,6 @@ def hardware_implementation(csv_filename, recommendations, security_requirements
 
     data = pd.read_csv(csv_filename, na_filter=False, delimiter=',', quotechar='"')
     for security_requirement in security_requirements:
-        
-        no_rcmd_name = "No algorithm for "+security_requirement.lower()
-        no_rcmd_id = get_recommendation_id(recommendations, no_rcmd_name)
-        p_recommendations.append(no_rcmd_id)
 
         for row in data.values:
             security_requirement_req = row[0]
@@ -53,15 +49,18 @@ def hardware_implementation(csv_filename, recommendations, security_requirements
             throughput_max = float(row[6])
             hardware_type_req = str(row[7])
             energy_performance_req = str(row[8])
-            rcmd_id = get_recommendation_id(recommendations, row[9])
+            rcmd_name = row[9]
+            rcmd_id = get_recommendation_id(recommendations, rcmd_name)
 
             # We found a match for your system
             if security_requirement == security_requirement_req and (stream_cipher_req == None or stream_cipher == stream_cipher_req) and sensitive_domain == sensitive_domain_req and (circuit_area_requirement <= circuit_area_max and circuit_area_requirement >= circuit_area_min) and (throughput_requirement <= throughput_max and throughput_requirement >= throughput_min) and hardware_type == hardware_type_req and energy_performance == energy_performance_req:
-                print('Match')
-                p_recommendations.remove(no_rcmd_id)
-                p_recommendations.append(rcmd_id)
-                break
-
+                # If the recommendation says there is no algorithm, don't write anything
+                if "no algorithm" in rcmd_name.lower():
+                    break
+                if rcmd_id not in p_recommendations:
+                    p_recommendations.append(rcmd_id)
+                    break
+                
     return p_recommendations
 
 """

@@ -52,11 +52,6 @@ def select_requirement_algorithm_existing_system(csv_filename, recommendations, 
 
     data = pd.read_csv(csv_filename, na_filter=False, delimiter=',', quotechar='"')
     for security_requirement in security_requirements:
-        
-        no_rcmd_name = "No algorithm for "+security_requirement.lower()
-        no_rcmd_id = get_recommendation_id(recommendations, no_rcmd_name)
-        p_recommendations.append(no_rcmd_id)
-
         for row in data.values:
             security_requirement_req = row[0]
             stream_cipher_req = None if row[1] == ' ' else bool(int(row[1]))
@@ -66,14 +61,17 @@ def select_requirement_algorithm_existing_system(csv_filename, recommendations, 
             ram_size_max = int(row[5])
             ram_size_min = int(row[6])
             hardware_type_req = str(row[7])
-            rcmd_id = get_recommendation_id(recommendations, row[8])
+            rcmd_name = row[8]
+            rcmd_id = get_recommendation_id(recommendations, rcmd_name)
 
             # Existing system
             if (security_requirement == security_requirement_req) and (stream_cipher_req == None or stream_cipher == stream_cipher_req) and (sensitive_domain == sensitive_domain_req) and (flash_memory_size <= flash_memory_size_max and flash_memory_size >= flash_memory_size_min) and (ram_size <= ram_size_max and ram_size >= ram_size_min) and (hardware_type == hardware_type_req or not hardware_type_req):             
-                p_recommendations.remove(no_rcmd_id)
-                p_recommendations.append(rcmd_id)
-
-                break
+                # If the recommendation says there is no algorithm, don't write anything
+                if "no algorithm" in rcmd_name.lower():
+                    break
+                if rcmd_id not in p_recommendations:
+                    p_recommendations.append(rcmd_id)
+                    break
 
     return p_recommendations
 
@@ -99,11 +97,6 @@ def select_requirement_algorithm_planning(csv_filename, recommendations, cpu_bit
     data = pd.read_csv(csv_filename, na_filter=False, delimiter=',', quotechar='"')
 
     for security_requirement in security_requirements:
-        no_rcmd_name = "No algorithm for "+security_requirement.lower()
-        print(no_rcmd_name)
-        no_rcmd_id = get_recommendation_id(recommendations, no_rcmd_name)
-        p_recommendations.append(no_rcmd_id)
-
         for row in data.values:
             security_requirement_req = row[0]
             stream_cipher_req = None if row[1] == ' ' else bool(int(row[1]))
@@ -113,13 +106,17 @@ def select_requirement_algorithm_planning(csv_filename, recommendations, cpu_bit
             ram_size_max = int(row[5])
             ram_size_min = int(row[6])
             cpu_bits_req = int(row[7])
-            rcmd_id = get_recommendation_id(recommendations, row[8])
+            rcmd_name = row[8]
+            rcmd_id = get_recommendation_id(recommendations, rcmd_name)
 
             # Planning system
             if (security_requirement == security_requirement_req) and (stream_cipher_req == None or stream_cipher == stream_cipher_req) and (sensitive_domain == sensitive_domain_req) and (flash_memory_size <= flash_memory_size_max and flash_memory_size >= flash_memory_size_min) and (ram_size <= ram_size_max and ram_size >= ram_size_min) and cpu_bits >= cpu_bits_req:
-                p_recommendations.remove(no_rcmd_id)
-                p_recommendations.append(rcmd_id)
-                break
+                # If the recommendation says there is no algorithm, don't write anything
+                if "no algorithm" in rcmd_name.lower():
+                    break
+                if rcmd_id not in p_recommendations:
+                    p_recommendations.append(rcmd_id)
+                    break
 
     return p_recommendations
 
