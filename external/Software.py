@@ -202,13 +202,7 @@ def run(session, recommendations):
     answer_num = 1
 
     existing_system = get_answer_content()
-    hardware_type = get_answer_content()
-    cpu_arch = get_answer_content()
-    try:
-        cpu = float(get_answer_content()) if cpu_arch == 'Other' else float(cpu_arch.split(sep="-", maxsplit=1)[0])
-    except (ValueError, TypeError):
-        raise Exception("CPU bit must be a numeric value.")
-    
+
     try:
         flash_memory_size = float(get_answer_content())
     except (ValueError, TypeError):
@@ -219,6 +213,14 @@ def run(session, recommendations):
     except (ValueError, TypeError):
         raise Exception("RAM size must be a numeric value.")
 
+    hardware_type = get_answer_content()
+    cpu_arch = get_answer_content()
+
+    try:
+        cpu = float(get_answer_content()) if cpu_arch == 'Other' else float(cpu_arch.split(sep="-", maxsplit=1)[0])
+    except (ValueError, TypeError):
+        raise Exception("CPU bit must be a numeric value.")
+
     try:
         cpu_clock = float(get_answer_content())
     except (ValueError, TypeError):
@@ -226,6 +228,7 @@ def run(session, recommendations):
 
     application_area = get_answer_content()
     payload_size = get_answer_content()
+
 
     sre_dependency_recommendations = get_dependency_recommendations(session, 0)
     security_requirements = get_recommendation_content(sre_dependency_recommendations)
@@ -235,7 +238,7 @@ def run(session, recommendations):
         security_requirements.remove('Authenticity')
         security_requirements.append('Confidentiality,Authenticity')
 
-    sensitive_domain = belongs_sensitive_domain(application_area)    
+    sensitive_domain = belongs_sensitive_domain(application_area)
     stream_cipher = need_stream_cipher(payload_size)
 
     # If the system already exists
