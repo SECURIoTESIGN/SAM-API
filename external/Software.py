@@ -28,7 +28,7 @@
 ##############################################################################  
 """
 import json
-import pandas as pd
+import csv
 
 sensitive_domains = ["Smart Healthcare", "Connected Car", "Smart Pet Monitoring", "Smart Environmental Monitoring", "Smart Automotive/Transportation", "Smart Agriculture", "Smart Retail", "Industrial Automation", "Smart Supply Chain", "Smart Banking/Financial applications", "Smart Elderly Monitoring", "Smart Kid Monitoring", "Smart Grid", "Smart City", "Smart Home"]
 stream_ciphers = ["Continuous", "Unknown"]
@@ -50,28 +50,31 @@ def select_requirement_algorithm_existing_system(csv_filename, recommendations, 
 
     p_recommendations = []
 
-    data = pd.read_csv(csv_filename, na_filter=False, delimiter=',', quotechar='"')
     for security_requirement in security_requirements:
-        for row in data.values:
-            security_requirement_req = row[0]
-            stream_cipher_req = None if row[1] == ' ' else bool(int(row[1]))
-            sensitive_domain_req = bool(int(row[2]))
-            flash_memory_size_max = int(row[3])
-            flash_memory_size_min = int(row[4])
-            ram_size_max = int(row[5])
-            ram_size_min = int(row[6])
-            hardware_type_req = str(row[7])
-            rcmd_name = row[8]
-            rcmd_id = get_recommendation_id(recommendations, rcmd_name)
+        with open(csv_filename, mode='r') as csv_file:
+            data = csv.reader(csv_file, delimiter=',', quotechar='"')
+            # Skip header
+            next(data)
+            for row in data:
+                security_requirement_req = row[0]
+                stream_cipher_req = None if row[1] == ' ' else bool(int(row[1]))
+                sensitive_domain_req = bool(int(row[2]))
+                flash_memory_size_max = int(row[3])
+                flash_memory_size_min = int(row[4])
+                ram_size_max = int(row[5])
+                ram_size_min = int(row[6])
+                hardware_type_req = None if row[1] == ' ' else str(row[7])
+                rcmd_name = row[8]
+                rcmd_id = get_recommendation_id(recommendations, rcmd_name)
 
-            # Existing system
-            if (security_requirement == security_requirement_req) and (stream_cipher_req == None or stream_cipher == stream_cipher_req) and (sensitive_domain == sensitive_domain_req) and (flash_memory_size <= flash_memory_size_max and flash_memory_size >= flash_memory_size_min) and (ram_size <= ram_size_max and ram_size >= ram_size_min) and (hardware_type == hardware_type_req or not hardware_type_req):             
-                # If the recommendation says there is no algorithm, don't write anything
-                if "no algorithm" in rcmd_name.lower():
-                    break
-                if rcmd_id not in p_recommendations:
-                    p_recommendations.append(rcmd_id)
-                    break
+                # Existing system
+                if (security_requirement == security_requirement_req) and (stream_cipher_req == None or stream_cipher == stream_cipher_req) and (sensitive_domain == sensitive_domain_req) and (flash_memory_size <= flash_memory_size_max and flash_memory_size >= flash_memory_size_min) and (ram_size <= ram_size_max and ram_size >= ram_size_min) and (hardware_type_req == None or hardware_type == hardware_type_req):             
+                    # If the recommendation says there is no algorithm, don't write anything
+                    if "no algorithm" in rcmd_name.lower():
+                        break
+                    if rcmd_id not in p_recommendations:
+                        p_recommendations.append(rcmd_id)
+                        break
 
     return p_recommendations
 
@@ -94,29 +97,31 @@ def select_requirement_algorithm_planning(csv_filename, recommendations, cpu_bit
 
     p_recommendations = []
 
-    data = pd.read_csv(csv_filename, na_filter=False, delimiter=',', quotechar='"')
-
     for security_requirement in security_requirements:
-        for row in data.values:
-            security_requirement_req = row[0]
-            stream_cipher_req = None if row[1] == ' ' else bool(int(row[1]))
-            sensitive_domain_req = bool(int(row[2]))
-            flash_memory_size_max = int(row[3])
-            flash_memory_size_min = int(row[4])
-            ram_size_max = int(row[5])
-            ram_size_min = int(row[6])
-            cpu_bits_req = int(row[7])
-            rcmd_name = row[8]
-            rcmd_id = get_recommendation_id(recommendations, rcmd_name)
+        with open(csv_filename, mode='r') as csv_file:
+            data = csv.reader(csv_file, delimiter=',', quotechar='"')
+            # Skip header
+            next(data)
+            for row in data:
+                security_requirement_req = row[0]
+                stream_cipher_req = None if row[1] == ' ' else bool(int(row[1]))
+                sensitive_domain_req = bool(int(row[2]))
+                flash_memory_size_max = int(row[3])
+                flash_memory_size_min = int(row[4])
+                ram_size_max = int(row[5])
+                ram_size_min = int(row[6])
+                cpu_bits_req = int(row[7])
+                rcmd_name = row[8]
+                rcmd_id = get_recommendation_id(recommendations, rcmd_name)
 
-            # Planning system
-            if (security_requirement == security_requirement_req) and (stream_cipher_req == None or stream_cipher == stream_cipher_req) and (sensitive_domain == sensitive_domain_req) and (flash_memory_size <= flash_memory_size_max and flash_memory_size >= flash_memory_size_min) and (ram_size <= ram_size_max and ram_size >= ram_size_min) and cpu_bits >= cpu_bits_req:
-                # If the recommendation says there is no algorithm, don't write anything
-                if "no algorithm" in rcmd_name.lower():
-                    break
-                if rcmd_id not in p_recommendations:
-                    p_recommendations.append(rcmd_id)
-                    break
+                # Planning system
+                if (security_requirement == security_requirement_req) and (stream_cipher_req == None or stream_cipher == stream_cipher_req) and (sensitive_domain == sensitive_domain_req) and (flash_memory_size <= flash_memory_size_max and flash_memory_size >= flash_memory_size_min) and (ram_size <= ram_size_max and ram_size >= ram_size_min) and cpu_bits >= cpu_bits_req:
+                    # If the recommendation says there is no algorithm, don't write anything
+                    if "no algorithm" in rcmd_name.lower():
+                        break
+                    if rcmd_id not in p_recommendations:
+                        p_recommendations.append(rcmd_id)
+                        break
 
     return p_recommendations
 
