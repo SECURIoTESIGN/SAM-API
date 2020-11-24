@@ -122,6 +122,7 @@ SELECT
     M.displayname as module_displayname,
     --
     Q.ID as question_ID,
+    Q.multipleAnswers as multipleAnswers,
     Q.content as question,
     Q.description as question_description,
     --
@@ -164,6 +165,7 @@ SELECT
     --
     QP.child as child_id,
     Q.content as question,
+    Q.multipleAnswers as multipleAnswers,
     --
     QP.ontrigger,
     QP.questionOrder

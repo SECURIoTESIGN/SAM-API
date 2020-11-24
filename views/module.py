@@ -628,7 +628,7 @@ def get_module_tree(pID, internal_call=False):
         try:
             conn    = mysql.connect()
             cursor  = conn.cursor()
-            cursor.execute("SELECT module_id, module_displayname, question_id, question, questionorder FROM View_Module_Question WHERE module_id = %s", ID)
+            cursor.execute("SELECT module_id, module_displayname, question_id, question, questionorder, multipleAnswers FROM View_Module_Question WHERE module_id = %s", ID)
             res = cursor.fetchall()
         except Exception as e:
             raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -652,7 +652,7 @@ def get_module_tree(pID, internal_call=False):
             # 2.2.2. Map questions of the module to a JSON Python Object (dic).
             questions = []
             for row in res:
-                question = {"id": row[2], "type": "question", "name": row[3], "order": row[4], "children": []}
+                question = {"id": row[2], "type": "question", "name": row[3], "multipleAnswers" : row[5], "order": row[4], "children": []}
                 questions.append(question)
             data.update({"tree":  questions})
 
@@ -798,8 +798,8 @@ def iterate_tree_nodes(recommendations, operation, module_id, c_node, p_node=Non
         
         # 1.1. Add or update question - Table [Question].
         if (operation == "INSERT"):
-            sql     = "INSERT INTO Question (content) VALUES (%s)"
-            values  = c_node['name']
+            sql     = "INSERT INTO Question (content, multipleAnswers) VALUES (%s, %s)"
+            values  =  (c_node['name'], c_node['multipleAnswers'])
             exists_flag = False
             # Check if the question already exists (i.e. if c_node['id'] == null)
             if (not c_node['id']):
@@ -809,8 +809,8 @@ def iterate_tree_nodes(recommendations, operation, module_id, c_node, p_node=Non
 
             if (debug): print("  -> [" + str(c_node["id"]) + "] = '" + sql + ", " + str(values))
         if (operation == "UPDATE"):
-            sql     = "UPDATE Question SET content=%s WHERE ID=%s"
-            values  = (c_node['name'], c_node['id'])
+            sql     = "UPDATE Question SET content=%s, multipleAnswers=%s WHERE ID=%s"
+            values  = (c_node['name'], c_node['multipleAnswers'], c_node['id'])
             if (debug): print("  -> [" + str(c_node["id"]) + "] = '" + sql + ", " + str(values))
             modules.utils.db_execute_update_insert(mysql, sql, values)
 
@@ -951,7 +951,7 @@ def get_children(initial, question, add_recommendations_to_tree):
     for child in children:
         try:
             cursor  = conn.cursor()
-            cursor.execute("SELECT child_id, question, questionOrder, ontrigger FROM View_Question_Childs WHERE parent_id=%s AND ontrigger=%s", (question['id'], child['id']))
+            cursor.execute("SELECT child_id, question, questionOrder, ontrigger, multipleAnswers FROM View_Question_Childs WHERE parent_id=%s AND ontrigger=%s", (question['id'], child['id']))
             res = cursor.fetchall()
         except Exception as e:
             raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -959,7 +959,7 @@ def get_children(initial, question, add_recommendations_to_tree):
         # 3.1. Store it!
         if (len(res) != 0):
             for row in res:
-                s_question = {"id": row[0], "name": row[1],"type": "question","order": row[2],"trigger": row[3], "children": []}
+                s_question = {"id": row[0], "name": row[1], "multipleAnswers": row[4], "type": "question","order": row[2],"trigger": row[3], "children": []}
                 child['children'].append(s_question)
         
         # 3.2. If requested, and a sub-question is no where to be found for the current child, the list of recommendations will be added as children to the current answer.
