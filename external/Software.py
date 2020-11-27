@@ -149,14 +149,19 @@ def belongs_sensitive_domain(application_area):
 
 """
 [Summary]: Common method to get answer content from session.
-[Arguments]: 
-    - $session$: A JSON Object that includes information about a session, including questions and user selected and/or user inputted answers.
-    - $question_number$: An integer that declares the question number, array format (0, length-1).
 [Returns]: Answer content for specified question.
 """
 def get_answer_content():
     global answer_num, _session
-    answer = _session['questions'][answer_num]['answer']['content']
+
+    answers = _session['questions'][answer_num]['answer']
+    if len(answers) == 1:
+        answer = answers[0]['content']
+    else:
+        answer = []
+        for ans in answers:
+            answer.append(ans['content'])
+
     answer_num += 1
     return answer
 
@@ -207,6 +212,8 @@ def run(session, recommendations):
     answer_num = 1
 
     existing_system = get_answer_content()
+    hardware_type = get_answer_content()
+    cpu_arch = get_answer_content()
 
     try:
         flash_memory_size = float(get_answer_content())
@@ -217,9 +224,6 @@ def run(session, recommendations):
         ram_size = float(get_answer_content())
     except (ValueError, TypeError):
         raise Exception("RAM size must be a numeric value.")
-
-    hardware_type = get_answer_content()
-    cpu_arch = get_answer_content()
 
     try:
         cpu = float(get_answer_content()) if cpu_arch == 'Other' else float(cpu_arch.split(sep="-", maxsplit=1)[0])

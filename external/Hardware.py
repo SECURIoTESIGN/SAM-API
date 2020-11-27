@@ -110,7 +110,15 @@ def belongs_sensitive_domain(application_area):
 [Returns]: Answer content for specified question.
 """
 def get_answer_content(session, question_number):
-    return session['questions'][question_number]['answer']['content']
+    answers = session['questions'][question_number]['answer']
+    if len(answers) == 1:
+        answer = answers[0]['content']
+    else:
+        answer = []
+        for ans in answers:
+            answer.append(ans['content'])
+
+    return answer
 
 """
 [Summary]: Common method to get recommendations from a dependency module.
