@@ -233,15 +233,20 @@ def get_recommendation_id(recommendations, recommendation_name):
             return recm['id']
 
 """
-[Summary]: Common method to get answer content from module.
-[Arguments]: 
-    - $session$: Python object that includes information about a session - Questions and user selected and/or user inputted answers (see example above).
-    - $question_number$: An integer that declares the question number, array format (0, length-1).
+[Summary]: Common method to get answer content from session.
 [Returns]: Answer content for specified question.
 """
 def get_answer_content():
     global answer_num, _session
-    answer = _session['questions'][answer_num]['answer']['content']
+
+    answers = _session['questions'][answer_num]['answer']
+    if len(answers) == 1:
+        answer = answers[0]['content']
+    else:
+        answer = []
+        for ans in answers:
+            answer.append(ans['content'])
+
     answer_num += 1
     return answer
 
