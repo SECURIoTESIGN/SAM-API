@@ -301,9 +301,9 @@ def find_session_closed(ID, internal_call=False):
                     continue
                 # Let's check if the answer was user inputted, or selected from the database.
                 if (row[8] != None):
-                    answers.append({"answer": { "ID": -1, "content": row[8]}})
+                    answers.append({ "ID": -1, "content": row[8]})
                 else:
-                    answers.append({"answer": { "ID": row[10], "content": row[11]}})
+                    answers.append({ "ID": row[10], "content": row[11]})
             
             question['answer'] = answers
             questions.append(question)
