@@ -46,7 +46,9 @@ def get_recommendations(session):
     interoperability = 0
     dataOrigin = 0
     
-    if get_answer_content(session, 0) == 'Android Application':
+    application_type = get_answer_content()
+
+    if application_type == 'Android Application':
         confidentiality = 1
         privacy = 1
         integrity = 1
@@ -54,7 +56,7 @@ def get_recommendations(session):
         authentication = 1
         authorization = 1
 
-    if get_answer_content(session, 0) == 'iOS Application':
+    if application_type == 'iOS Application':
         confidentiality = 1
         privacy = 1
         authentication = 1
@@ -62,7 +64,7 @@ def get_recommendations(session):
         integrity = 1
         accountability = 1
 
-    if get_answer_content(session, 0) == 'Hybrid Application':
+    if application_type == 'Hybrid Application':
         authentication = 1
         authorization = 1
         confidentiality = 1
@@ -71,7 +73,7 @@ def get_recommendations(session):
         reliability = 1
         accountability = 1
         
-    if get_answer_content(session, 0) == 'Sailfish OS Application':
+    if application_type == 'Sailfish OS Application':
         confidentiality = 1
         privacy = 1
         authentication = 1
@@ -80,7 +82,7 @@ def get_recommendations(session):
         reliability = 1
         integrity = 1
 
-    if get_answer_content(session, 0) == 'Tizen Application':
+    if application_type == 'Tizen Application':
         confidentiality = 1
         privacy = 1
         authentication = 1
@@ -89,7 +91,7 @@ def get_recommendations(session):
         reliability = 1
         integrity = 1
 
-    if get_answer_content(session, 0) == 'Ubuntu Touch Application':
+    if application_type == 'Ubuntu Touch Application':
         confidentiality = 1
         privacy = 1
         authentication = 1
@@ -98,7 +100,7 @@ def get_recommendations(session):
         reliability = 1
         integrity = 1
 
-    if get_answer_content(session, 0) == 'Web Application':
+    if application_type == 'Web Application':
         confidentiality = 1
         privacy = 1
         authentication = 1
@@ -107,12 +109,14 @@ def get_recommendations(session):
         reliability = 1
         integrity = 1
 
-    if get_answer_content(session, 1) == 'Game':
+    application_domain = get_answer_content()
+
+    if application_domain == 'Game':
         confidentiality = 1
         availability = 1
         integrity = 1
         
-    if get_answer_content(session, 1) == 'm-Commerce':
+    if application_domain == 'm-Commerce':
         confidentiality = 1
         integrity = 1
         availability = 1
@@ -126,7 +130,7 @@ def get_recommendations(session):
         interoperability = 1
         forgeryResistance = 1
 
-    if get_answer_content(session, 1) == 'm-Health':
+    if application_domain == 'm-Health':
         confidentiality = 1
         integrity = 1
         availability = 1
@@ -140,7 +144,7 @@ def get_recommendations(session):
         interoperability = 1
         forgeryResistance = 1
 
-    if get_answer_content(session, 1) == 'm-Learning':
+    if application_domain == 'm-Learning':
         confidentiality =1
         integrity = 1
         availability = 1
@@ -154,7 +158,7 @@ def get_recommendations(session):
         interoperability = 1
         privacy = 1
 
-    if get_answer_content(session, 1) == 'm-Payment':
+    if application_domain == 'm-Payment':
         confidentiality = 1
         integrity = 1
         availability = 1
@@ -168,7 +172,7 @@ def get_recommendations(session):
         interoperability = 1
         privacy=1
 
-    if get_answer_content(session, 1) == 'm-Social Networking':
+    if application_domain == 'm-Social Networking':
         confidentiality = 1
         integrity = 1
         availability = 1
@@ -182,12 +186,12 @@ def get_recommendations(session):
         interoperability = 1
         privacy=1
 
-    if get_answer_content(session, 1) == 'm-Tourism':
+    if application_domain == 'm-Tourism':
         confidentiality = 1
         integrity = 1
         availability = 1
 
-    if get_answer_content(session, 1) == 'Multi-user Collaboration':
+    if application_domain == 'Multi-user Collaboration':
         confidentiality = 1
         integrity = 1
         availability = 1
@@ -199,7 +203,7 @@ def get_recommendations(session):
         authorization = 1
         privacy=1
 
-    if get_answer_content(session, 1) == 'Entertainment':
+    if application_domain == 'Entertainment':
         confidentiality = 1
         integrity = 1
         availability = 1
@@ -213,7 +217,7 @@ def get_recommendations(session):
         interoperability = 1
         privacy=1
 
-    if get_answer_content(session, 1) == 'Smart Agriculture':
+    if application_domain == 'Smart Agriculture':
         confidentiality = 1
         privacy = 1
         integrity = 1
@@ -224,7 +228,7 @@ def get_recommendations(session):
         reliability = 1
         physicalSecurity = 1
 
-    if get_answer_content(session, 1) == 'Smart Air Quality':
+    if application_domain == 'Smart Air Quality':
         authentication = 1
         authorization = 1
         confidentiality = 1
@@ -235,7 +239,7 @@ def get_recommendations(session):
         accountability = 1
         physicalSecurity = 1
 
-    if get_answer_content(session, 1) == 'Smart Healthcare':
+    if application_domain == 'Smart Healthcare':
         confidentiality = 1
         integrity = 1
         availability = 1
@@ -247,7 +251,7 @@ def get_recommendations(session):
         privacy = 1
         physicalSecurity = 1
 
-    if get_answer_content(session, 1) == 'Smart Home':
+    if application_domain == 'Smart Home':
         confidentiality = 1
         privacy = 1
         authentication = 1
@@ -257,43 +261,45 @@ def get_recommendations(session):
         integrity = 1
         physicalSecurity = 1
 
-    if get_answer_content(session, 2) == 'No Authentication':
+    authentication_method = get_answer_content()
+
+    if authentication_method == 'No Authentication':
         privacy = 0
         confidentiality = 0
 
-    if get_answer_content(session, 2)== 'Username and Password':
+    if authentication_method == 'Username and Password':
         confidentiality = 0
         integrity = 0
         authentication = 1
         authorization = 0
         privacy = 0
 
-    if get_answer_content(session, 2) == 'Social Networks/Google':
+    if authentication_method == 'Social Networks/Google':
         confidentiality = 0
         integrity = 0
         authentication = 1
         privacy = 0
 
-    if get_answer_content(session, 2) == 'Biometrics':
+    if authentication_method == 'Biometrics':
         confidentiality = 1
         integrity = 1
         authentication = 1
         privacy = 1
 
-    if get_answer_content(session, 2) == 'Two Factor Authentication':
+    if authentication_method == 'Two Factor Authentication':
         confidentiality = 1
         integrity = 1
         authentication = 1
         privacy = 1
 
-    if get_answer_content(session, 2) == 'Mult Factor Authentication':
+    if authentication_method == 'Mult Factor Authentication':
         confidentiality = 1
         integrity = 1
         authentication = 1
         privacy = 1
 
-
-    if get_answer_content(session, 3) == 'Yes':
+    database_exists = get_answer_content()
+    if database_exists == 'Yes':
         physicalSecurity = 1
         integrity = 1
         availability = 1
@@ -301,144 +307,156 @@ def get_recommendations(session):
         authentication = 1
         nonRepudiation = 1
 
-    if get_answer_content(session, 4) == 'Local Database (Device)':
-        confidentiality = 1
-        integrity = 1
-        availability = 1
-        authentication = 1
-        authorization = 1
-        dataOrigin = 1
-        dataFreshness = 1
-        privacy = 1
-        forgeryResistance = 1
-        physicalSecurity = 1
+        place_database = get_answer_content()
+        if place_database == 'Local Database (Device)':
+            confidentiality = 1
+            integrity = 1
+            availability = 1
+            authentication = 1
+            authorization = 1
+            dataOrigin = 1
+            dataFreshness = 1
+            privacy = 1
+            forgeryResistance = 1
+            physicalSecurity = 1
 
-    if get_answer_content(session, 4) == 'Remote Database':
-        confidentiality = 1
-        integrity = 1
-        availability = 1
-        authentication = 1
-        dataOrigin = 1
-        dataFreshness = 1
-        physicalSecurity = 1
-        authorization = 1
+        if place_database == 'Remote Database':
+            confidentiality = 1
+            integrity = 1
+            availability = 1
+            authentication = 1
+            dataOrigin = 1
+            dataFreshness = 1
+            physicalSecurity = 1
+            authorization = 1
 
-    if get_answer_content(session, 4) == 'Both':
-        integrity = 1
-        availability = 1
-        dataFreshness = 1
-        forgeryResistance = 1
-        physicalSecurity = 1
-        integrity = 1
+        if place_database == 'Both':
+            integrity = 1
+            availability = 1
+            dataFreshness = 1
+            forgeryResistance = 1
+            physicalSecurity = 1
+            integrity = 1
+            authentication = 1
+            nonRepudiation = 1
+            authorization = 1
+
+        type_database = get_answer_content()
+        if type_database == 'SQL':
+            authentication = 1
+            forgeryResistance = 1
+            tamperDetection = 1
+            authorization = 1
+
+        if type_database == 'NoSQL':
+            authentication = 1
+            forgeryResistance = 1
+            tamperDetection = 1
+            authorization = 1
+
+        type_data_stored = get_answer_content()
+        if type_data_stored == 'Personal Information (Names, Address,...)':
+            confidentiality = 1
+            privacy = 1
+            physicalSecurity = 1
+            authentication = 1
+
+        if type_data_stored == 'Confidential Data':
+            privacy = 1
+            confidentiality = 1
+            physicalSecurity = 1
+            authorization = 1
+            forgeryResistance = 1
+            authentication = 1
+
+        if type_data_stored == 'Critical Data':
+            privacy = 1
+            confidentiality = 1
+            physicalSecurity = 1
+            authorization = 1
+            forgeryResistance = 1
+            nonRepudiation = 1
+            authentication = 1
+
+        if (type_data_stored == 'All'):
+            confidentiality = 1
+            integrity = 1
+            availability = 1
+            authentication = 1
+            authorization = 1
+            nonRepudiation = 1
+            accountability = 1
+            reliability = 1
+            privacy = 1
+            physicalSecurity = 1
+            forgeryResistance = 1
+            tamperDetection = 1
+            dataFreshness = 1
+            confinement = 1
+            interoperability = 1
+            dataOrigin = 1
+
+    user_registration = get_answer_content()
+    if user_registration == 'Yes':
         authentication = 1
         nonRepudiation = 1
-        authorization = 1
 
-    if get_answer_content(session, 5) == 'SQL':
-        authentication = 1
-        forgeryResistance = 1
-        tamperDetection = 1
-        authorization = 1
+        way_registration = get_answer_content()
+        if way_registration == 'The users will register themselves':
+            authentication = 1
+            nonRepudiation = 1
+        if way_registration == 'Will be an administrator that will register the users':
+            authentication = 1
+            nonRepudiation = 0
+            privacy = 0
 
-    if get_answer_content(session, 5) == 'NoSQL':
-        authentication = 1
-        forgeryResistance = 1
-        tamperDetection = 1
-        authorization = 1
-
-    if get_answer_content(session, 6)== 'Personal Information (Names, Address,...)':
-        confidentiality = 1
-        privacy = 1
-        physicalSecurity = 1
-        authentication = 1
-
-    if get_answer_content(session, 6) == 'Confidential Data':
-        privacy = 1
-        confidentiality = 1
-        physicalSecurity = 1
-        authorization = 1
-        forgeryResistance = 1
-        authentication = 1
-
-    if get_answer_content(session, 6) == 'Critical Data':
-        privacy = 1
-        confidentiality = 1
-        physicalSecurity = 1
-        authorization = 1
-        forgeryResistance = 1
-        nonRepudiation = 1
-        authentication = 1
-
-    if (get_answer_content(session, 6) == 'All'):
-        confidentiality = 1
-        integrity = 1
-        availability = 1
-        authentication = 1
-        authorization = 1
-        nonRepudiation = 1
-        accountability = 1
-        reliability = 1
-        privacy = 1
-        physicalSecurity = 1
-        forgeryResistance = 1
-        tamperDetection = 1
-        dataFreshness = 1
-        confinement = 1
-        interoperability = 1
-        dataOrigin = 1
-
-    if get_answer_content(session, 7)== 'Yes':
-        authentication = 1
-        nonRepudiation = 1
-    if get_answer_content(session, 8) == 'The users will register themselves':
-        authentication = 1
-        nonRepudiation = 1
-    if get_answer_content(session, 8) == 'Will be an administrator that will register the users':
-        authentication = 1
-        nonRepudiation = 0
-        privacy = 0
-
-    if get_answer_content(session, 9) == 'C#':
+    system_language = get_answer_content()
+    if system_language == 'C#':
         confidentiality = 1
         integrity = 1
         privacy = 1
         authentication = 1
         authorization = 1
 
-    if get_answer_content(session, 9) == 'C/C++' or get_answer_content(session, 9) == 'Objective C':
+    if system_language == 'C/C++' or system_language == 'Objective C':
         confidentiality = 0
         integrity = 0
         privacy = 0
         authentication = 0
         authorization = 0
 
-    if get_answer_content(session, 9) == 'HTML5 + CSS + JavaScript':
+    if system_language == 'HTML5 + CSS + JavaScript':
         confidentiality = 1
         integrity = 1
         privacy = 1
         authorization = 1
         authorization = 1
 
-    if get_answer_content(session, 9) == 'Java (Android)':
-        confidentiality = 1
-        integrity = 1
-        privacy = 1
-        authentication = 1
-        authorization = 1
-
-    if get_answer_content(session, 9) == 'Kotlin' or get_answer_content(session, 9) == 'Python':
+    if system_language == 'Java (Android)':
         confidentiality = 1
         integrity = 1
         privacy = 1
         authentication = 1
         authorization = 1
 
-    if get_answer_content(session, 12) == 'Yes':
+    if system_language == 'Kotlin' or system_language == 'Python':
+        confidentiality = 1
+        integrity = 1
+        privacy = 1
+        authentication = 1
+        authorization = 1
+
+    server_language = get_answer_content()
+    input_forms = get_answer_content()
+
+    upload_files = get_answer_content()
+    if upload_files == 'Yes':
         authorization = 1
         confinement = 1
         dataOrigin = 1
 
-    if get_answer_content(session, 13) == 'Yes':
+    regist_logs = get_answer_content()
+    if regist_logs == 'Yes':
         privacy = 1
         confidentiality = 1
         reliability = 1
@@ -447,17 +465,20 @@ def get_recommendations(session):
         authorization = 1
         nonRepudiation = 1
 
-    if get_answer_content(session, 14) == 'Yes':
+    regular_updates = get_answer_content()
+    if regular_updates == 'Yes':
         authentication = 1
         interoperability = 1
         confinement = 1
         tamperDetection = 1
 
-    if get_answer_content(session, 15) == 'Yes':
+    third_party_software = get_answer_content()
+    if third_party_software == 'Yes':
         confinement = 1
         interoperability = 1
 
-    if get_answer_content(session, 16) == 'Community Cloud (Remote connection)':
+    system_environment = get_answer_content()
+    if system_environment == 'Community Cloud (Remote connection)':
         privacy = 1
         integrity = 1
         authorization = 1
@@ -465,7 +486,7 @@ def get_recommendations(session):
         confidentiality = 1
         nonRepudiation = 1
 
-    if get_answer_content(session, 16) == 'Public Cloud (Remote connection)':
+    if system_environment == 'Public Cloud (Remote connection)':
         privacy = 1
         integrity = 1
         authorization = 1
@@ -473,7 +494,7 @@ def get_recommendations(session):
         confidentiality = 1
         nonRepudiation = 1
 
-    if (get_answer_content(session, 16) == 'Private Cloud (Local connection)'):
+    if (system_environment == 'Private Cloud (Local connection)'):
         privacy = 1
         integrity = 1
         authorization = 1
@@ -481,7 +502,7 @@ def get_recommendations(session):
         confidentiality = 1
         nonRepudiation = 1
 
-    if (get_answer_content(session, 16) == 'Hybrid Cloud (Mix Connection)'):
+    if (system_environment == 'Hybrid Cloud (Mix Connection)'):
         privacy = 0
         integrity = 1
         authorization = 1
@@ -489,7 +510,7 @@ def get_recommendations(session):
         confidentiality = 1
         nonRepudiation = 0
 
-    if (get_answer_content(session, 16) == 'Virtual Private Cloud'):
+    if (system_environment == 'Virtual Private Cloud'):
         privacy = 0
         integrity = 0
         authorization = 1
@@ -497,10 +518,12 @@ def get_recommendations(session):
         confidentiality = 0
         nonRepudiation = 0
 
-    if (get_answer_content(session, 17) == 'Yes'):
+    physical_access = get_answer_content()
+    if (physical_access == 'Yes'):
         physicalSecurity = 1
 
-    if (get_answer_content(session, 18) == 'Yes'):
+    modify = get_answer_content()
+    if (modify == 'Yes'):
         tamperDetection = 1
 
 
@@ -537,7 +560,6 @@ def get_recommendations(session):
     if dataOrigin == 1 : 
         requirements.append('Data Origin')
 
-    print(requirements)
     return requirements
 
 
@@ -548,8 +570,19 @@ def get_recommendations(session):
     - $question_number$: An integer that declares the question number, array format (0, length-1).
 [Returns]: Answer content for specified question.
 """
-def get_answer_content(session, question_number):
-    return session['questions'][question_number]['answer']['content']
+def get_answer_content():
+    global answer_num, _session
+
+    answers = _session['questions'][answer_num]['answer']
+    if len(answers) == 1:
+        answer = answers[0]['content']
+    else:
+        answer = []
+        for ans in answers:
+            answer.append(ans['content'])
+
+    answer_num += 1
+    return answer
 
 """
 [Summary]: Common method to get recommendation id by comparing his content with the recommendation name.
@@ -572,12 +605,15 @@ def get_recommendation_id(recommendations, recommendation_name):
 """
 
 def run(session, recommendations):
+    global answer_num, _session 
+    _session = session
+    answer_num = 0
+
     temp_recommendations= get_recommendations(session)
-    print(temp_recommendations)
+
     final_recommendations= []
     for recm in temp_recommendations:
         final_recommendations.append(get_recommendation_id(recommendations, recm))
-    print(final_recommendations)
 
     return final_recommendations
 
