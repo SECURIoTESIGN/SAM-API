@@ -257,7 +257,7 @@ def find_session_closed(ID, internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT session_ID, session_userID, session_moduleID, session_ended, session_createdOn, session_updatedOn, question_ID, question, answer_input, module_logic, answer_id, answer FROM View_Session_Answers WHERE session_ID=%s AND session_ended=1", ID)
+        cursor.execute("SELECT session_ID, session_userID, session_moduleID, session_ended, session_createdOn, session_updatedOn, question_ID, question, answer_input, module_logic, answer_id, answer FROM View_Session_Answers WHERE session_ID=%s AND session_ended=1 ORDER BY question_ID", ID)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -273,6 +273,7 @@ def find_session_closed(ID, internal_call=False):
     else:
         # datas = [] # Create a new nice empty array of dictionaries to be populated with data from the DB.
         data = {}
+        previous_question_id = 0 # To support multiple choice questions
         # 3. Let's get the info about the session.
         for row in res:
             data['id']           = row[0]
@@ -287,14 +288,24 @@ def find_session_closed(ID, internal_call=False):
         questions = []
         for row in res:
             question = {}
+            if previous_question_id == 0 or previous_question_id != row[6]:
+                previous_question_id = row[6]
+            else:
+                continue
             question['id']           = row[6]
             question['content']      = row[7]
-            # Let's check if the answer was user inputted, or selected from the database.
-            if (row[8] != None):
-                question['answer'] = row[8]
-                question.update({"answer": { "ID": -1, "content": row[8]}}) 
-            else:
-                question.update({"answer": { "ID": row[10], "content": row[11]}})
+
+            answers = [] # Empty array of answers
+            for row in res:
+                if row[6] != question['id']:
+                    continue
+                # Let's check if the answer was user inputted, or selected from the database.
+                if (row[8] != None):
+                    answers.append({"answer": { "ID": -1, "content": row[8]}})
+                else:
+                    answers.append({"answer": { "ID": row[10], "content": row[11]}})
+            
+            question['answer'] = answers
             questions.append(question)
         data.update({"questions":  questions})
     cursor.close()
