@@ -48,13 +48,15 @@ def add_module():
     if (json_data is None): return(modules.utils.build_response_json(request.path, 400)) 
 
     # Validate if the necessary data is on the provided JSON
-    if (not modules.utils.valid_json(json_data, {"shortname", "fullname", "displayname", "tree"})):
+    if (not modules.utils.valid_json(json_data, {"shortname", "fullname", "displayname"})):
         raise modules.error_handlers.BadRequest(request.path, "Some required key or value is missing from the JSON object", 400)    
     
     shortname       = json_data['shortname']
     fullname        = json_data['fullname']
     displayname     = json_data['displayname']
-    tree            = json_data['tree']
+    tree            = None
+    if ('tree' in json_data): 
+        tree = json_data['tree']
     recommendations = "recommendations" in json_data and json_data['recommendations'] or None
     dependencies    = "dependencies" in json_data and json_data['dependencies'] or None
     avatar      = "avatar" in json_data and json_data['avatar'] or None
@@ -73,8 +75,9 @@ def add_module():
 
     # Add Module and iterate the tree of the module in order to create the questions and answers mapped to the current module.
     module_id = modules.utils.db_execute_update_insert(mysql, sql, values)
-    for node in tree: 
-        iterate_tree_nodes(recommendations, "INSERT", module_id, node)
+    if ('tree' in json_data):
+        for node in tree: 
+            iterate_tree_nodes(recommendations, "INSERT", module_id, node)
     
     # Store the mapping of question_answer and recommendations (DB table Recommendation_Question_Answer)
     # Get the question_answer id primary key value, through [question_id] and [answer_id]
@@ -161,7 +164,7 @@ def delete_module_answers(ID, internal_call=False):
 
 
 """
-[Summary]: Delete a module (partial delete - Linked questions and answeres are not deleted)
+[Summary]: Delete a module (partial delete - Linked questions and answers are not deleted)
 [Returns]: Returns a success or error response
 """
 @app.route('/module/<ID>', methods=["DELETE"])
@@ -231,7 +234,7 @@ def delete_module_full(ID, internal_call=False):
 """
 @app.route('/module', methods=['PUT'])
 def update_module():
-    DEBUG=True
+    DEBUG=False
     # Delete the module but not to forget to preserve the session related to this module that  is being delete just for the sake of being easier to update is info based on the tree parsed
     if request.method != 'PUT': return
     json_data = request.get_json()
@@ -239,11 +242,22 @@ def update_module():
     if (json_data is None): return(modules.utils.build_response_json(request.path, 400)) 
 
     # Validate if the necessary data is on the provided JSON 
-    if (not modules.utils.valid_json(json_data, {"id", "tree"})):
+    if (not modules.utils.valid_json(json_data, {"id"})):
         raise modules.error_handlers.BadRequest(request.path, "Some required key or value is missing from the JSON object", 400)    
-    
+
     module_id       = json_data['id']
-    tree            = json_data['tree']
+    tree            = None
+    # If there is a tree to update
+    if ('tree' in json_data):
+        modules.utils.console_log("[PUT]/module", "Tree exists")
+        tree        = json_data['tree']
+    # If the user has choosen to erase all questions
+    if (tree is None):
+        modules.utils.console_log("[PUT]/module", "No tree exists")
+        sql     = "DELETE FROM Module_question WHERE moduleID=%s"
+        values  = module_id
+        modules.utils.db_execute_update_insert(mysql, sql, values)
+
     #
     dependencies    = "dependencies" in json_data and json_data['dependencies'] or None
     recommendations = "recommendations" in json_data and json_data['recommendations'] or None
@@ -269,8 +283,9 @@ def update_module():
     modules.utils.db_execute_update_insert(mysql, sql, values)
     
     # Iterate the tree of module in order to update questions an answers of the module
-    for node in tree:   
-        iterate_tree_nodes(recommendations, "UPDATE", module_id, node)
+    if ('tree' in json_data):
+        for node in tree:   
+            iterate_tree_nodes(recommendations, "UPDATE", module_id, node)
 
     # Update the dependency
     if (dependencies):
