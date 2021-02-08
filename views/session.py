@@ -264,10 +264,45 @@ def find_session_closed(ID, internal_call=False):
     
     # 2. Check for empty results.
     if (len(res) == 0):
-        cursor.close()
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("SELECT ID, userID, moduleID, ended, createdOn, updatedOn FROM session WHERE ID = %s" , ID)
+        res = cursor.fetchall()
+        data = {}
+        # 3. Let's get the info about the session.
+        for row in res:
+            data['id']           = row[0]
+            data['user_id']       = row[1]
+            data['module_id']     = row[2]
+            # data['module_logic'] = row[9] 
+            data['ended']        = row[3]
+            data['createdOn']    = row[4]
+            data['updatedOn']    = row[5]
+            break
+
+        try:
+            cursor  = conn.cursor()
+            cursor.execute("SELECT recommendation_id, recommendation, recommendation_description, recommendation_guide  FROM View_Session_Recommendation WHERE session_id=%s", ID)
+            res = cursor.fetchall()
+        except Exception as e:
+            raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+
+        if (len(res) != 0):
+            recommendations = []
+            for row in res:
+                recommendation = {}
+                recommendation['id']                  = row[0]
+                recommendation['content']             = row[1]
+                recommendation['description']         = row[2]
+                recommendation['recommendation_guide'] = row[3]
+                recommendations.append(recommendation)
+            data.update({"recommendations": recommendations})
         conn.close()
+        cursor.close()
+
+        # 6. 'May the Force be with you'.
         if (internal_call):
-            return(None)
+            return(data)
         else:
             return(modules.utils.build_response_json(request.path, 400))
     else:
@@ -575,7 +610,9 @@ def find_recommendations(request, ID):
 
     module               = views.module.find_module(session['module_id'], True)
     tree                 = views.module.get_module_tree(str(session['module_id']), True)
-    ordered_questions    = modules.utils.order_questions(tree, session['questions'], [])
+    #Checks if tree existse
+    if (tree != None):
+        ordered_questions    = modules.utils.order_questions(tree, session['questions'], [])
 
     #if (session['module_logic'] != None):
     if (module[0]['logic_filename'] != None):
@@ -583,7 +620,9 @@ def find_recommendations(request, ID):
             # 2.1. Get information related to the current session. This includes the information about the module, the set of related questions, and the answers given by the user to those questions.
             json_session = json.loads(json.dumps(find_session(ID, True), indent=4, sort_keys=False, default=str))
             # Replace the questions with ordered questions
-            json_session['questions'] = ordered_questions
+            # If questions exist
+            if(tree != None):
+                json_session['questions'] = ordered_questions
             # 2.2. Get the set of available recommendations.
             json_recommendations = json.loads(json.dumps(views.recommendation.get_recommendations(True), indent=4, sort_keys=False, default=str))
             
@@ -616,7 +655,7 @@ def find_recommendations(request, ID):
             except Exception as e:
                 modules.utils.console_log("logic_file", str(e))
                 raise modules.error_handlers.BadRequest(request.path, str(e), 500)
-            
+            print("2.5")
             # 2.5. Make the recommendations taking into account the results of the logic element.
             if (len(provided_recommendations) != 0):
                 for recommendation_id in provided_recommendations:
@@ -673,6 +712,7 @@ def find_recommendations(request, ID):
                 conn2.close()
     cursor.close()
     conn.close()
+    print(result)
 
     # 4. 'May the Force be with you'.
     return(modules.utils.build_response_json(request.path, 200, result))  
