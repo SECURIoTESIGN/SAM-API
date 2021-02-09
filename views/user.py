@@ -145,7 +145,7 @@ def logout_user():
     if request.method != "POST": return
     # 1. Check if the token is available on the request header.
     headers = dict(request.headers)
-    # Debug only: print(str(len(headers)))
+    if (debug): print(str(len(headers)))
     
     # 2. Check if the Authorization header name was parsed.
     if 'Authorization' not in headers: raise modules.error_handlers.BadRequest(request.path, "Authentication failure - You don't have the permission to access this resource. Please, provide an authorization token.", 403) 

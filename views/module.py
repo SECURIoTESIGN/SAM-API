@@ -356,6 +356,7 @@ def get_modules():
             data['fullname']        = row[3]
             data['displayname']     = row[4]
             data['logic_filename']  = row[5]
+            data['questions']       = find_module_questions(data['id'], internal_call=True) # TODO: only count questions
             data['description']     = row[6]
             data['avatar']          = row[7]
             data['createdon']       = row[8]

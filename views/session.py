@@ -610,7 +610,7 @@ def find_recommendations(request, ID):
 
     module               = views.module.find_module(session['module_id'], True)
     tree                 = views.module.get_module_tree(str(session['module_id']), True)
-    #Checks if tree existse
+    # Checks if tree exists
     if (tree != None):
         ordered_questions    = modules.utils.order_questions(tree, session['questions'], [])
 
@@ -628,7 +628,7 @@ def find_recommendations(request, ID):
             
             # 2.3 Get dependencies of the current module, including the last sessions there were flagged has being closed.
             module_id   = json_session['module_id']
-            user_id     = json_session['user_id'] 
+            user_id     = json_session['user_id']
             dependencies = views.dependency.find_dependency_of_module(module_id, True)
 
             if (dependencies):
@@ -655,7 +655,7 @@ def find_recommendations(request, ID):
             except Exception as e:
                 modules.utils.console_log("logic_file", str(e))
                 raise modules.error_handlers.BadRequest(request.path, str(e), 500)
-            print("2.5")
+
             # 2.5. Make the recommendations taking into account the results of the logic element.
             if (len(provided_recommendations) != 0):
                 for recommendation_id in provided_recommendations:
