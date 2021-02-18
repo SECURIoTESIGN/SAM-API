@@ -2,7 +2,8 @@
 
 <p align="center"> 
 <img src="https://github.com/SECURIoTESIGN/SAM-API/blob/master/static/logo.png"><br/>
-SAM's Web API<br/>Be aware this project is under initial development.
+SAM's Web API<br/>Be aware this project is under development.<br/>
+<img src="https://github.com/SECURIoTESIGN/SAM-API/blob/master/static/sam-examples.png">
 </p>
 
 
