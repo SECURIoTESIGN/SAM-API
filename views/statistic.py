@@ -70,7 +70,7 @@ def get_stats_user(internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT COUNT(id) as size FROM user")
+        cursor.execute("SELECT COUNT(id) as size FROM User")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -191,7 +191,7 @@ def get_stats_questions(internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT COUNT(id) as size FROM question")
+        cursor.execute("SELECT COUNT(id) as size FROM Question")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -235,7 +235,7 @@ def get_stats_answers(internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT COUNT(id) as size FROM answer")
+        cursor.execute("SELECT COUNT(id) as size FROM Answer")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -279,7 +279,7 @@ def get_stats_recommendations(internal_call=False):
         conn    = mysql.connect()
         cursor  = conn.cursor()
         # Top 5 only
-        cursor.execute("SELECT recommendationID, count(*) as occurrences FROM Session_recommendation GROUP BY recommendationID ORDER BY occurrences DESC LIMIT 5")
+        cursor.execute("SELECT recommendationID, count(*) as occurrences FROM Session_Recommendation GROUP BY recommendationID ORDER BY occurrences DESC LIMIT 5")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -319,7 +319,7 @@ def get_number_of_recommendations():
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT COUNT(id) as size FROM recommendation")
+        cursor.execute("SELECT COUNT(id) as size FROM Recommendation")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -352,7 +352,7 @@ def get_stats_sessions(internal_call=False):
         conn    = mysql.connect()
         cursor  = conn.cursor()
         # Number of session in the Last 7 days sessions
-        cursor.execute("SELECT date(createdOn) as day, COUNT(*) as occurrences FROM session WHERE createdon >= DATE_ADD(CURDATE(), INTERVAL -7 DAY) GROUP BY day")
+        cursor.execute("SELECT date(createdOn) as day, COUNT(*) as occurrences FROM Session WHERE createdon >= DATE_ADD(CURDATE(), INTERVAL -7 DAY) GROUP BY day")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)

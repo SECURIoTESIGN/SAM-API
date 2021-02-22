@@ -302,7 +302,7 @@ def find_question_answers_2(question_id, answer_id, internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT question_answer_id, question_id, question, answer_id, answer FROM view_question_answer where question_id=%s and answer_id=%s", (question_id, answer_id))
+        cursor.execute("SELECT question_answer_id, question_id, question, answer_id, answer FROM View_Question_Answer where question_id=%s and answer_id=%s", (question_id, answer_id))
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -349,7 +349,7 @@ def find_question_answers(ID):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT question_answer_id, question_id, question, answer_id, answer FROM view_question_answer where question_id=%s", ID)
+        cursor.execute("SELECT question_answer_id, question_id, question, answer_id, answer FROM View_Question_Answer where question_id=%s", ID)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -391,7 +391,7 @@ def get_questions_answers():
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT question_answer_id, question_id, question, answer_id, answer FROM view_question_answer")
+        cursor.execute("SELECT question_answer_id, question_id, question, answer_id, answer FROM View_Question_Answer")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)

@@ -254,7 +254,7 @@ def update_module():
     # If the user has choosen to erase all questions
     if (tree is None):
         modules.utils.console_log("[PUT]/module", "No tree exists")
-        sql     = "DELETE FROM Module_question WHERE moduleID=%s"
+        sql     = "DELETE FROM Module_Question WHERE moduleID=%s"
         values  = module_id
         modules.utils.db_execute_update_insert(mysql, sql, values)
 
@@ -356,12 +356,13 @@ def get_modules():
             data['fullname']        = row[3]
             data['displayname']     = row[4]
             data['logic_filename']  = row[5]
-            data['questions']       = find_module_questions(data['id'], internal_call=True) # TODO: only count questions
+            data['plugin']          = check_plugin(row[0], True)
             data['description']     = row[6]
             data['avatar']          = row[7]
             data['createdon']       = row[8]
             data['updatedon']       = row[9]
             datas.append(data)
+
         cursor.close()
         conn.close()
         # 3. 'May the Force be with you, young padawan'.
@@ -1009,14 +1010,25 @@ def get_children(initial, question, add_recommendations_to_tree):
                 get_children(False, question, add_recommendations_to_tree)
  
 """
-[Summary]: Finds if module is a Plugin.
-[Returns]: Returns True or False.
+[Summary]: Checks if a module is a plugin.
+[Returns]: Returns a Boolean.
 """
 @app.route('/module/<ID>/type', methods=['GET'])
-def check_Plugin (ID, internal_call=False):
-    views.user.isAuthenticated(request)
-    tree= get_module_tree(str(ID), True)
+def check_plugin (ID, internal_call=False):
+    if (not internal_call):
+        if request.method != 'GET': return
+
+    # Check if the user has permissions to access this resource
+    if (not internal_call): views.user.isAuthenticated(request)
+
+    tree = get_module_tree(str(ID), True)
+
     if (tree == None):
-        return (modules.utils.build_response_json(request.path, True))
-    
-    return (modules.utils.build_response_json(request.path, False))
+        plugin = True
+    else:
+        plugin = False
+
+    if (not internal_call):
+        return modules.utils.build_response_json(request.path, plugin)
+    else:
+        return plugin

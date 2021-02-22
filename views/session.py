@@ -116,7 +116,7 @@ def add_session():
     # 6. Connect to the database and add a new session.
     try:
         cursor  = conn.cursor()
-        cursor.execute("INSERT INTO SESSION (userID, moduleID) VALUES ((SELECT ID FROM User WHERE email=%s), %s)", (obj['email'],obj['module_id']))
+        cursor.execute("INSERT INTO Session (userID, moduleID) VALUES ((SELECT ID FROM User WHERE email=%s), %s)", (obj['email'],obj['module_id']))
         data['id'] = conn.insert_id()
         conn.commit()
 
@@ -266,7 +266,7 @@ def find_session_closed(ID, internal_call=False):
     if (len(res) == 0):
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT ID, userID, moduleID, ended, createdOn, updatedOn FROM session WHERE ID = %s" , ID)
+        cursor.execute("SELECT ID, userID, moduleID, ended, createdOn, updatedOn FROM Session WHERE ID = %s" , ID)
         res = cursor.fetchall()
         data = {}
         # 3. Let's get the info about the session.

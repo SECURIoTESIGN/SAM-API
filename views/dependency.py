@@ -73,7 +73,7 @@ def add_dependency(json_internal_data=None, internal_call=False):
     # Build the SQL instruction using our handy function to build sql instructions.
     values  = (module_id, depends_on, createdon, updatedon)
     columns = ["moduleID", "dependsOn", createdon and "createdon" or None, updatedon and "updatedon" or None]
-    sql, values = modules.utils.build_sql_instruction("INSERT INTO dependency", columns, values)
+    sql, values = modules.utils.build_sql_instruction("INSERT INTO Dependency", columns, values)
     
     # Add
     n_id = modules.utils.db_execute_update_insert(mysql, sql, values, True)
@@ -144,7 +144,7 @@ def update_dependency(json_internal_data=None, internal_call=False):
     # Check if there is anything to update (i.e. frontend developer has not sent any values to update).
     if (len(values) == 0): return(modules.utils.build_response_json(request.path, 200))   
 
-    sql, values = modules.utils.build_sql_instruction("UPDATE dependency", columns, values, where)
+    sql, values = modules.utils.build_sql_instruction("UPDATE Dependency", columns, values, where)
     if (DEBUG): modules.utils.console_log("[PUT]/dependency", sql + " " + str(values))
 
     # Update resource
@@ -170,7 +170,7 @@ def get_dependency():
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT ID, moduleID, dependsOn, createdOn, UpdatedOn FROM dependency")
+        cursor.execute("SELECT ID, moduleID, dependsOn, createdOn, UpdatedOn FROM Dependency")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -210,7 +210,7 @@ def find_dependency(ID):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT ID, moduleID, dependsOn, createdOn, UpdatedOn FROM dependency WHERE ID=%s", ID)
+        cursor.execute("SELECT ID, moduleID, dependsOn, createdOn, UpdatedOn FROM Dependency WHERE ID=%s", ID)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -353,7 +353,7 @@ def delete_dependency(dependency_id, internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("DELETE FROM dependency WHERE ID=%s", dependency_id)
+        cursor.execute("DELETE FROM Dependency WHERE ID=%s", dependency_id)
         conn.commit()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500) 

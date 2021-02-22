@@ -254,7 +254,7 @@ def get_recommendations(internal_call=False):
         for recommendation in recommendations:
             try:
                 cursor  = conn.cursor()
-                cursor.execute("SELECT module_id FROM VIEW_module_recommendations WHERE recommendation_id=%s", recommendation['id'])
+                cursor.execute("SELECT module_id FROM View_Module_Recommendations WHERE recommendation_id=%s", recommendation['id'])
                 res = cursor.fetchall()
                 for row in res:
                     module = views.module.find_module(row[0], True)[0]
@@ -438,7 +438,7 @@ def remove_recommendations_of_module(module_id, internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("DELETE FROM recommendation_question_answer WHERE ID IN (SELECT recommendation_question_answer_ID From View_Module_Recommendations_Questions_Answers where module_id=%s);", module_id)
+        cursor.execute("DELETE FROM Recommendation_Question_Answer WHERE ID IN (SELECT recommendation_question_answer_ID From View_Module_Recommendations_Questions_Answers where module_id=%s);", module_id)
         conn.commit()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
@@ -469,7 +469,7 @@ def remove_recommendation_of_module(recommendation_id, module_id, internal_call=
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("DELETE FROM recommendation_question_answer WHERE ID IN (SELECT recommendation_question_answer_ID From View_Module_Recommendations_Questions_Answers where module_id=%s AND recommendation_id=%s);", (module_id, recommendation_id))
+        cursor.execute("DELETE FROM Recommendation_Question_Answer WHERE ID IN (SELECT recommendation_question_answer_ID From View_Module_Recommendations_Questions_Answers where module_id=%s AND recommendation_id=%s);", (module_id, recommendation_id))
         conn.commit()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500) 

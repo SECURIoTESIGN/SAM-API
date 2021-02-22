@@ -48,7 +48,7 @@ def login_user():
         
         email   = request.form['email']
         psw     = request.form['psw']
-        
+
         # 2. Connect to the DB and get the user info.
         try:
             conn    = mysql.connect()
