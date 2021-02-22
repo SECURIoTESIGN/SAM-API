@@ -1008,3 +1008,15 @@ def get_children(initial, question, add_recommendations_to_tree):
             if (question['type'] != 'recommendation'):
                 get_children(False, question, add_recommendations_to_tree)
  
+"""
+[Summary]: Finds if module is a Plugin.
+[Returns]: Returns True or False.
+"""
+@app.route('/module/<ID>/type', methods=['GET'])
+def check_Plugin (ID, internal_call=False):
+    views.user.isAuthenticated(request)
+    tree= get_module_tree(str(ID), True)
+    if (tree == None):
+        return (modules.utils.build_response_json(request.path, True))
+    
+    return (modules.utils.build_response_json(request.path, False))
