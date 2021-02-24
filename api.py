@@ -55,6 +55,9 @@ parser.read('instance/config.cfg')
 JWT_SECRET_TOKEN = parser.get('DEFAULT', 'JWT_SECRET_TOKEN')
 JWT_EXPIRATION_SECONDS = parser.get('DEFAULT', 'JWT_EXPIRATION_SECONDS')
 
+# reCAPTCHA related stuff
+RECAPTCHA_SECRET = parser.get('DEFAULT', 'RECAPTCHA_SECRET')
+
 # MySQL related stuff
 mysql = MySQL()
 app.config['MYSQL_DATABASE_USER'] = parser.get('DEFAULT', 'MYSQL_DATABASE_USER')

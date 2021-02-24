@@ -25,7 +25,7 @@
 // ---------------------------------------------------------------------------
 """
 import time, json, jwt, os, urllib
-from api import app, mysql, JWT_SECRET_TOKEN, JWT_EXPIRATION_SECONDS
+from api import app, mysql, JWT_SECRET_TOKEN, JWT_EXPIRATION_SECONDS, RECAPTCHA_SECRET
 from email_validator import validate_email, EmailNotValidError
 from flask import Flask, abort, request, jsonify, render_template, redirect, url_for, request
 from datetime import datetime
@@ -508,7 +508,7 @@ def find_user_groups(email):
 """
 def is_human(captcha_response):
     # https://www.google.com/recaptcha/
-    secret = "6LcLdO8UAAAAAH3CWKWo2WAtFZazstWy2qjcOHOY"
+    secret = RECAPTCHA_SECRET
     payload = {'response':captcha_response, 'secret':secret}
     response = requests.post("https://www.google.com/recaptcha/api/siteverify", payload)
     response_text = json.loads(response.text)
