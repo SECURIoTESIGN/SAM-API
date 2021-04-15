@@ -109,6 +109,34 @@ def add_module():
     return(modules.utils.build_response_json(request.path, 200, {"id": module_id, "tree": tree}))  
 
 """
+[Summary]: Delete logic file linked to a module.
+[Returns]: Returns a success or error response
+"""
+@app.route('/module/<ID>/logic', methods=["DELETE"])
+def delete_module_logic(ID, internal_call=False):
+    if (not internal_call):
+        if request.method != 'DELETE': return
+    
+    # Check if the user has permissions to access this resource
+    if (not internal_call): views.user.isAuthenticated(request)
+
+    # Get information about module and remove logic file
+    module = find_module(ID, True)
+
+    if (module[0]['logic_filename']):
+        try:
+            os.remove(os.getcwd() + "/external/" + module[0]['logic_filename'])
+        except OSError as e:
+            raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+
+    # The Delete request was a success, the user 'took the blue pill'.
+    if (not internal_call):
+        return (modules.utils.build_response_json(request.path, 200))
+    else:
+        return(True)
+
+
+"""
 [Summary]: Delete questions linked to a module.
 [Returns]: Returns a success or error response
 """
@@ -176,7 +204,10 @@ def delete_module_partial(ID, internal_call=False):
     if (not internal_call):
         views.user.isAuthenticated(request)
 
-    # 2. Connect to the database and delete the resource
+    # 2. Delete logic file associated
+    delete_module_logic(ID, True)
+
+    # 3. Connect to the database and delete the resource
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
@@ -188,7 +219,7 @@ def delete_module_partial(ID, internal_call=False):
         cursor.close()
         conn.close()
 
-    # 3. The Delete request was a success, the user 'took the blue pill'.
+    # 4. The Delete request was a success, the user 'took the blue pill'.
     if (not internal_call): 
         return (modules.utils.build_response_json(request.path, 200))
     else:
@@ -206,19 +237,9 @@ def delete_module_full(ID, internal_call=False):
     # Check if the user has permissions to access this resource
     if (not internal_call): views.user.isAuthenticated(request)
 
-    # Get the set of answers and questions linked to this module.
-    answers = find_module_answers(ID, True)
-    questions = find_module_questions(ID, True)
-
-    if (answers):
-        for answer in answers:
-            print("deleting answer " + str(answer['id']))
-            views.answer.delete_answer(answer['id'], True)
-    
-    if (questions):
-        for question in questions:
-            print("deleting question " + str(question['id']))
-            views.question.delete_question(question['id'], True)
+    # Get and delete the set of answers and questions linked to this module.
+    delete_module_answers(ID, True)
+    delete_module_questions(ID, True)
     
     # Delete the module itself and all the sessions linked to him.
     delete_module_partial(ID, True)
