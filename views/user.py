@@ -246,7 +246,7 @@ def add_user():
     obj['psw'] = "" # "paranoic mode".
     
     # 5. Check if the user was not previously registered in the DB (i.e., same email)
-    if (views.user.getUser(obj['email']) is not None):
+    if (find_user(obj['email']) is not None):
         raise modules.error_handlers.BadRequest(request.path, "The user with that email already exists", 500)
 
     # 6. Connect to the database and create the new user.
