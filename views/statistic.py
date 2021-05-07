@@ -25,8 +25,8 @@
 // ---------------------------------------------------------------------------
 """
 from api import app, mysql
-from flask import Flask, request, abort, jsonify, send_from_directory
-import os, views.user, modules.utils, views.recommendation, views.module, views.session
+from flask import request
+import views.user, modules.utils, views.recommendation, views.module, views.session
 
 
 """

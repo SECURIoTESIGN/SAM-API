@@ -24,12 +24,12 @@
 //  POCI-01-0145-FEDER-030657) 
 // ---------------------------------------------------------------------------
 """
-import time, json, jwt, os, urllib
+import json, jwt
 from api import app, mysql, JWT_SECRET_TOKEN, JWT_EXPIRATION_SECONDS, RECAPTCHA_SECRET
 from email_validator import validate_email, EmailNotValidError
-from flask import Flask, abort, request, jsonify, render_template, redirect, url_for, request
+from flask import request
 from datetime import datetime
-import requests, json, os
+import requests
 from datetime import timedelta
 import modules.error_handlers, modules.utils # SAM's modules
 

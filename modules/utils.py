@@ -24,7 +24,7 @@
 //  POCI-01-0145-FEDER-030657) 
 // ---------------------------------------------------------------------------
 """
-import time, hashlib, uuid, flask, json, codecs, os
+import hashlib, codecs, os
 from flask import jsonify
 import modules.error_handlers
 

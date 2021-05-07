@@ -31,15 +31,12 @@ List of third-party Python3 modules:
 # email_validator   -> https://github.com/JoshData/python-email-validator
 """
 VERSION = 0.1
-import time, json, jwt, os, urllib
+import time
 import modules.error_handlers, modules.utils # SAM's modules
-from datetime import datetime
 from configparser import SafeConfigParser
-from flask import Flask, abort, request, jsonify, render_template, redirect, url_for, request
+from flask import Flask, request, render_template
 from flaskext.mysql import MySQL
 from flasgger import Swagger
-from flasgger.utils import swag_from
-from jsonschema import validate
 
 """ Initialization """
 app = Flask(__name__)

@@ -24,8 +24,8 @@
 //  POCI-01-0145-FEDER-030657) 
 // ---------------------------------------------------------------------------
 """
-from api import app, mysql
-from flask import Flask, request, abort, jsonify, send_from_directory
+from api import app
+from flask import request, abort, jsonify, send_from_directory
 import os, views.user, modules.utils
 from werkzeug.utils import secure_filename
 

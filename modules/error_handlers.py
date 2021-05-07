@@ -24,8 +24,7 @@
 //  POCI-01-0145-FEDER-030657) 
 // ---------------------------------------------------------------------------
 """
-import time, flask, json, modules.utils
-from flask import jsonify
+import flask, modules.utils
 blueprint = flask.Blueprint('error_handlers', __name__)
 
 """

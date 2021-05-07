@@ -25,10 +25,7 @@
 // ---------------------------------------------------------------------------
 """
 from api import app, mysql
-from email_validator import validate_email, EmailNotValidError
-from flask import Flask, abort, request, jsonify, render_template, redirect, url_for, request
-from datetime import datetime
-import requests, json, os
+from flask import request
 import modules.error_handlers, modules.utils # SAM's modules
 import views.user # SAM's views
 
