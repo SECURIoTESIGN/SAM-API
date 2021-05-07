@@ -347,14 +347,17 @@ S.ID as session_ID,
 R.ID as recommendation_ID,
 R.content as recommendation,
 R.description as recommendation_description,
-R.guideFileName
+R.guideFileName,
+SR.ID as session_recommendation_ID
 FROM
 	Session as S,
     Session_Recommendation as SR,
     Recommendation as R
 WHERE
 	S.ID = SR.sessionID AND
-    R.ID = SR.recommendationID;
+    R.ID = SR.recommendationID
+ORDER BY
+    session_recommendation_ID;
     
 DROP VIEW IF EXISTS View_Question_Answer_Recommendation;
 CREATE VIEW View_Question_Answer_Recommendation AS
