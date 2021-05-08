@@ -58,20 +58,21 @@ def add_session():
     module_dependencies = views.module.find_module(obj['module_id'], True)[0]['dependencies']
     
     if (DEBUG): modules.utils.console_log("['POST']/session", "List of dependencies for module " + str(obj['module_id']) + "=" + str(module_dependencies))
-    if (len(module_dependencies) != 0): 
-        # 4.1. Let's get the sesions of the current user
-        user_sessions = (find_sessions_of_user(obj['email'], True))
-        if (DEBUG): modules.utils.console_log("['POST']/session", "List of sessions of '" + str(obj['email']) + "' =" + str(user_sessions))
-        
-        # 4.2. Let's iterate the list of dependencies and check if the user was answered the questions to that module (i.e., a closed session exists)
+    if (len(module_dependencies) != 0):
+        # 4.1. Let's iterate the list of dependencies and check if the user answered the questions to that module (i.e., a closed session exists)
         for module_dependency in module_dependencies:
             dep_module_id = module_dependency['module']['id']
             found = False
+            user_id = views.user.find_user(obj['email'], True)['id']
+
+            # 4.2. Let's get the sesions of the current user for the dependency
+            user_sessions = (find_sessions_of_user_module(dep_module_id, user_id, True))
             if (user_sessions):
                 for user_session in user_sessions:
                     if (DEBUG): modules.utils.console_log("['POST']/session", str(user_session))
                     if (user_session['ended'] == 0): continue # We only want sessions closed.
-                    if (user_session['module']['id'] == dep_module_id): found = True
+                    if (user_session['module_id'] == dep_module_id): found = True
+            
             if (not found):
                 data = {}
                 data['message']      = "A session was not created, the module dependencies are not fulfilled, the module is dependent on one or more modules."
@@ -85,11 +86,11 @@ def add_session():
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT ID, ended updatedOn FROM Session WHERE userID=(SELECT ID FROM User WHERE email=%s) AND moduleID=%s", (obj['email'], obj['module_id']))
+        cursor.execute("SELECT ID, ended FROM Session WHERE userID=(SELECT ID FROM User WHERE email=%s) AND moduleID=%s ORDER BY ID DESC LIMIT 1", (obj['email'], obj['module_id']))
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
-    
+
     if (len(res) != 0):
         for row in res:
             if (row[1] == 1):
