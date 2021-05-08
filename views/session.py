@@ -62,22 +62,16 @@ def add_session():
         # 4.1. Let's iterate the list of dependencies and check if the user answered the questions to that module (i.e., a closed session exists)
         for module_dependency in module_dependencies:
             dep_module_id = module_dependency['module']['id']
-            found = False
             user_id = views.user.find_user(obj['email'], True)['id']
 
             # 4.2. Let's get the sesions of the current user for the dependency
-            user_sessions = (find_sessions_of_user_module(dep_module_id, user_id, True))
-            if (user_sessions):
-                for user_session in user_sessions:
-                    if (DEBUG): modules.utils.console_log("['POST']/session", str(user_session))
-                    if (user_session['ended'] == 0): continue # We only want sessions closed.
-                    if (user_session['module_id'] == dep_module_id): found = True
-            
-            if (not found):
+            user_sessions = count_sessions_of_user_module(dep_module_id, user_id)
+            if (user_sessions == 0):
                 data = {}
                 data['message']      = "A session was not created, the module dependencies are not fulfilled, the module is dependent on one or more modules."
                 data['dependencies'] = module_dependencies
                 return (modules.utils.build_response_json(request.path, 404, data))
+
 
     # 5. Check if there is an identical session closed, 
     #    if true, notify the user on the return response object that a new session will be created; otherwise, 
@@ -735,3 +729,24 @@ def add_logic_session_recommendation(session_id, recommendation_id):
 
     # The recommendation is linked to the session.
     return (True)
+
+"""
+[Summary]: Counts number of closed sessions by module ID and user ID.
+[Returns]: Returns response result.
+"""
+def count_sessions_of_user_module(module_id, user_id):
+    # Let's get existing sessions from the database.
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("SELECT COUNT(session_id) FROM View_User_Sessions WHERE moduleID=%s AND user_id=%s AND ended=1 ORDER BY session_id DESC", (module_id, user_id))
+        res = cursor.fetchall()
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+
+    if (res):
+        return res[0][0]
+    else:
+        return 0
