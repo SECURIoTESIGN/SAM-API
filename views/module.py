@@ -53,6 +53,14 @@ def add_module():
     shortname       = json_data['shortname']
     fullname        = json_data['fullname']
     displayname     = json_data['displayname']
+
+    # Check if module's short name and display name are unique
+    shortnames, displaynames = get_modules_short_displaynames()
+    if shortname in shortnames:
+        raise modules.error_handlers.BadRequest(request.path, str("'Abbreviation' already in use."), 500) 
+    if displayname in displaynames:
+        raise modules.error_handlers.BadRequest(request.path, str("'Display Name' already in use."), 500) 
+
     tree            = None
     if ('tree' in json_data): 
         tree = json_data['tree']
@@ -465,6 +473,32 @@ def get_modules_answers():
     
     # 'May the Force be with you, young padawan'.
     return(modules.utils.build_response_json(request.path, 200, datas))    
+
+"""
+[Summary]: Get shortName and displayName of each module.
+[Returns]: Returns a set of modules.
+"""
+def get_modules_short_displaynames():
+    # Let's get the resource from the DB
+    try:
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        cursor.execute("SELECT shortname, displayName FROM module")
+        res = cursor.fetchall()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 500)
+    
+    short_names   = []
+    display_names = []
+    # Module IDs first
+    for row in res:
+        short_names.append(row[0])
+        display_names.append(row[1])
+    cursor.close()
+    conn.close()
+    
+    return short_names, display_names   
+
 
 """
 [Summary]: Finds a module.
