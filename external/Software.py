@@ -47,8 +47,9 @@ stream_ciphers = ["Continuous", "Unknown"]
 [Returns]: An array containing the algorithm for each requirement, orderly.
 """
 def select_requirement_algorithm_existing_system(csv_filename, recommendations, hardware_type, flash_memory_size, ram_size, sensitive_domain, stream_cipher, security_requirements):
-
     p_recommendations = []
+    # No algorithm recommendation id
+    no_algo_id = 413
 
     for security_requirement in security_requirements:
         with open(csv_filename, mode='r') as csv_file:
@@ -69,12 +70,19 @@ def select_requirement_algorithm_existing_system(csv_filename, recommendations, 
 
                 # Existing system
                 if (security_requirement == security_requirement_req) and (stream_cipher_req == None or stream_cipher == stream_cipher_req) and (sensitive_domain == sensitive_domain_req) and (flash_memory_size <= flash_memory_size_max and flash_memory_size >= flash_memory_size_min) and (ram_size <= ram_size_max and ram_size >= ram_size_min) and (hardware_type_req == None or hardware_type == hardware_type_req):             
-                    # If the recommendation says there is no algorithm, don't write anything
+                    # If the recommendation says there is no algorithm
                     if "no algorithm" in rcmd_name.lower():
+                        if len(p_recommendations) == 0 and no_algo_id not in p_recommendations:
+                            p_recommendations.append(no_algo_id)
                         break
                     if rcmd_id not in p_recommendations:
                         p_recommendations.append(rcmd_id)
+                        if no_algo_id in p_recommendations:
+                            p_recommendations.remove(no_algo_id)
                         break
+
+    if len(p_recommendations) == 0:
+        p_recommendations.append(no_algo_id)
 
     return p_recommendations
 
@@ -96,6 +104,8 @@ def select_requirement_algorithm_existing_system(csv_filename, recommendations, 
 def select_requirement_algorithm_planning(csv_filename, recommendations, cpu_bits, flash_memory_size, ram_size, sensitive_domain, stream_cipher, security_requirements):
 
     p_recommendations = []
+    # No algorithm recommendation id
+    no_algo_id = 413
 
     for security_requirement in security_requirements:
         with open(csv_filename, mode='r') as csv_file:
@@ -116,13 +126,21 @@ def select_requirement_algorithm_planning(csv_filename, recommendations, cpu_bit
 
                 # Planning system
                 if (security_requirement == security_requirement_req) and (stream_cipher_req == None or stream_cipher == stream_cipher_req) and (sensitive_domain == sensitive_domain_req) and (flash_memory_size <= flash_memory_size_max and flash_memory_size >= flash_memory_size_min) and (ram_size <= ram_size_max and ram_size >= ram_size_min) and cpu_bits >= cpu_bits_req:
-                    # If the recommendation says there is no algorithm, don't write anything
+                    # If the recommendation says there is no algorithm
                     if "no algorithm" in rcmd_name.lower():
+                        if len(p_recommendations) == 0 and no_algo_id not in p_recommendations:
+                            p_recommendations.append(no_algo_id)
                         break
                     if rcmd_id not in p_recommendations:
                         p_recommendations.append(rcmd_id)
+                        if no_algo_id in p_recommendations:
+                            p_recommendations.remove(no_algo_id)
                         break
 
+
+    if len(p_recommendations) == 0:
+        p_recommendations.append(no_algo_id)
+        
     return p_recommendations
 
 """
