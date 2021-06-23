@@ -46,7 +46,6 @@ def get_recommendations(session):
 
 	if db == 'Yes':
 		db_type = get_answer_content()  # 4
-		type_data = get_answer_content()  # 7
 		if db_type == "SQL":
 			wich_db_SQL = get_answer_content()  # 5
 			practices.append("SQL Injection")
@@ -58,6 +57,7 @@ def get_recommendations(session):
 
 		elif db_type == "NoSQL":
 			wich_db_noSQL = get_answer_content()  # 6
+		type_data = get_answer_content()  # 7
 	
 	user_reg = get_answer_content()  # 8
 
