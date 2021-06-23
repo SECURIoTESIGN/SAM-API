@@ -35,7 +35,7 @@ import views.user, views.module # SAM's views
 [Summary]: Adds a new recommendation to the database.
 [Returns]: Response result.
 """
-@app.route('/recommendation', methods=['POST'])
+@app.route('/api/recommendation', methods=['POST'])
 def add_recommendation(internal_json=None):
     DEBUG=False
     if (internal_json is None):
@@ -128,7 +128,7 @@ def add_recommendation(internal_json=None):
 [Summary]: Delete a recommendation.
 [Returns]: Returns a success or error response
 """
-@app.route('/recommendation/<recommendation_id>', methods=["DELETE"])
+@app.route('/api/recommendation/<recommendation_id>', methods=["DELETE"])
 def delete_recommendation(recommendation_id):
     if request.method != 'DELETE': return
     # 1. Check if the user has permissions to access this resource
@@ -162,7 +162,7 @@ def delete_recommendation(recommendation_id):
 [Summary]: Updates a recommendation
 [Returns]: Response result.
 """
-@app.route('/recommendation', methods=['PUT'])
+@app.route('/api/recommendation', methods=['PUT'])
 def update_recommendation():
     DEBUG=False
     if request.method != 'PUT': return
@@ -218,7 +218,7 @@ def update_recommendation():
 [Summary]: Get recommendations.
 [Returns]: Response result.
 """
-@app.route('/recommendations', methods=['GET'])
+@app.route('/api/recommendations', methods=['GET'])
 def get_recommendations(internal_call=False):
     if (not internal_call): 
         if request.method != 'GET': return
@@ -276,7 +276,7 @@ def get_recommendations(internal_call=False):
 [Summary]: Finds recommendation by ID.
 [Returns]: Response result.
 """
-@app.route('/recommendation/<ID>', methods=['GET'])
+@app.route('/api/recommendation/<ID>', methods=['GET'])
 def find_recommendation(ID, internal_call=False):
     if (not internal_call): 
         if request.method != 'GET': return
@@ -314,7 +314,7 @@ def find_recommendation(ID, internal_call=False):
 [Summary]: Finds the recommendations of question, answer association.
 [Returns]: Response result.
 """
-@app.route('/recommendations/question/<question_id>/answer/<answer_id>', methods=['GET'])
+@app.route('/api/recommendations/question/<question_id>/answer/<answer_id>', methods=['GET'])
 def find_recommendations_of_question_answer(question_id, answer_id, internal_call=False):
     if request.method != 'GET': return
     # Check if the user has permissions to access this resource
@@ -358,7 +358,7 @@ def find_recommendations_of_question_answer(question_id, answer_id, internal_cal
 [Summary]: Finds the recommendations of a module
 [Returns]: Response result.
 """
-@app.route('/recommendations/module/<module_id>', methods=['GET'])
+@app.route('/api/recommendations/module/<module_id>', methods=['GET'])
 def find_recommendations_of_module(module_id, internal_call=False):
     if (not internal_call):
         if request.method != 'GET': 
@@ -424,7 +424,7 @@ def find_recommendations_of_module(module_id, internal_call=False):
 [Summary]: Removes the mapping between a module and its recommendations.
 [Returns]: Returns a reponse object.
 """
-@app.route('/recommendations/module/<module_id>', methods=['DELETE'])
+@app.route('/api/recommendations/module/<module_id>', methods=['DELETE'])
 def remove_recommendations_of_module(module_id, internal_call=False):
     if not internal_call:
         if request.method != 'DELETE': return
@@ -455,7 +455,7 @@ def remove_recommendations_of_module(module_id, internal_call=False):
 [Summary]: Removes the mapping of a module and a recommendation.
 [Returns]: Returns a reponse object.
 """
-@app.route('/recommendation/<recommendation_id>/module/<module_id>', methods=['DELETE'])
+@app.route('/api/recommendation/<recommendation_id>/module/<module_id>', methods=['DELETE'])
 def remove_recommendation_of_module(recommendation_id, module_id, internal_call=False):
     if not internal_call:
         if request.method != 'DELETE': return

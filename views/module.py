@@ -35,7 +35,7 @@ import views.user, views.recommendation, views.question, views.dependency # SAM'
 [Summary]: Adds a new Module.
 [Returns]: Response result.
 """
-@app.route('/module', methods=['POST'])
+@app.route('/api/module', methods=['POST'])
 def add_module():
     DEBUG=False
     if request.method != 'POST': return
@@ -78,7 +78,7 @@ def add_module():
     values  = (shortname, fullname, displayname, type_id, avatar, description, createdon, updatedon)
     
     sql, values = modules.utils.build_sql_instruction("INSERT INTO Module", columns, values)
-    if (DEBUG): print("[SAM-API]: [POST]/module - " + sql + " => " + str(values))
+    if (DEBUG): print("[SAM-API]: [POST]/api/module - " + sql + " => " + str(values))
 
     # Add Module and iterate the tree of the module in order to create the questions and answers mapped to the current module.
     module_id = modules.utils.db_execute_update_insert(mysql, sql, values)
@@ -94,7 +94,7 @@ def add_module():
                 qa_res = views.question.find_question_answers_2(question_answer['question_id'], question_answer['answer_id'], True)
                 if (qa_res is None): return(modules.utils.build_response_json(request.path, 400)) 
                 qa_res = qa_res[0]
-                if (DEBUG): print("[SAM-API] [POST]/module - question_id = " + str(question_answer['question_id']) + ", answer_id=" + str(question_answer['answer_id']) + " => Question_Answer_id =" + str(qa_res['question_answer_id']))
+                if (DEBUG): print("[SAM-API] [POST]/api/module - question_id = " + str(question_answer['question_id']) + ", answer_id=" + str(question_answer['answer_id']) + " => Question_Answer_id =" + str(qa_res['question_answer_id']))
                 question_answer['id'] = qa_res['question_answer_id']
     
         # Add the recommendation with the link between questions and answers
@@ -119,7 +119,7 @@ def add_module():
 [Summary]: Delete logic file linked to a module.
 [Returns]: Returns a success or error response
 """
-@app.route('/module/<ID>/logic', methods=["DELETE"])
+@app.route('/api/module/<ID>/logic', methods=["DELETE"])
 def delete_module_logic(ID, internal_call=False):
     if (not internal_call):
         if request.method != 'DELETE': return
@@ -147,7 +147,7 @@ def delete_module_logic(ID, internal_call=False):
 [Summary]: Delete questions linked to a module.
 [Returns]: Returns a success or error response
 """
-@app.route('/module/<ID>/questions', methods=["DELETE"])
+@app.route('/api/module/<ID>/questions', methods=["DELETE"])
 def delete_module_questions(ID, internal_call=False):
     if (not internal_call):
         if request.method != 'DELETE': return
@@ -174,7 +174,7 @@ def delete_module_questions(ID, internal_call=False):
 [Summary]: Delete answers linked to a module.
 [Returns]: Returns a success or error response
 """
-@app.route('/module/<ID>/answers', methods=["DELETE"])
+@app.route('/api/module/<ID>/answers', methods=["DELETE"])
 def delete_module_answers(ID, internal_call=False):
     if (not internal_call): 
         if request.method != 'DELETE': return
@@ -202,7 +202,7 @@ def delete_module_answers(ID, internal_call=False):
 [Summary]: Delete a module (partial delete - Linked questions and answers are not deleted)
 [Returns]: Returns a success or error response
 """
-@app.route('/module/<ID>', methods=["DELETE"])
+@app.route('/api/module/<ID>', methods=["DELETE"])
 def delete_module_partial(ID, internal_call=False):
     if (not internal_call):
         if request.method != 'DELETE': return
@@ -236,7 +236,7 @@ def delete_module_partial(ID, internal_call=False):
 [Summary]: Fully delete a module (including sessions, linked questions and answers)
 [Returns]: Returns a success or error response
 """
-@app.route('/module/<ID>/full', methods=["DELETE"])
+@app.route('/api/module/<ID>/full', methods=["DELETE"])
 def delete_module_full(ID, internal_call=False):
     if (not internal_call): 
         if request.method != 'DELETE': return
@@ -260,7 +260,7 @@ def delete_module_full(ID, internal_call=False):
 [Summary]: Updates a Module.
 [Returns]: returns 200 if the operation was a success, 500 otherwise.
 """
-@app.route('/module', methods=['PUT'])
+@app.route('/api/module', methods=['PUT'])
 def update_module():
     DEBUG=False
     # Delete the module but not to forget to preserve the session related to this module that  is being delete just for the sake of being easier to update is info based on the tree parsed
@@ -277,11 +277,11 @@ def update_module():
     tree            = None
     # If there is a tree to update
     if ('tree' in json_data):
-        modules.utils.console_log("[PUT]/module", "Tree exists")
+        modules.utils.console_log("[PUT]/api/module", "Tree exists")
         tree        = json_data['tree']
     # If the user has choosen to erase all questions
     if (tree is None):
-        modules.utils.console_log("[PUT]/module", "No tree exists")
+        modules.utils.console_log("[PUT]/api/module", "No tree exists")
         sql     = "DELETE FROM Module_Question WHERE moduleID=%s"
         values  = module_id
         modules.utils.db_execute_update_insert(mysql, sql, values)
@@ -305,7 +305,7 @@ def update_module():
     where   = "WHERE id="+str(module_id)
 
     sql, values = modules.utils.build_sql_instruction("UPDATE Module", columns, values, where)
-    if (DEBUG): modules.utils.console_log("[PUT]/module", str(sql + " => " + str(values) + " " + where))
+    if (DEBUG): modules.utils.console_log("[PUT]/api/module", str(sql + " => " + str(values) + " " + where))
 
     # Update 
     modules.utils.db_execute_update_insert(mysql, sql, values)
@@ -340,7 +340,7 @@ def update_module():
                     qa_res = views.question.find_question_answers_2(question_answer['question_id'], question_answer['answer_id'], True)
                     if (qa_res is None): return(modules.utils.build_response_json(request.path, 400)) 
                     qa_res = qa_res[0]
-                    if (DEBUG): print("[SAM-API] [POST]/module - question_id = " + str(question_answer['question_id']) + ", answer_id=" + str(question_answer['answer_id']) + " => Question_Answer_id =" + str(qa_res['question_answer_id']))
+                    if (DEBUG): print("[SAM-API] [POST]/api/module - question_id = " + str(question_answer['question_id']) + ", answer_id=" + str(question_answer['answer_id']) + " => Question_Answer_id =" + str(qa_res['question_answer_id']))
                     question_answer['id'] = qa_res['question_answer_id']
                     print("!---->" + str(question_answer['id']))
                 
@@ -353,7 +353,7 @@ def update_module():
 [Summary]: Get modules.
 [Returns]: Returns a set of modules.
 """
-@app.route('/modules', methods=['GET'])
+@app.route('/api/modules', methods=['GET'])
 def get_modules():
     if request.method != 'GET': return
 
@@ -364,7 +364,7 @@ def get_modules():
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT ID, typeID, shortname, fullname, displayname, logicfilename, description, avatar, createdon, updatedon FROM Module")
+        cursor.execute("SELECT ID, typeID, shortname, fullname, displayname, logicfilename, description, avatar, createdon, updatedon FROM Module WHERE disable = 0")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -400,7 +400,7 @@ def get_modules():
 [Summary]: Get questions of each module.
 [Returns]: Returns a set of modules.
 """
-@app.route('/modules/questions', methods=['GET'])
+@app.route('/api/modules/questions', methods=['GET'])
 def get_modules_questions():
     if request.method != 'GET': return
 
@@ -439,7 +439,7 @@ def get_modules_questions():
 [Summary]: Get answers of each module.
 [Returns]: Returns a set of modules.
 """
-@app.route('/modules/answers', methods=['GET'])
+@app.route('/api/modules/answers', methods=['GET'])
 def get_modules_answers():
     if request.method != 'GET': return
 
@@ -504,7 +504,7 @@ def get_modules_short_displaynames():
 [Summary]: Finds a module.
 [Returns]: Returns a module.
 """
-@app.route('/module/<ID>', methods=['GET'])
+@app.route('/api/module/<ID>', methods=['GET'])
 def find_module(ID, internal_call=False):
     if (not internal_call):
         if request.method != 'GET': return
@@ -569,7 +569,7 @@ def find_module(ID, internal_call=False):
 [Summary]: Finds questions linked to a module.
 [Returns]: Returns a module.
 """
-@app.route('/module/<ID>/questions', methods=['GET'])
+@app.route('/api/module/<ID>/questions', methods=['GET'])
 def find_module_questions(ID, internal_call=False):
     if (not internal_call):
         if request.method != 'GET': return
@@ -617,7 +617,7 @@ def find_module_questions(ID, internal_call=False):
 [Summary]: Finds answers linked to a module.
 [Returns]: Returns a module.
 """
-@app.route('/module/<ID>/answers', methods=['GET'])
+@app.route('/api/module/<ID>/answers', methods=['GET'])
 def find_module_answers(ID, internal_call=False):
     if (not internal_call):
         if request.method != 'GET': return
@@ -664,7 +664,7 @@ def find_module_answers(ID, internal_call=False):
 [Summary]: Get the tree of the module. This tree contains all the questions and answers.
 [Returns]: A set of questions, its children, and its answers.
 """
-@app.route('/module/<pID>/tree', methods=['GET'])
+@app.route('/api/module/<pID>/tree', methods=['GET'])
 def get_module_tree(pID, internal_call=False):
     # Do you want to add recommendations to the tree? For example, if an answer is X than the recommendation is Y, and so on. This feature is still experimental.
     add_recommendations_to_tree = False
@@ -1067,7 +1067,7 @@ def get_children(initial, question, add_recommendations_to_tree):
 [Summary]: Checks if a module is a plugin.
 [Returns]: Returns a Boolean.
 """
-@app.route('/module/<ID>/type', methods=['GET'])
+@app.route('/api/module/<ID>/type', methods=['GET'])
 def check_plugin (ID, internal_call=False):
     if (not internal_call):
         if request.method != 'GET': return

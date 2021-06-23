@@ -33,7 +33,7 @@ import views.user, views.answer # SAM's views
 [Summary]: Adds a new question to the database.
 [Returns]: Response result.
 """
-@app.route('/group', methods=['POST'])
+@app.route('/api/group', methods=['POST'])
 def add_group():
     DEBUG=True
     if request.method != 'POST': return
@@ -57,7 +57,7 @@ def add_group():
     # Build the SQL instruction using our handy function to build sql instructions.
     values = (designation, createdon, updatedon)
     sql, values = modules.utils.build_sql_instruction("INSERT INTO SAM.Group", ["designation", createdon and "createdon" or None, updatedon and "updatedon" or None], values)
-    if (DEBUG): print("[SAM-API]: [POST]/group - " + sql)
+    if (DEBUG): print("[SAM-API]: [POST]/api/group - " + sql)
 
     print(g_modules)
     print(g_users)
@@ -85,7 +85,7 @@ def add_group():
 [Summary]: Updates a group.
 [Returns]: Response result.
 """
-@app.route('/group', methods=['PUT'])
+@app.route('/api/group', methods=['PUT'])
 def update_group():
     DEBUG=True
     if request.method != 'PUT': return
@@ -118,7 +118,7 @@ def update_group():
     if (len(values) == 0): return(modules.utils.build_response_json(request.path, 200))   
 
     sql, values = modules.utils.build_sql_instruction("UPDATE SAM.Group", columns, values, where)
-    if (DEBUG): print("[SAM-API]: [PUT]/group - " + sql + " " + str(values))
+    if (DEBUG): print("[SAM-API]: [PUT]/api/group - " + sql + " " + str(values))
 
     # Update Recommendation
     modules.utils.db_execute_update_insert(mysql, sql, values)
@@ -174,7 +174,7 @@ def update_group():
 [Summary]: Get Groups.
 [Returns]: Response result.
 """
-@app.route('/groups')
+@app.route('/api/groups')
 def get_groups():
     if request.method != 'GET': return
 
@@ -272,7 +272,7 @@ def find_users_of_group(group_id):
 [Summary]: Finds Question.
 [Returns]: Response result.
 """
-@app.route('/group/<ID>', methods=['GET'])
+@app.route('/api/group/<ID>', methods=['GET'])
 def find_group(ID):
     if request.method != 'GET': return
 
@@ -313,7 +313,7 @@ def find_group(ID):
 [Summary]: Delete a Group.
 [Returns]: Returns a success or error response
 """
-@app.route('/group/<ID>', methods=["DELETE"])
+@app.route('/api/group/<ID>', methods=["DELETE"])
 def delete_group(ID):
     if request.method != 'DELETE': return
     # 1. Check if the user has permissions to access this resource.

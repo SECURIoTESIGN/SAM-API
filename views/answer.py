@@ -33,7 +33,7 @@ import views.user, views.question # SAM's views
 [Summary]: Adds a new question to the database.
 [Returns]: Response result.
 """
-@app.route('/answer', methods=['POST'])
+@app.route('/api/answer', methods=['POST'])
 def add_answer():
     DEBUG=True
     if request.method != 'POST': return
@@ -56,7 +56,7 @@ def add_answer():
     # Build the SQL instruction using our handy function to build sql instructions.
     values = (content, description, createdon, updatedon)
     sql, values = modules.utils.build_sql_instruction("INSERT INTO Answer", ["content", "description", createdon and "createdon" or None, updatedon and "updatedon" or None], values)
-    if (DEBUG): print("[SAM-API]: [POST]/answer - " + sql)
+    if (DEBUG): print("[SAM-API]: [POST]/api/answer - " + sql)
 
     # Add
     n_id = modules.utils.db_execute_update_insert(mysql, sql, values)
@@ -70,7 +70,7 @@ def add_answer():
 [Summary]: Delete an answer.
 [Returns]: Returns a success or error response
 """
-@app.route('/answer/<ID>', methods=["DELETE"])
+@app.route('/api/answer/<ID>', methods=["DELETE"])
 def delete_answer(ID, internal_call=False):
     if (not internal_call):
         if request.method != 'DELETE': return
@@ -100,7 +100,7 @@ def delete_answer(ID, internal_call=False):
 [Summary]: Updates a question.
 [Returns]: Response result.
 """
-@app.route('/answer', methods=['PUT'])
+@app.route('/api/answer', methods=['PUT'])
 def update_answer():
     DEBUG=True
     if request.method != 'PUT': return
@@ -131,7 +131,7 @@ def update_answer():
     if (len(values) == 0): return(modules.utils.build_response_json(request.path, 200))   
 
     sql, values = modules.utils.build_sql_instruction("UPDATE Answer", columns, values, where)
-    if (DEBUG): print("[SAM-API]: [PUT]/answer - " + sql + " " + str(values))
+    if (DEBUG): print("[SAM-API]: [PUT]/api/answer - " + sql + " " + str(values))
 
     # Update Recommendation
     modules.utils.db_execute_update_insert(mysql, sql, values)
@@ -143,7 +143,7 @@ def update_answer():
 [Summary]: Get Answers.
 [Returns]: Response result.
 """
-@app.route('/answers')
+@app.route('/api/answers')
 def get_answers():
     if request.method != 'GET': return
 
@@ -215,7 +215,7 @@ def find_questions_of_answer(answer_id):
 [Summary]: Finds Answer.
 [Returns]: Response result.
 """
-@app.route('/answer/<ID>', methods=['GET'])
+@app.route('/api/answer/<ID>', methods=['GET'])
 def find_answer(ID, internal_call=False):
     if request.method != 'GET': return
 

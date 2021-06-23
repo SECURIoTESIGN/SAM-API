@@ -37,7 +37,7 @@ import modules.error_handlers, modules.utils # SAM's modules
 [Summary]: User Authentication Service (i.e., login).
 [Returns]: Returns a JSON object with the data of the user including a JWT authentication token.
 """
-@app.route('/user/login', methods=['POST'])
+@app.route('/api/user/login', methods=['POST'])
 def login_user():
     if request.method == "POST":
         # 1. Validate and parse POST data.
@@ -138,7 +138,7 @@ def clear_expired_blacklisted_JWT(userID):
 [Returns]: 200 response if the user was successfully logged out.
 [ref]: Based on https://medium.com/devgorilla/how-to-log-out-when-using-jwt-a8c7823e8a6
 """
-@app.route('/user/logout', methods=['POST'])
+@app.route('/api/user/logout', methods=['POST'])
 def logout_user():
     debug = False
     data = {}
@@ -190,7 +190,7 @@ def logout_user():
     #
     return (modules.utils.build_response_json(request.path, 200, data))
 
-@app.route('/user/<email>/admin', methods=['GET'])
+@app.route('/api/user/<email>/admin', methods=['GET'])
 def is_admin(email):
     if request.method != 'GET': return
     # 1. Check if the user has permissions to access this resource
@@ -221,7 +221,7 @@ def is_admin(email):
 [Summary]: User Registration Service (i.e., add a new user).
 [Returns]: Returns a JSON object with the data of the user including a JWT authentication token.
 """
-@app.route('/user', methods=['POST'])
+@app.route('/api/user', methods=['POST'])
 def add_user():
     if request.method != 'POST': return
 
@@ -269,7 +269,7 @@ def add_user():
 [Returns]: Returns a User object.
 """
 # Check if a user exists
-@app.route('/users', methods=['GET'])
+@app.route('/api/users', methods=['GET'])
 def get_users():
     if request.method != 'GET': return
 
@@ -314,7 +314,7 @@ def get_users():
 [Returns]: Returns a User object.
 """
 # Check if a user exists
-@app.route('/user/<email>', methods=['GET'])
+@app.route('/api/user/<email>', methods=['GET'])
 def find_user(email, internal_call=False):
     if (not internal_call):
         if request.method != 'GET': return
@@ -367,7 +367,7 @@ def find_user(email, internal_call=False):
 [Summary]: Delete a user
 [Returns]: Returns a success or error response
 """
-@app.route('/user/<email>', methods=["DELETE"])
+@app.route('/api/user/<email>', methods=["DELETE"])
 def delete_user(email):
     if request.method != 'DELETE': return
     # 1. Check if the user has permissions to access this resource
@@ -399,7 +399,7 @@ def delete_user(email):
 [Summary]: Updates a user
 [Returns]: Returns a success or error response
 """
-@app.route('/user/<email>', methods=["PUT"])
+@app.route('/api/user/<email>', methods=["PUT"])
 def update_user(email):
     updatePsw = False
     # Note: Remember that if an email is being changed, the email argument is the old one; 
@@ -421,6 +421,7 @@ def update_user(email):
         date = (datetime.now()).strftime('%Y-%m-%d %H:%M:%S')
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 400) 
+
 
     # 4. Let's validate the data of our JSON object with a custom function.
     if (not modules.utils.valid_json(obj, {"email", "avatar", "firstName", "lastName"})):
@@ -462,7 +463,7 @@ def update_user(email):
 [Summary]: Finds groups of a user.
 [Returns]: Returns a success or error response
 """
-@app.route('/user/<email>/groups', methods=["GET"])
+@app.route('/api/user/<email>/groups', methods=["GET"])
 def find_user_groups(email):
     if request.method != 'GET': return
 

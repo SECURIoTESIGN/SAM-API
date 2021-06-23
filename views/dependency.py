@@ -33,7 +33,7 @@ import views.user, views.module # SAM's views
 [Summary]: Adds a new dependency to the database.
 [Returns]: Response result.
 """
-@app.route('/dependency', methods=['POST'])
+@app.route('/api/dependency', methods=['POST'])
 def add_dependency(json_internal_data=None, internal_call=False):
     DEBUG=True
     if (not internal_call):
@@ -52,7 +52,7 @@ def add_dependency(json_internal_data=None, internal_call=False):
         if (not internal_call):
             return(modules.utils.build_response_json(request.path, 400))
         else:
-            modules.utils.console_log("[POST]/dependency", "json_data is None")
+            modules.utils.console_log("[POST]/api/dependency", "json_data is None")
             return(None)
    
     # Validate if the necessary data is on the provided JSON 
@@ -60,7 +60,7 @@ def add_dependency(json_internal_data=None, internal_call=False):
         if (not internal_call):
             raise modules.error_handlers.BadRequest(request.path, "Some required key or value is missing from the JSON object", 400)    
         else:
-            modules.utils.console_log("[POST]/dependency", "Some required key or value is missing from the JSON object")
+            modules.utils.console_log("[POST]/api/dependency", "Some required key or value is missing from the JSON object")
 
     module_id   = json_data['module_id']
     depends_on  = json_data['depends_on']
@@ -90,7 +90,7 @@ def add_dependency(json_internal_data=None, internal_call=False):
 [Summary]: Updates a dependency.
 [Returns]: Response result.
 """
-@app.route('/dependency', methods=['PUT'])
+@app.route('/api/dependency', methods=['PUT'])
 def update_dependency(json_internal_data=None, internal_call=False):
     DEBUG=True
     if (not internal_call):
@@ -109,7 +109,7 @@ def update_dependency(json_internal_data=None, internal_call=False):
         if (not internal_call):
             return(modules.utils.build_response_json(request.path, 400)) 
         else:
-            modules.utils.console_log("[PUT]/dependency", "json_data is None")
+            modules.utils.console_log("[PUT]/api/dependency", "json_data is None")
             return(None)
 
     dependency_id_available = True
@@ -142,7 +142,7 @@ def update_dependency(json_internal_data=None, internal_call=False):
     if (len(values) == 0): return(modules.utils.build_response_json(request.path, 200))   
 
     sql, values = modules.utils.build_sql_instruction("UPDATE Dependency", columns, values, where)
-    if (DEBUG): modules.utils.console_log("[PUT]/dependency", sql + " " + str(values))
+    if (DEBUG): modules.utils.console_log("[PUT]/api/dependency", sql + " " + str(values))
 
     # Update resource
     modules.utils.db_execute_update_insert(mysql, sql, values)
@@ -196,7 +196,7 @@ def get_dependency():
 [Summary]: Finds a dependency.
 [Returns]: Response result.
 """
-@app.route('/dependency/<ID>', methods=['GET'])
+@app.route('/api/dependency/<ID>', methods=['GET'])
 def find_dependency(ID):
     if request.method != 'GET': return
 
@@ -236,7 +236,7 @@ def find_dependency(ID):
 [Summary]: Finds a dependency of a module
 [Returns]: Response result.
 """
-@app.route('/dependency/module/<ID>', methods=['GET'])
+@app.route('/api/dependency/module/<ID>', methods=['GET'])
 def find_dependency_of_module(ID, internal_call=False):
     if (not internal_call):
         if request.method != 'GET': return
@@ -290,7 +290,7 @@ def find_dependency_of_module(ID, internal_call=False):
 [Summary]: Finds a dependency of a module, taking as arguments the id of the current module and the id of the module that it depends on.
 [Returns]: Response result.
 """
-@app.route('/dependency/module/<module_id>/depends/<depends_on_module_id>', methods=['GET'])
+@app.route('/api/dependency/module/<module_id>/depends/<depends_on_module_id>', methods=['GET'])
 def find_dependency_of_module_2(module_id, depends_on_module_id, internal_call=False):
     if (not internal_call):
         if request.method != 'GET': return
@@ -338,7 +338,7 @@ def find_dependency_of_module_2(module_id, depends_on_module_id, internal_call=F
 [Summary]: Delete a dependency by id.
 [Returns]: Returns a success or error response
 """
-@app.route('/dependency/<dependency_id>', methods=["DELETE"])
+@app.route('/api/dependency/<dependency_id>', methods=["DELETE"])
 def delete_dependency(dependency_id, internal_call=False):
     if (not internal_call):
         if request.method != 'DELETE': return

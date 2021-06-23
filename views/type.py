@@ -33,7 +33,7 @@ import views.user # SAM's views
 [Summary]: Adds a new type to the database.
 [Returns]: Response result.
 """
-@app.route('/type', methods=['POST'])
+@app.route('/api/type', methods=['POST'])
 def add_type():
     DEBUG=True
     if request.method != 'POST': return
@@ -56,7 +56,7 @@ def add_type():
     # Build the SQL instruction using our handy function to build sql instructions.
     values = (name, description, createdon, updatedon)
     sql, values = modules.utils.build_sql_instruction("INSERT INTO Type", ["name", description and "description" or None, createdon and "createdon" or None, updatedon and "updatedon" or None], values)
-    if (DEBUG): print("[SAM-API]: [POST]/type - " + sql)
+    if (DEBUG): print("[SAM-API]: [POST]/api/type - " + sql)
 
     # Add
     n_id = modules.utils.db_execute_update_insert(mysql, sql, values)
@@ -69,7 +69,7 @@ def add_type():
 [Summary]: Updates a type.
 [Returns]: Response result.
 """
-@app.route('/type', methods=['PUT'])
+@app.route('/api/type', methods=['PUT'])
 def update_type():
     DEBUG=True
     if request.method != 'PUT': return
@@ -100,7 +100,7 @@ def update_type():
     if (len(values) == 0): return(modules.utils.build_response_json(request.path, 200))   
 
     sql, values = modules.utils.build_sql_instruction("UPDATE Type", columns, values, where)
-    if (DEBUG): print("[SAM-API]: [PUT]/type - " + sql + " " + str(values))
+    if (DEBUG): print("[SAM-API]: [PUT]/api/type - " + sql + " " + str(values))
 
     # Update Recommendation
     modules.utils.db_execute_update_insert(mysql, sql, values)
@@ -111,7 +111,7 @@ def update_type():
 [Summary]: Get Questions.
 [Returns]: Response result.
 """
-@app.route('/types')
+@app.route('/api/types')
 def get_types():
     if request.method != 'GET': return
 
@@ -184,7 +184,7 @@ def find_modules_of_type(type_id):
 [Summary]: Finds a Type.
 [Returns]: Response result.
 """
-@app.route('/type/<ID>', methods=['GET'])
+@app.route('/api/type/<ID>', methods=['GET'])
 def find_type(ID):
     if request.method != 'GET': return
 
@@ -224,7 +224,7 @@ def find_type(ID):
 [Summary]: Delete a type.
 [Returns]: Returns a success or error response
 """
-@app.route('/type/<ID>', methods=["DELETE"])
+@app.route('/api/type/<ID>', methods=["DELETE"])
 def delete_type(ID):
     if request.method != 'DELETE': return
     # 1. Check if the user has permissions to access this resource.
