@@ -24,9 +24,10 @@
 //  POCI-01-0145-FEDER-030657) 
 // ---------------------------------------------------------------------------
 """
+import shutil
 from api import app, mysql
-from flask import  request
-import json
+from flask import request
+import json, os
 import modules.error_handlers, modules.utils # SAM's modules
 import views.user, views.module, views.dependency # SAM's views
 
@@ -34,7 +35,7 @@ import views.user, views.module, views.dependency # SAM's views
 [Summary]: Adds a new session to a user.
 [Returns]: Response result.
 """
-@app.route('/session', methods=['POST'])
+@app.route('/api/session', methods=['POST'])
 def add_session():
     DEBUG = False
     if request.method != 'POST': return
@@ -57,7 +58,7 @@ def add_session():
     # 4. Before starting a new session, let's just check if there are any dependencies. That is if the user needs to answer questions from any other module before the current one.
     module_dependencies = views.module.find_module(obj['module_id'], True)[0]['dependencies']
     
-    if (DEBUG): modules.utils.console_log("['POST']/session", "List of dependencies for module " + str(obj['module_id']) + "=" + str(module_dependencies))
+    if (DEBUG): modules.utils.console_log("['POST']/api/session", "List of dependencies for module " + str(obj['module_id']) + "=" + str(module_dependencies))
     if (len(module_dependencies) != 0):
         # 4.1. Let's iterate the list of dependencies and check if the user answered the questions to that module (i.e., a closed session exists)
         for module_dependency in module_dependencies:
@@ -128,7 +129,7 @@ def add_session():
 [Summary]: Updates the session with the set of answers given and the corresponding questions.
 [Returns]: Response result.
 """
-@app.route('/session/<ID>', methods=['PUT'])
+@app.route('/api/session/<ID>', methods=['PUT'])
 def update_session(ID):
     if request.method != 'PUT': return
     # 1. Check if the user has permissions to access this resource
@@ -172,7 +173,7 @@ def update_session(ID):
 [Summary]: Get sessions (opened and closed)
 [Returns]: Returns response result.
 """
-@app.route('/sessions', methods=['GET'])
+@app.route('/api/sessions', methods=['GET'])
 def get_sessions():
     if request.method != 'GET': return
 
@@ -213,7 +214,7 @@ def get_sessions():
 [Summary]: Ends a user's session.
 [Returns]: Response result.
 """
-@app.route('/session/<ID>/end', methods=['PUT'])
+@app.route('/api/session/<ID>/end', methods=['PUT'])
 def end_session(ID):
     if request.method != 'PUT': return
 
@@ -238,7 +239,7 @@ def end_session(ID):
 [Summary]: Gets a session that was previsouly closed. A session is considered closed when all answers were given by the end user.
 [Returns]: Response result.
 """
-@app.route('/session/<ID>/closed', methods=['GET'])
+@app.route('/api/session/<ID>/closed', methods=['GET'])
 def find_session_closed(ID, internal_call=False):
     if (not internal_call):
         if request.method != 'GET': return
@@ -247,6 +248,7 @@ def find_session_closed(ID, internal_call=False):
     if (not internal_call): views.user.isAuthenticated(request)
 
     # 1. Let's get the data of the session that has ended.
+    print("getting data of the session that has ended.") 
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
@@ -256,6 +258,7 @@ def find_session_closed(ID, internal_call=False):
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
     
     # 2. Check for empty results.
+    print("Checking emoty results")
     if (len(res) == 0):
         conn    = mysql.connect()
         cursor  = conn.cursor()
@@ -293,13 +296,11 @@ def find_session_closed(ID, internal_call=False):
         conn.close()
         cursor.close()
 
-        # 6. 'May the Force be with you'.
         if (internal_call):
             return(data)
         else:
             return(modules.utils.build_response_json(request.path, 400))
     else:
-        # datas = [] # Create a new nice empty array of dictionaries to be populated with data from the DB.
         data = {}
         previous_question_id = 0 # To support multiple choice questions
         # 3. Let's get the info about the session.
@@ -339,6 +340,7 @@ def find_session_closed(ID, internal_call=False):
     cursor.close()
     
     # 5. Let's now get the recommendations, if any, stored for this session
+    print("Getting recomendations stored")
     try:
         cursor  = conn.cursor()
         cursor.execute("SELECT recommendation_id, recommendation, recommendation_description, recommendation_guide  FROM View_Session_Recommendation WHERE session_id=%s", ID)
@@ -359,7 +361,6 @@ def find_session_closed(ID, internal_call=False):
     conn.close()
     cursor.close()
 
-    # 6. 'May the Force be with you'.
     if (internal_call): 
         return(data) 
     else: 
@@ -370,7 +371,7 @@ def find_session_closed(ID, internal_call=False):
 [Summary]: Gets closed sessions. A session is considered closed when all answers were given by the end user.
 [Returns]: Response result.
 """
-@app.route('/sessions/closed', methods=['GET'])
+@app.route('/api/sessions/closed', methods=['GET'])
 def get_sessions_closed(internal_call=False):
     if (not internal_call):
         if request.method != 'GET': return
@@ -414,7 +415,7 @@ def get_sessions_closed(internal_call=False):
 [Summary]: Finds a session by ID (opened or closed)
 [Returns]: Returns response result.
 """
-@app.route('/session/<ID>', methods=['GET'])
+@app.route('/api/session/<ID>', methods=['GET'])
 def find_session(ID, internal_call=False):
     if (not internal_call):
         if request.method != 'GET': return
@@ -479,7 +480,7 @@ def find_session(ID, internal_call=False):
 [Summary]: Finds sessions by user email (opened or closed)
 [Returns]: Returns response result.
 """
-@app.route('/sessions/user/<user_email>', methods=['GET'])
+@app.route('/api/sessions/user/<user_email>', methods=['GET'])
 def find_sessions_of_user(user_email, internal_call=False):
     if (not internal_call):
         if request.method != 'GET': return
@@ -541,7 +542,7 @@ def find_sessions_of_user(user_email, internal_call=False):
 [Summary]: Finds sessions by module ID and user email (closed)
 [Returns]: Returns response result.
 """
-@app.route('/sessions/module/<module_id>/user/<user_id>', methods=['GET'])
+@app.route('/api/sessions/module/<module_id>/user/<user_id>', methods=['GET'])
 def find_sessions_of_user_module(module_id, user_id, internal_call=False):
     if (not internal_call):
         if request.method != 'GET': return
@@ -648,7 +649,7 @@ def find_recommendations(request, ID):
             except Exception as e:
                 modules.utils.console_log("logic_file", str(e))
                 raise modules.error_handlers.BadRequest(request.path, str(e), 500)
-
+                
             # 2.5. Make the recommendations taking into account the results of the logic element.
             if (len(provided_recommendations) != 0):
                 for recommendation_id in provided_recommendations:
@@ -705,9 +706,24 @@ def find_recommendations(request, ID):
                 conn2.close()
     cursor.close()
     conn.close()
-    print(result)
+    # print(result)
 
-    # 4. 'May the Force be with you'.
+    # 4. Create ZIP with recommendations and guides
+    # 4.1 Create the temporary directory to be zipped
+    temp_dir = 'temp/session'+str(ID)+'/'
+    if not os.path.exists(temp_dir):
+        os.mkdir(temp_dir)
+    # 4.2 Generate the PDF recommendations file    
+    modules.utils.build_recommendations_PDF(module_name=module[0]['shortname'], session_id=ID, recommendations=result)
+    # 4.3 Add guides to the temporary directory
+    for recm in recommendations:
+        if recm['recommendation_guide'] is not None:
+            shutil.copyfile('external/'+str(recm['recommendation_guide']), temp_dir+str(recm['recommendation_guide']))
+    # 4.4 Zip all the files
+    zipped = modules.utils.create_recommendations_ZIP(module_name=module[0]['shortname'], session_id=ID)
+    # 4.5 Remove all the files created to zip
+    if zipped:
+        shutil.rmtree(temp_dir)
     return(modules.utils.build_response_json(request.path, 200, result))  
 
 
