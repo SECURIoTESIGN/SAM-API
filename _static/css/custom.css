@@ -1,0 +1,4 @@
+#welcome-to-sam-api-s-documentation p, #project-overview p, #core-and-community-modules-plugins p, #installation p, #developing-modules p, #license p, #acknowledgment p{
+    text-align: justify !important;
+    text-justify: inter-word !important;
+}

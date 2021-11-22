@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Get Answers &mdash; SAM-API 1.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> SAM-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Get Answers</a></li>
+<li><a class="reference internal" href="#add-answer">Add Answer</a></li>
+<li><a class="reference internal" href="#edit-answer">Edit Answer</a></li>
+<li><a class="reference internal" href="#remove-answer">Remove Answer</a></li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SAM-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Get Answers</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/services/answer.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="get-answers">
+<h1>Get Answers<a class="headerlink" href="#get-answers" title="Permalink to this headline"></a></h1>
+<dl class="http get">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">GET</span> </span><span class="sig-name descname"><span class="pre">/api/answers</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Get the list of answers mapped to questions.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Response JSON Object</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – The id of the answer or question mapped to the current answer.</p></li>
+<li><p><strong>content</strong> (<em>string</em>) – The answer or question content.</p></li>
+<li><p><strong>description</strong> (<em>string</em>) – Description of the answer.</p></li>
+<li><p><strong>questions</strong> (<em>array</em>) – Array of questions mapped to the current answer.</p></li>
+<li><p><strong>createdon</strong> (<em>datetime</em>) – Creation date and time.</p></li>
+<li><p><strong>updatedon</strong> (<em>datetime</em>) – Update date and time.</p></li>
+<li><p><strong>status</strong> (<em>int</em>) – Status code.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Status Codes</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Answers successfully retrieved.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to retrieve answers.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;/api/answers&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;content&quot;</span><span class="p">:[</span>
+         <span class="p">{</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="s2">&quot;Smart home&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="s2">&quot;Smart home description&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;questions&quot;</span><span class="p">:[</span>
+               <span class="p">{</span>
+                  <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+                  <span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="s2">&quot;What is the domain of your IoT system ?&quot;</span>
+               <span class="p">}</span>
+            <span class="p">],</span>
+            <span class="nt">&quot;createdon&quot;</span><span class="p">:</span><span class="s2">&quot;Fri, 19 Nov 2021 15:29:18 GMT&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;updatedon&quot;</span><span class="p">:</span><span class="s2">&quot;Fri, 19 Nov 2021 15:29:18 GMT&quot;</span>
+         <span class="p">},</span>
+         <span class="p">{</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span>
+            <span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="s2">&quot;Smart Healthcare&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="s2">&quot;Smart healthcare description&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;questions&quot;</span><span class="p">:[</span>
+               <span class="p">{</span>
+                  <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+                  <span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="s2">&quot;What is the domain of your IoT system ?&quot;</span>
+               <span class="p">}</span>
+            <span class="p">],</span>
+            <span class="nt">&quot;createdon&quot;</span><span class="p">:</span><span class="s2">&quot;Fri, 19 Nov 2021 15:29:18 GMT&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;updatedon&quot;</span><span class="p">:</span><span class="s2">&quot;Fri, 19 Nov 2021 15:29:18 GMT&quot;</span>
+         <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<hr/><dl class="http get">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">GET</span> </span><span class="sig-name descname"><span class="pre">/api/answers/</span></span><span class="sig-paren">(</span><em class="property"><span class="pre">int:</span> </em><em class="sig-param"><span class="pre">id</span></em><span class="sig-paren">)</span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Get an answer identify by <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Response JSON Object</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – The id of the answer.</p></li>
+<li><p><strong>content</strong> (<em>string</em>) – The answer content.</p></li>
+<li><p><strong>description</strong> (<em>string</em>) – Description of the answer.</p></li>
+<li><p><strong>createdon</strong> (<em>datetime</em>) – Creation date and time.</p></li>
+<li><p><strong>updatedon</strong> (<em>datetime</em>) – Update date and time.</p></li>
+<li><p><strong>status</strong> (<em>int</em>) – Status code.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Status Codes</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Answers successfully retrieved.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to retrieve answers.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;/api/answer/1&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;content&quot;</span><span class="p">:[</span>
+         <span class="p">{</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="s2">&quot;Smart home&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="s2">&quot;Smart home description&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;createdon&quot;</span><span class="p">:</span><span class="s2">&quot;Fri, 19 Nov 2021 15:29:18 GMT&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;updatedon&quot;</span><span class="p">:</span><span class="s2">&quot;Fri, 19 Nov 2021 15:29:18 GMT&quot;</span>
+         <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="add-answer">
+<h1>Add Answer<a class="headerlink" href="#add-answer" title="Permalink to this headline"></a></h1>
+<dl class="http post">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">POST</span> </span><span class="sig-name descname"><span class="pre">/api/answer</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Add a new answer.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Request JSON Object</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>content</strong> (<em>string</em>) – The answer content.</p></li>
+<li><p><strong>description</strong> (<em>string</em>) – The answer description.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – The id of the new answer.</p></li>
+<li><p><strong>status</strong> (<em>string</em>) – Status code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Answer successfully added.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a></span> – The server was unable to process the request (e.g., malformed request syntax).</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to add answer.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Request</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+        <span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="s2">&quot;Test Answer&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="s2">&quot;Test answer description&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;/api/answer&quot;</span><span class="p">:{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span> <span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span><span class="p">}}</span>
+</pre></div>
+</div>
+</section>
+<section id="edit-answer">
+<h1>Edit Answer<a class="headerlink" href="#edit-answer" title="Permalink to this headline"></a></h1>
+<dl class="http put">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">PUT</span> </span><span class="sig-name descname"><span class="pre">/api/answer</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Update an answer identified by <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Request JSON Object</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – The id of the answer to update.</p></li>
+<li><p><strong>content</strong> (<em>string</em>) – The answer content.</p></li>
+<li><p><strong>description</strong> (<em>string</em>) – The answer description.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>status</strong> (<em>string</em>) – Status code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Answer successfully updated.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a></span> – The server was unable to process the request (e.g., malformed request syntax).</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to update answer.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Request</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+   <span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="s2">&quot;Test Answer Updated&quot;</span><span class="p">,</span>
+   <span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="s2">&quot;Test answer description updated&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;/api/answer&quot;</span><span class="p">:{</span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span><span class="p">}}</span>
+</pre></div>
+</div>
+</section>
+<section id="remove-answer">
+<h1>Remove Answer<a class="headerlink" href="#remove-answer" title="Permalink to this headline"></a></h1>
+<dl class="http delete">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">DELETE</span> </span><span class="sig-name descname"><span class="pre">/api/answer/</span></span><span class="sig-paren">(</span><em class="property"><span class="pre">int:</span> </em><em class="sig-param"><span class="pre">id</span></em><span class="sig-paren">)</span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Removes a answer identified by <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id of the answer to remove.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>status</strong> (<em>string</em>) – Status code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Answer successfully removed.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a></span> – The server was unable to process the request (e.g., malformed request syntax).</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to answer question.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;/api/answer&quot;</span><span class="p">:{</span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span><span class="p">}}</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
