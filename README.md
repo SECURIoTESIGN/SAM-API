@@ -15,7 +15,7 @@ SAM's Web API or backend is availabe on this repository, while the frontend is a
 
 # Documentation
 
-You can find the API documentation at the following link. Additionally, the documentationcan can be recompiled as follows:
+You can find the API documentation at the following [link](https://securiotesign.github.io/SAM-API/). Additionally, the documentationcan can be recompiled as follows:
 ``` 
  cd docs
  make html
