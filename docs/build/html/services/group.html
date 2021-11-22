@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Get Groups &mdash; SAM-API 1.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> SAM-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Get Groups</a></li>
+<li><a class="reference internal" href="#add-group">Add Group</a></li>
+<li><a class="reference internal" href="#edit-group">Edit Group</a></li>
+<li><a class="reference internal" href="#remove-group">Remove Group</a></li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SAM-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Get Groups</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/services/group.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="get-groups">
+<h1>Get Groups<a class="headerlink" href="#get-groups" title="Permalink to this headline"></a></h1>
+<dl class="http get">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">GET</span> </span><span class="sig-name descname"><span class="pre">/api/group</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Get all groups.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Response JSON Object</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id of the group.</p></li>
+<li><p><strong>designation</strong> (<em>string</em>) – Description of the group.</p></li>
+<li><p><strong>modules</strong> (<em>array</em>) – Array of modules mapped to the group.</p></li>
+<li><p><strong>users</strong> (<em>array</em>) – Array of users.</p></li>
+<li><p><strong>createdon</strong> (<em>datetime</em>) – Creation date and time.</p></li>
+<li><p><strong>updatedon</strong> (<em>datetime</em>) – Update date and time.</p></li>
+<li><p><strong>status</strong> (<em>int</em>) – status code.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Status Codes</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Groups successfully retrieved.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to retrieve groups.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;/api/groups&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;content&quot;</span><span class="p">:[</span>
+         <span class="p">{</span>
+            <span class="nt">&quot;createdon&quot;</span><span class="p">:</span><span class="s2">&quot;Thu, 18 Nov 2021 12:38:43 GMT&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;designation&quot;</span><span class="p">:</span><span class="s2">&quot;Administrators&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;modules&quot;</span><span class="p">:[],</span>
+            <span class="nt">&quot;updatedon&quot;</span><span class="p">:</span><span class="s2">&quot;Thu, 18 Nov 2021 12:38:43 GMT&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;users&quot;</span><span class="p">:[</span>
+               <span class="p">{</span>
+                  <span class="nt">&quot;avatar&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+                  <span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="s2">&quot;admin@sam.pt&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;firstName&quot;</span><span class="p">:</span><span class="s2">&quot;Administrator&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+                  <span class="nt">&quot;lastName&quot;</span><span class="p">:</span><span class="kc">null</span>
+               <span class="p">}</span>
+            <span class="p">]</span>
+         <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<hr/><dl class="http get">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">GET</span> </span><span class="sig-name descname"><span class="pre">/api/group/</span></span><span class="sig-paren">(</span><em class="property"><span class="pre">int:</span> </em><em class="sig-param"><span class="pre">id</span></em><span class="sig-paren">)</span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Get a group by <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> – The id of the group to be retrieved.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id of the group.</p></li>
+<li><p><strong>designation</strong> (<em>string</em>) – Description of the group.</p></li>
+<li><p><strong>modules</strong> (<em>array</em>) – Array of modules mapped to the group.</p></li>
+<li><p><strong>users</strong> (<em>array</em>) – Array of users.</p></li>
+<li><p><strong>createdon</strong> (<em>datetime</em>) – Creation date and time.</p></li>
+<li><p><strong>updatedon</strong> (<em>datetime</em>) – Update date and time.</p></li>
+<li><p><strong>status</strong> (<em>int</em>) – status code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Groups successfully retrieved.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to retrieve groups.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;/api/groups&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;content&quot;</span><span class="p">:[</span>
+         <span class="p">{</span>
+            <span class="nt">&quot;createdon&quot;</span><span class="p">:</span><span class="s2">&quot;Thu, 18 Nov 2021 12:38:43 GMT&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;designation&quot;</span><span class="p">:</span><span class="s2">&quot;Administrators&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;modules&quot;</span><span class="p">:[],</span>
+            <span class="nt">&quot;updatedon&quot;</span><span class="p">:</span><span class="s2">&quot;Thu, 18 Nov 2021 12:38:43 GMT&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;users&quot;</span><span class="p">:[</span>
+               <span class="p">{</span>
+                  <span class="nt">&quot;avatar&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+                  <span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="s2">&quot;admin@sam.pt&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;firstName&quot;</span><span class="p">:</span><span class="s2">&quot;Administrator&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+                  <span class="nt">&quot;lastName&quot;</span><span class="p">:</span><span class="kc">null</span>
+               <span class="p">}</span>
+            <span class="p">]</span>
+         <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="add-group">
+<h1>Add Group<a class="headerlink" href="#add-group" title="Permalink to this headline"></a></h1>
+<dl class="http post">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">POST</span> </span><span class="sig-name descname"><span class="pre">/api/group</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Adds a new group.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Request JSON Object</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>designation</strong> (<em>string</em>) – The name of the group.</p></li>
+<li><p><strong>users</strong> (<em>array</em>) – The id of each user that will belong to the new group.</p></li>
+<li><p><strong>modules</strong> (<em>array</em>) – The id of each module that will belong to the new group.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id assigned to the new group.</p></li>
+<li><p><strong>status</strong> (<em>int</em>) – status code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – New group added with <cite>id</cite> (see <strong>example response</strong>).</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to add a new group.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Request</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;designation&quot;</span><span class="p">:</span><span class="s2">&quot;New Group&quot;</span><span class="p">,</span><span class="nt">&quot;users&quot;</span><span class="p">:[{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">}],</span><span class="nt">&quot;modules&quot;</span><span class="p">:[{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">}]}</span>
+</pre></div>
+</div>
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;/api/group&quot;</span><span class="p">:{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span><span class="p">}}</span>
+</pre></div>
+</div>
+</section>
+<section id="edit-group">
+<h1>Edit Group<a class="headerlink" href="#edit-group" title="Permalink to this headline"></a></h1>
+<dl class="http put">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">PUT</span> </span><span class="sig-name descname"><span class="pre">/api/group</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Updates the information of a group.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Request JSON Object</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – The id of the group you want to update.</p></li>
+<li><p><strong>designation</strong> (<em>string</em>) – The new name of the group.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>status</strong> (<em>int</em>) – status code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Group successfully updated.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to update group.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Request</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span><span class="nt">&quot;designation&quot;</span><span class="p">:</span><span class="s2">&quot;New Group Updated&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;/api/group&quot;</span><span class="p">:{</span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span><span class="p">}}</span>
+</pre></div>
+</div>
+</section>
+<section id="remove-group">
+<h1>Remove Group<a class="headerlink" href="#remove-group" title="Permalink to this headline"></a></h1>
+<dl class="http delete">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">DELETE</span> </span><span class="sig-name descname"><span class="pre">/api/group/</span></span><span class="sig-paren">(</span><em class="property"><span class="pre">int:</span> </em><em class="sig-param"><span class="pre">id</span></em><span class="sig-paren">)</span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Remove a group by <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> – The id of the group to be removed.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>status</strong> (<em>int</em>) – status code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Group successfully removed.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to remove group.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;/api/group/3&quot;</span><span class="p">:{</span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span><span class="p">}}</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

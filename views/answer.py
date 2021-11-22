@@ -55,7 +55,7 @@ def add_answer():
     
     # Build the SQL instruction using our handy function to build sql instructions.
     values = (content, description, createdon, updatedon)
-    sql, values = modules.utils.build_sql_instruction("INSERT INTO Answer", ["content", "description", createdon and "createdon" or None, updatedon and "updatedon" or None], values)
+    sql, values = modules.utils.build_sql_instruction("INSERT INTO answer", ["content", "description", createdon and "createdon" or None, updatedon and "updatedon" or None], values)
     if (DEBUG): print("[SAM-API]: [POST]/api/answer - " + sql)
 
     # Add
@@ -82,7 +82,7 @@ def delete_answer(ID, internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("DELETE FROM Answer WHERE ID=%s", ID)
+        cursor.execute("DELETE FROM answer WHERE ID=%s", ID)
         conn.commit()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
@@ -130,7 +130,7 @@ def update_answer():
     # Check if there is anything to update (i.e. frontend developer has not sent any values to update).
     if (len(values) == 0): return(modules.utils.build_response_json(request.path, 200))   
 
-    sql, values = modules.utils.build_sql_instruction("UPDATE Answer", columns, values, where)
+    sql, values = modules.utils.build_sql_instruction("UPDATE answer", columns, values, where)
     if (DEBUG): print("[SAM-API]: [PUT]/api/answer - " + sql + " " + str(values))
 
     # Update Recommendation
@@ -154,7 +154,7 @@ def get_answers():
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT ID, content, description, createdon, updatedon FROM Answer")
+        cursor.execute("SELECT ID, content, description, createdon, updatedon FROM answer")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -188,7 +188,7 @@ def find_questions_of_answer(answer_id):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT questionID FROM Question_Answer WHERE answerID=%s", answer_id)
+        cursor.execute("SELECT questionID FROM question_answer WHERE answerID=%s", answer_id)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -226,7 +226,7 @@ def find_answer(ID, internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT ID, content, description, createdon, updatedon FROM Answer WHERE ID=%s", ID)
+        cursor.execute("SELECT ID, content, description, createdon, updatedon FROM answer WHERE ID=%s", ID)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)

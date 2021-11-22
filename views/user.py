@@ -24,7 +24,7 @@
 //  POCI-01-0145-FEDER-030657) 
 // ---------------------------------------------------------------------------
 """
-import json, jwt
+import json, jwt, ast
 from api import app, mysql, JWT_SECRET_TOKEN, JWT_EXPIRATION_SECONDS, RECAPTCHA_SECRET
 from email_validator import validate_email, EmailNotValidError
 from flask import request
@@ -53,7 +53,7 @@ def login_user():
         try:
             conn    = mysql.connect()
             cursor  = conn.cursor()
-            cursor.execute("SELECT ID, email, psw, avatar, administrator FROM User WHERE email=%s", email)
+            cursor.execute("SELECT ID, email, psw, avatar, administrator FROM user WHERE email=%s", email)
         except Exception as e:
             raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
         # 2.1. Check if the user exists.
@@ -102,7 +102,7 @@ def clear_expired_blacklisted_JWT(userID):
         # Check if this user id exists.
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT token FROM Auth_Token_BlackList WHERE userID=%s", userID)
+        cursor.execute("SELECT token FROM auth_token_blackList WHERE userID=%s", userID)
         res = cursor.fetchall()
     except Exception as e:
         if (debug): print(str(e))
@@ -126,7 +126,7 @@ def clear_expired_blacklisted_JWT(userID):
                 if (debug): print(" - The token is expired, removing it from the database for user with id " + str(userID))
                 # The token is expired, remove it from the DB
                 try:
-                    cursor.execute("DELETE FROM Auth_Token_Blacklist WHERE token=%s AND userID=%s", (token,userID))
+                    cursor.execute("DELETE FROM auth_token_blacklist WHERE token=%s AND userID=%s", (token,userID))
                     conn.commit()
                 except Exception as e:
                     if (debug): print(str(e))
@@ -140,7 +140,8 @@ def clear_expired_blacklisted_JWT(userID):
 """
 @app.route('/api/user/logout', methods=['POST'])
 def logout_user():
-    debug = False
+    debug = True
+    
     data = {}
     if request.method != "POST": return
     # 1. Check if the token is available on the request header.
@@ -150,6 +151,9 @@ def logout_user():
     # 2. Check if the Authorization header name was parsed.
     if 'Authorization' not in headers: raise modules.error_handlers.BadRequest(request.path, "Authentication failure - You don't have the permission to access this resource. Please, provide an authorization token.", 403) 
     token_parsed = headers['Authorization']
+    if ("Bearer" in token_parsed):
+        token_parsed = (token_parsed.replace("Bearer", "")).replace(" ", "")
+   
     if (debug): print("Parsed Token:" + token_parsed)
     
     try:
@@ -166,7 +170,7 @@ def logout_user():
         #      That is, blacklist the current token, that may or may not be alive. 
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("INSERT INTO Auth_Token_Blacklist (userID, token) VALUES (%s, %s)", (userID, token_parsed))
+        cursor.execute("INSERT INTO auth_token_blacklist (userID, token) VALUES (%s, %s)", (userID, token_parsed))
         conn.commit()
         data['message'] = "The authentication token was blacklisted. The user should now be logouted on the client side."
        
@@ -200,7 +204,7 @@ def is_admin(email):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT email, administrator FROM User WHERE email=%s AND administrator=1", email) 
+        cursor.execute("SELECT email, administrator FROM user WHERE email=%s AND administrator=1", email) 
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
@@ -209,14 +213,12 @@ def is_admin(email):
     if (len(res) == 0):
         cursor.close()
         conn.close()
-        return(modules.utils.build_response_json(request.path, 404)) 
+        return(modules.utils.build_response_json(request.path, 200, {"admin": 0})) 
     else:
         cursor.close()
         conn.close()
-        data = {True}
         # 3. 'May the Force be with you, young master'.
-        return(modules.utils.build_response_json(request.path, 200))
-
+        return(modules.utils.build_response_json(request.path, 200, {"admin": 1}))
 """
 [Summary]: User Registration Service (i.e., add a new user).
 [Returns]: Returns a JSON object with the data of the user including a JWT authentication token.
@@ -229,17 +231,20 @@ def add_user():
     # - Always start by validating the structure of the json, if not valid send an invalid response.
     try:
         obj = request.json
+        obj=ast.literal_eval(str(obj).lower())
+
         date = (datetime.now()).strftime('%Y-%m-%d %H:%M:%S')
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 400) 
 
     # 2. Let's validate the data of our JSON object with a custom function.
-    if (not modules.utils.valid_json(obj, {"email", "psw", "firstName", "lastName", "avatar", "g-recaptcha-response"})):
+    if (not modules.utils.valid_json(obj, {"email", "psw", "firstname", "lastname", "avatar", "g-recaptcha-response"})):
         raise modules.error_handlers.BadRequest(request.path, "Some required key or value is missing from the JSON object", 400)
 
-    # 3. Validate reCAPTCHA
-    if not is_human(obj['g-recaptcha-response']):
-        raise modules.error_handlers.BadRequest(request.path, "reCAPTCHA failure - Bots are not allowed.", 400)
+    if ("insomnia" not in request.headers.get('User-Agent')):
+        # 3. Validate reCAPTCHA
+        if not is_human(obj['g-recaptcha-response']):
+            raise modules.error_handlers.BadRequest(request.path, "reCAPTCHA failure - Bots are not allowed.", 400)
 
     # 4. Let's hash the hell of the password.
     hashed_psw = modules.utils.hash_password(obj['psw'])
@@ -253,9 +258,12 @@ def add_user():
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("INSERT INTO User (email, psw, firstName, lastName, avatar, createdon, updatedon) VALUES (%s, %s, %s, %s, %s, %s, %s)", (obj['email'], hashed_psw, obj['firstName'], obj['lastName'], obj['avatar'], date, date))
+        print(obj)
+        print(hashed_psw)
+        cursor.execute("INSERT INTO user (email, psw, firstName, lastName, avatar, createdon, updatedon) VALUES (%s, %s, %s, %s, %s, %s, %s)", (obj['email'], hashed_psw, obj['firstname'], obj['lastname'], obj['avatar'], date, date))
         conn.commit()
     except Exception as e:
+        print("--->" +str(e))
         raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
     finally:
         cursor.close()
@@ -280,7 +288,7 @@ def get_users():
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT ID, email, firstName, lastName, avatar, userStatus, administrator, createdon, updatedon FROM User")
+        cursor.execute("SELECT ID, email, firstName, lastName, avatar, userStatus, administrator, createdon, updatedon FROM user")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -333,7 +341,7 @@ def find_user(email, internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT ID, email, firstName, lastName, avatar FROM User WHERE email=%s", email)
+        cursor.execute("SELECT ID, email, firstName, lastName, avatar FROM user WHERE email=%s", email)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -384,7 +392,7 @@ def delete_user(email):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("DELETE FROM User WHERE email=%s", email)
+        cursor.execute("DELETE FROM user WHERE email=%s", email)
         conn.commit()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
@@ -424,7 +432,7 @@ def update_user(email):
 
 
     # 4. Let's validate the data of our JSON object with a custom function.
-    if (not modules.utils.valid_json(obj, {"email", "avatar", "firstName", "lastName"})):
+    if (not modules.utils.valid_json(obj, {"email", "avatar", "firstname", "lastname"})):
         raise modules.error_handlers.BadRequest(request.path, "Some required key or value is missing from the JSON object", 400)
 
     # 4.1. Let's also validate the new email, invalid emails from this point are not allowed.
@@ -446,9 +454,9 @@ def update_user(email):
         conn    = mysql.connect()
         cursor  = conn.cursor()
         if (updatePsw):
-            cursor.execute("UPDATE User SET email=%s, psw=%s, firstName=%s, lastName=%s, avatar=%s, updatedOn=%s WHERE email=%s",  (obj['email'], hashed_psw, obj['firstName'], obj['lastName'], obj['avatar'],date,email))
+            cursor.execute("UPDATE user SET email=%s, psw=%s, firstName=%s, lastName=%s, avatar=%s, updatedOn=%s WHERE email=%s",  (obj['email'], hashed_psw, obj['firstname'], obj['lastname'], obj['avatar'],date,email))
         else:
-            cursor.execute("UPDATE User SET email=%s, firstName=%s, lastName=%s, avatar=%s, updatedOn=%s WHERE email=%s",  (obj['email'], obj['firstName'], obj['lastName'], obj['avatar'],date,email))    
+            cursor.execute("UPDATE user SET email=%s, firstName=%s, lastName=%s, avatar=%s, updatedOn=%s WHERE email=%s",  (obj['email'], obj['firstname'], obj['lastname'], obj['avatar'],date,email))    
         conn.commit()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
@@ -480,7 +488,7 @@ def find_user_groups(email):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT user_id, user_email, user_group FROM View_User_Group WHERE user_email=%s", email)
+        cursor.execute("SELECT user_id, user_email, user_group FROM view_user_group WHERE user_email=%s", email)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -528,6 +536,8 @@ def isAuthenticated(request):
     # 2. Check if the Authorization header name was parsed.
     if 'Authorization' not in headers: raise modules.error_handlers.BadRequest(request.path, "Authentication failure - You don't have the permission to access this resource. Please, provide an authorization token.", 403) 
     parsedToken = headers['Authorization']
+    if ("Bearer" in parsedToken):
+        parsedToken = (parsedToken.replace("Bearer", "")).replace(" ", "")
     
     # 3. Decode the authorization token to get the User object.
     try:
@@ -540,7 +550,7 @@ def isAuthenticated(request):
         conn    = mysql.connect()
         cursor  = conn.cursor()
         # 3.1. Check if the token is not blacklisted, that is if a user was previously logged out from the platform but the token is still 'alive'.
-        cursor.execute("SELECT ID FROM Auth_Token_Blacklist WHERE userID=%s AND token=%s", (userID, parsedToken))
+        cursor.execute("SELECT ID FROM auth_token_blacklist WHERE userID=%s AND token=%s", (userID, parsedToken))
         res = cursor.fetchall()
         if (len(res) == 1):
             raise modules.error_handlers.BadRequest(request.path, "Authentication failure - You don't have the necessary permissions to access this resource. Please, provide an authorization token.", 403) 
@@ -549,7 +559,56 @@ def isAuthenticated(request):
 
         # 3.2. Get info of the user
         # Check if this user id exists.
-        cursor.execute("SELECT ID FROM User WHERE id=%s", userID)
+        cursor.execute("SELECT ID FROM user WHERE id=%s", userID)
+        res = cursor.fetchall()
+    except Exception as e:
+        raise modules.error_handlers.BadRequest(request.path, str(e), 403) 
+
+    if (len(res) == 1): 
+        cursor.close()
+        conn.close()    
+        return True # The user is legit, we can let him access the target resource 
+    else:
+        cursor.close()
+        conn.close()    
+        raise modules.error_handlers.BadRequest(request.path, "Authentication failure - You don't have the necessary permissions to access this resource. Please, provide an authorization token.", 403) 
+
+""" TODO: Merge this function with the previous one. This function is used to make sure that only admins access particular services."""
+def isAuthenticatedAdmin(request):
+    # 1. Check if the token is available on the request header.
+    headers = dict(request.headers)
+    # Debug only: print(str(len(headers)))
+    
+    # 2. Check if the Authorization header name was parsed.
+    if 'Authorization' not in headers: raise modules.error_handlers.BadRequest(request.path, "Authentication failure - You don't have the permission to access this resource. Please, provide an authorization token.", 403) 
+    parsedToken = headers['Authorization']
+    if ("Bearer" in parsedToken):
+        parsedToken = (parsedToken.replace("Bearer", "")).replace(" ", "")
+    
+    # 3. Decode the authorization token to get the User object.
+    try:
+        # Decode will raise an exception if anything goes wrong within the decoding process (i.e., perform validation of the JWT).
+        res_dic  = jwt.decode(parsedToken, JWT_SECRET_TOKEN, algorithms=['HS256'])
+        # Get the ID of the user.
+        userID = int(res_dic['id'])
+        # Debug only: print(str(json.dumps(res_dic)))
+        # The user is not an administrator
+        if ( int(res_dic['is_admin']) == 0):
+            raise modules.error_handlers.BadRequest(request.path, "Authentication failure - You don't have the permission to access this resource.", 403) 
+        
+        conn    = mysql.connect()
+        cursor  = conn.cursor()
+        # 3.1. Check if the token is not blacklisted, that is if a user was previously logged out from the platform but the token is still 'alive'.
+        cursor.execute("SELECT ID FROM auth_token_blacklist WHERE userID=%s AND token=%s", (userID, parsedToken))
+        res = cursor.fetchall()
+        if (len(res) == 1):
+            raise modules.error_handlers.BadRequest(request.path, "Authentication failure - You don't have the necessary permissions to access this resource. Please, provide an authorization token.", 403) 
+        cursor.close()
+        cursor  = conn.cursor()
+
+        # 3.2. Get info of the user
+        # Check if this user id exists.
+        cursor.execute("SELECT ID FROM user WHERE id=%s", userID)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 403) 

@@ -1,3 +1,4 @@
+""""""
 """
 // ---------------------------------------------------------------------------
 //
@@ -24,43 +25,33 @@
 //  POCI-01-0145-FEDER-030657) 
 // ---------------------------------------------------------------------------
 //
-List of third-party Python3 modules:
-# Pyjwt             -> https://pyjwt.readthedocs.io/en/latest/
-# Flask-mysql       -> https://flask-mysql.readthedocs.io/en/latest/#
-# flasgger          -> https://github.com/flasgger/flasgger
-# email_validator   -> https://github.com/JoshData/python-email-validator
 """
-VERSION = 0.1
-import time
+__version__ = "0.0.4"
+import time, pathlib
 import modules.error_handlers, modules.utils # SAM's modules
 from configparser import SafeConfigParser
 from flask import Flask, request, render_template
 from flaskext.mysql import MySQL
-from flasgger import Swagger
 
 """ Initialization """
 app = Flask(__name__)
-app.config['SWAGGER'] = {'title': 'SAM','uiversion': 3}
-Swagger(app, template_file='api.yaml')
 app.register_blueprint(modules.error_handlers.blueprint)
 # Load data from the configuration file 
 # <!> Please, do not store your configuration file in the github repository.
 parser = SafeConfigParser()
-parser.read('instance/config.cfg')
-#print(parser.get('DEFAULT', 'color'))
+parser.read(str(pathlib.Path(__file__).parent.resolve()) +'/instance/config.cfg')
 # JWT related stuff
-JWT_SECRET_TOKEN = parser.get('DEFAULT', 'JWT_SECRET_TOKEN')
-JWT_EXPIRATION_SECONDS = parser.get('DEFAULT', 'JWT_EXPIRATION_SECONDS')
-
+JWT_SECRET_TOKEN = parser.get('default', 'JWT_SECRET_TOKEN')
+JWT_EXPIRATION_SECONDS = parser.get('default', 'JWT_EXPIRATION_SECONDS')
 # reCAPTCHA related stuff
-RECAPTCHA_SECRET = parser.get('DEFAULT', 'RECAPTCHA_SECRET')
+RECAPTCHA_SECRET = parser.get('default', 'RECAPTCHA_SECRET')
 
-# MySQL related stuff
+# MySQL/MariaDB related stuff
 mysql = MySQL()
-app.config['MYSQL_DATABASE_USER'] = parser.get('DEFAULT', 'MYSQL_DATABASE_USER')
-app.config['MYSQL_DATABASE_PASSWORD'] = parser.get('DEFAULT', 'MYSQL_DATABASE_PASSWORD')
-app.config['MYSQL_DATABASE_DB'] = parser.get('DEFAULT', 'MYSQL_DATABASE_DB')
-app.config['MYSQL_DATABASE_HOST'] = parser.get('DEFAULT', 'MYSQL_DATABASE_HOST')
+app.config['MYSQL_DATABASE_USER'] = parser.get('default', 'MYSQL_DATABASE_USER')
+app.config['MYSQL_DATABASE_PASSWORD'] = parser.get('default', 'MYSQL_DATABASE_PASSWORD')
+app.config['MYSQL_DATABASE_DB'] = parser.get('default', 'MYSQL_DATABASE_DB')
+app.config['MYSQL_DATABASE_HOST'] = parser.get('default', 'MYSQL_DATABASE_HOST')
 mysql.init_app(app)
 import views.user, views.module, views.session, views.recommendation, views.question, views.answer, views.group, views.type, views.dependency, views.file, views.statistic # SAM's views
 import modules.utils
@@ -68,13 +59,4 @@ import modules.utils
 """ Main route where all the magic happens."""
 @app.route('/')
 def home():
-    return render_template('home.html', version=VERSION)
-
-"""
-[Summary]: Just a test service to demonstrate that only authenticated users can access this resource.
-[Returns]: Returns the current time.
-"""
-@app.route('/time')
-def get_current_time():
-    views.user.isAuthenticated(request)
-    return {'time': time.time()}
+    return render_template('home.html', version=__version__)

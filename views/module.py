@@ -40,7 +40,7 @@ def add_module():
     DEBUG=False
     if request.method != 'POST': return
     # Check if the user has permissions to access this resource
-    views.user.isAuthenticated(request)
+    views.user.isAuthenticatedAdmin(request)
 
     json_data = request.get_json()
     # If the mimetype does not indicate JSON (application/json, see is_json()), this returns None.
@@ -77,7 +77,7 @@ def add_module():
     columns = ["shortname", "fullname", "displayname", type_id and "typeID" or None, avatar and "avatar" or None, description and "description" or None, createdon and "createdon" or None, updatedon and "updatedon" or None]
     values  = (shortname, fullname, displayname, type_id, avatar, description, createdon, updatedon)
     
-    sql, values = modules.utils.build_sql_instruction("INSERT INTO Module", columns, values)
+    sql, values = modules.utils.build_sql_instruction("INSERT INTO module", columns, values)
     if (DEBUG): print("[SAM-API]: [POST]/api/module - " + sql + " => " + str(values))
 
     # Add Module and iterate the tree of the module in order to create the questions and answers mapped to the current module.
@@ -109,7 +109,7 @@ def add_module():
     # If availabe, set the logic filename after knowing the database id of the module
     if logic and module_id:
         final_logic_filename = "logic_" + str(module_id) + ".py"
-        sql, values = modules.utils.build_sql_instruction("UPDATE Module", ["logicFilename"], final_logic_filename, "WHERE id="+str(module_id))
+        sql, values = modules.utils.build_sql_instruction("UPDATE module", ["logicFilename"], final_logic_filename, "WHERE id="+str(module_id))
         modules.utils.db_execute_update_insert(mysql, sql, values, True)
 
     # 'Do, or do not, there is no try.'
@@ -125,7 +125,7 @@ def delete_module_logic(ID, internal_call=False):
         if request.method != 'DELETE': return
     
     # Check if the user has permissions to access this resource
-    if (not internal_call): views.user.isAuthenticated(request)
+    if (not internal_call): views.user.isAuthenticatedAdmin(request)
 
     # Get information about module and remove logic file
     module = find_module(ID, True)
@@ -153,7 +153,7 @@ def delete_module_questions(ID, internal_call=False):
         if request.method != 'DELETE': return
     
     # Check if the user has permissions to access this resource
-    if (not internal_call): views.user.isAuthenticated(request)
+    if (not internal_call): views.user.isAuthenticatedAdmin(request)
 
     # Get the set of questions linked to this module.
     questions = find_module_questions(ID, True)
@@ -180,7 +180,7 @@ def delete_module_answers(ID, internal_call=False):
         if request.method != 'DELETE': return
 
     # Check if the user has permissions to access this resource
-    if (not internal_call): views.user.isAuthenticated(request)
+    if (not internal_call): views.user.isAuthenticatedAdmin(request)
 
     # Get the set of answers linked to this module.
         # Get the set of questions linked to this module.
@@ -209,7 +209,7 @@ def delete_module_partial(ID, internal_call=False):
     
     # 1. Check if the user has permissions to access this resource
     if (not internal_call):
-        views.user.isAuthenticated(request)
+        views.user.isAuthenticatedAdmin(request)
 
     # 2. Delete logic file associated
     delete_module_logic(ID, True)
@@ -218,7 +218,7 @@ def delete_module_partial(ID, internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("DELETE FROM Module WHERE ID=%s", ID)
+        cursor.execute("DELETE FROM module WHERE ID=%s", ID)
         conn.commit()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
@@ -242,7 +242,7 @@ def delete_module_full(ID, internal_call=False):
         if request.method != 'DELETE': return
 
     # Check if the user has permissions to access this resource
-    if (not internal_call): views.user.isAuthenticated(request)
+    if (not internal_call): views.user.isAuthenticatedAdmin(request)
 
     # Get and delete the set of answers and questions linked to this module.
     delete_module_answers(ID, True)
@@ -263,6 +263,8 @@ def delete_module_full(ID, internal_call=False):
 @app.route('/api/module', methods=['PUT'])
 def update_module():
     DEBUG=False
+    # Check if the user has permissions to access this resource
+    views.user.isAuthenticatedAdmin(request)
     # Delete the module but not to forget to preserve the session related to this module that  is being delete just for the sake of being easier to update is info based on the tree parsed
     if request.method != 'PUT': return
     json_data = request.get_json()
@@ -282,7 +284,7 @@ def update_module():
     # If the user has choosen to erase all questions
     if (tree is None):
         modules.utils.console_log("[PUT]/api/module", "No tree exists")
-        sql     = "DELETE FROM Module_Question WHERE moduleID=%s"
+        sql     = "DELETE FROM module_question WHERE moduleID=%s"
         values  = module_id
         modules.utils.db_execute_update_insert(mysql, sql, values)
 
@@ -304,7 +306,7 @@ def update_module():
     values  = (shortname, fullname, displayname, type_id, logic, avatar, description, createdon, updatedon)
     where   = "WHERE id="+str(module_id)
 
-    sql, values = modules.utils.build_sql_instruction("UPDATE Module", columns, values, where)
+    sql, values = modules.utils.build_sql_instruction("UPDATE module", columns, values, where)
     if (DEBUG): modules.utils.console_log("[PUT]/api/module", str(sql + " => " + str(values) + " " + where))
 
     # Update 
@@ -364,7 +366,7 @@ def get_modules():
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT ID, typeID, shortname, fullname, displayname, logicfilename, description, avatar, createdon, updatedon FROM Module WHERE disable = 0")
+        cursor.execute("SELECT ID, typeID, shortname, fullname, displayname, logicfilename, description, avatar, createdon, updatedon FROM module WHERE disable = 0")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -411,7 +413,7 @@ def get_modules_questions():
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT DISTINCT module_id FROM View_Module_Questions_Answers")
+        cursor.execute("SELECT DISTINCT module_id FROM view_module_questions_answers")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -450,7 +452,7 @@ def get_modules_answers():
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT DISTINCT module_id FROM View_Module_Questions_Answers")
+        cursor.execute("SELECT DISTINCT module_id FROM view_module_questions_answers")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -525,7 +527,7 @@ def find_module(ID, internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT ID, typeID, shortname, fullname, displayname, logicfilename, description, avatar, createdon, updatedon FROM Module WHERE ID=%s", ID)
+        cursor.execute("SELECT ID, typeID, shortname, fullname, displayname, logicfilename, description, avatar, createdon, updatedon FROM module WHERE ID=%s", ID)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -582,7 +584,7 @@ def find_module_questions(ID, internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT DISTINCT question_id, question, createdon, updatedon FROM View_Module_Question WHERE module_id=%s", ID)
+        cursor.execute("SELECT DISTINCT question_id, question, createdon, updatedon FROM view_module_question WHERE module_id=%s", ID)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -629,7 +631,7 @@ def find_module_answers(ID, internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT DISTINCT answer_id, answer, createdon, updatedon FROM View_Module_Answers WHERE module_id=%s", ID)
+        cursor.execute("SELECT DISTINCT answer_id, answer, createdon, updatedon FROM view_module_answers WHERE module_id=%s", ID)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -699,7 +701,7 @@ def get_module_tree(pID, internal_call=False):
         try:
             conn    = mysql.connect()
             cursor  = conn.cursor()
-            cursor.execute("SELECT module_id, module_displayname, question_id, question, questionorder, multipleAnswers FROM View_Module_Question WHERE module_id = %s", ID)
+            cursor.execute("SELECT module_id, module_displayname, question_id, question, questionorder, multipleAnswers FROM view_module_question WHERE module_id = %s", ID)
             res = cursor.fetchall()
         except Exception as e:
             raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -765,8 +767,8 @@ def subquestion_parent_changed(parent, child, trigger):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        print("SELECT ID FROM Question_has_Child WHERE parent=%s AND child=%s AND ontrigger=%s", (parent, child, trigger))
-        cursor.execute("SELECT ID FROM Question_has_Child WHERE parent=%s AND child=%s AND ontrigger=%s", (parent, child, trigger))
+        print("SELECT ID FROM question_has_child WHERE parent=%s AND child=%s AND ontrigger=%s", (parent, child, trigger))
+        cursor.execute("SELECT ID FROM question_has_child WHERE parent=%s AND child=%s AND ontrigger=%s", (parent, child, trigger))
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -791,8 +793,8 @@ def parent_changed(question_id, answer_id):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        print("SELECT ID FROM Question_Answer WHERE questionID=%s AND answerID=%s", (question_id, answer_id))
-        cursor.execute("SELECT ID FROM Question_Answer WHERE questionID=%s AND answerID=%s", (question_id, answer_id))
+        print("SELECT ID FROM question_answer WHERE questionID=%s AND answerID=%s", (question_id, answer_id))
+        cursor.execute("SELECT ID FROM question_answer WHERE questionID=%s AND answerID=%s", (question_id, answer_id))
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -869,7 +871,7 @@ def iterate_tree_nodes(recommendations, operation, module_id, c_node, p_node=Non
         
         # 1.1. Add or update question - Table [Question].
         if (operation == "INSERT"):
-            sql     = "INSERT INTO Question (content, multipleAnswers) VALUES (%s, %s)"
+            sql     = "INSERT INTO question (content, multipleAnswers) VALUES (%s, %s)"
             values  =  (c_node['name'], c_node['multipleAnswers'])
             exists_flag = False
             # Check if the question already exists (i.e. if c_node['id'] == null)
@@ -880,7 +882,7 @@ def iterate_tree_nodes(recommendations, operation, module_id, c_node, p_node=Non
 
             if (debug): print("  -> [" + str(c_node["id"]) + "] = '" + sql + ", " + str(values))
         if (operation == "UPDATE"):
-            sql     = "UPDATE Question SET content=%s, multipleAnswers=%s WHERE ID=%s"
+            sql     = "UPDATE question SET content=%s, multipleAnswers=%s WHERE ID=%s"
             values  = (c_node['name'], c_node['multipleAnswers'], c_node['id'])
             if (debug): print("  -> [" + str(c_node["id"]) + "] = '" + sql + ", " + str(values))
             modules.utils.db_execute_update_insert(mysql, sql, values)
@@ -890,7 +892,7 @@ def iterate_tree_nodes(recommendations, operation, module_id, c_node, p_node=Non
         # Be aware, that child questions are not added to this table. That is, only questions are mapped to modules.
         if (p_node is None):
             if (operation == "INSERT"):
-                sql     = "INSERT INTO Module_Question (moduleID, questionID, questionOrder) VALUES (%s, %s, %s)"
+                sql     = "INSERT INTO module_question (moduleID, questionID, questionOrder) VALUES (%s, %s, %s)"
                 values  = (module_id,c_node['id'], 0)
                 modules.utils.db_execute_update_insert(mysql, sql, values)
                 if (debug): print("  -> [?] = '" + sql + ", " + str(values))
@@ -901,7 +903,7 @@ def iterate_tree_nodes(recommendations, operation, module_id, c_node, p_node=Non
             if (p_node['type'] == "answer"): 
 
                 if (operation == "INSERT"):
-                    sql     = "INSERT INTO Question_has_Child (parent, child, ontrigger, questionOrder) VALUES (%s, %s, %s, %s)"
+                    sql     = "INSERT INTO question_has_child (parent, child, ontrigger, questionOrder) VALUES (%s, %s, %s, %s)"
                     values  = (p_p_node['id'], c_node['id'], p_node['id'], 0)
                     modules.utils.db_execute_update_insert(mysql, sql, values)
                     if (debug): print("  -> [?] = '" + sql + ", " + str(values))
@@ -910,26 +912,26 @@ def iterate_tree_nodes(recommendations, operation, module_id, c_node, p_node=Non
                     if (subquestion_parent_changed(p_p_node['id'], c_node['id'], p_node['id'])):
                         if (debug): print("  -> [?] New Link detected")
                         # Remove the previous link
-                        sql     = "DELETE FROM Question_has_Child WHERE child=%s"
+                        sql     = "DELETE FROM question_has_child WHERE child=%s"
                         values  = c_node['id']
                         if (debug): print("     -> '" + sql + ", " + str(values))
                         modules.utils.db_execute_update_insert(mysql, sql, values)
                         # Add the new link
-                        sql     = "INSERT INTO Question_has_Child (parent, child, ontrigger, questionOrder) VALUES (%s, %s, %s, %s)"
+                        sql     = "INSERT INTO question_has_child (parent, child, ontrigger, questionOrder) VALUES (%s, %s, %s, %s)"
                         values  = (p_p_node['id'], c_node['id'], p_node['id'], 0)
                         if (debug): print("     -> '" + sql + ", " + str(values))
                         modules.utils.db_execute_update_insert(mysql, sql, values)
     else: 
         # 1.1. Add or update answer - Table [Answer].
         if (operation == "INSERT"):
-            sql     = "INSERT INTO Answer (content) VALUES (%s)"
+            sql     = "INSERT INTO answer (content) VALUES (%s)"
             values  = c_node['name']
             exists_flag = False
             # Check if the answer already exists (i.e. if c_node['id'] == null)
             if (not c_node['id']):
                 # Check if the answer is similar or equal to one already available on the database, if so, use the id of the one that is equal
                 # This is performed by checking the contents of an answer. No need to create a new answer on the database if one similar is already available.
-                node_id = (modules.utils.db_already_exists(mysql, "SELECT id, content FROM Answer WHERE content LIKE %s", c_node['name']))
+                node_id = (modules.utils.db_already_exists(mysql, "SELECT id, content FROM answer WHERE content LIKE %s", c_node['name']))
                 print(node_id)
                 if (node_id == -1):
                     c_node.update({"id": modules.utils.db_execute_update_insert(mysql, sql, values)}) # Store the ID of the newly created answer.
@@ -942,14 +944,14 @@ def iterate_tree_nodes(recommendations, operation, module_id, c_node, p_node=Non
             if (debug): print("  -> [" + str(c_node["id"]) + "] = '" + sql + ", " + str(values))
         
         if (operation == "UPDATE"):
-            sql     = "UPDATE Answer SET content=%s WHERE ID=%s"
+            sql     = "UPDATE answer SET content=%s WHERE ID=%s"
             values  = (c_node['name'], c_node['id'])
             if (debug): print("  -> [" + str(c_node["id"]) + "] = '" + sql + ", " + str(values))
             modules.utils.db_execute_update_insert(mysql, sql, values)
         
         if (operation == "INSERT"):
             # 1.2. Add link to table [Question_Answer] - Link question and answer together.
-            sql     = "INSERT INTO Question_Answer (questionID, answerID) VALUES (%s, %s)"
+            sql     = "INSERT INTO question_answer (questionID, answerID) VALUES (%s, %s)"
             values  = (p_node['id'], c_node['id'])
             modules.utils.db_execute_update_insert(mysql, sql, values)
             if (debug): print("  -> [?] = '" + sql + ", " + str(values))
@@ -960,12 +962,12 @@ def iterate_tree_nodes(recommendations, operation, module_id, c_node, p_node=Non
             if (parent_changed(p_node['id'], c_node['id'])):
                 # Remove the previous one
                 if (debug): print("  -> [?] New Link detected")
-                sql     = "DELETE FROM Question_Answer WHERE answerID=%s AND questionID IN (SELECT questionID From Question_Answer WHRE answerID=%s)"
+                sql     = "DELETE FROM question_answer WHERE answerID=%s AND questionID IN (SELECT questionID From question_answer WHRE answerID=%s)"
                 values  = (c_node['id'], c_node['id'])
                 if (debug): print("    -> [?] = '" + sql + ", " + str(values))
                 modules.utils.db_execute_update_insert(mysql, sql, values)
                 # Add new updated link
-                sql     = "INSERT INTO Question_Answer (questionID, answerID) VALUES (%s, %s)"
+                sql     = "INSERT INTO question_answer (questionID, answerID) VALUES (%s, %s)"
                 values  = (p_node['id'], c_node['id'])
                 modules.utils.db_execute_update_insert(mysql, sql, values)
                 if (debug): print("    -> [?] = '" + sql + ", " + str(values))
@@ -997,7 +999,7 @@ def get_children(initial, question, add_recommendations_to_tree):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT answer_id, answer FROM View_Question_Answer WHERE question_id=%s", question['id'])
+        cursor.execute("SELECT answer_id, answer FROM view_question_answer WHERE question_id=%s", question['id'])
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -1022,7 +1024,7 @@ def get_children(initial, question, add_recommendations_to_tree):
     for child in children:
         try:
             cursor  = conn.cursor()
-            cursor.execute("SELECT child_id, question, questionOrder, ontrigger, multipleAnswers FROM View_Question_Childs WHERE parent_id=%s AND ontrigger=%s", (question['id'], child['id']))
+            cursor.execute("SELECT child_id, question, questionOrder, ontrigger, multipleAnswers FROM view_question_childs WHERE parent_id=%s AND ontrigger=%s", (question['id'], child['id']))
             res = cursor.fetchall()
         except Exception as e:
             raise modules.error_handlers.BadRequest(request.path, str(e), 500)

@@ -40,12 +40,12 @@ def get_global_stats():
     views.user.isAuthenticated(request)
 
     stats = {}
-    tmp_users = get_number_of_table('User')
-    tmp_modules = get_number_of_table('Module')
-    tmp_questions = get_number_of_table('Question')
-    tmp_answers = get_number_of_table('Answer')
-    tmp_sessions = get_number_of_table('Session')
-    tmp_recommendations = get_number_of_table('Recommendation')
+    tmp_users = get_number_of_table('user')
+    tmp_modules = get_number_of_table('module')
+    tmp_questions = get_number_of_table('question')
+    tmp_answers = get_number_of_table('answer')
+    tmp_sessions = get_number_of_table('session')
+    tmp_recommendations = get_number_of_table('recommendation')
 
     stats['users']              = tmp_users or 0
     stats['modules']            = tmp_modules or 0
@@ -74,7 +74,7 @@ def get_stats_user(internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT COUNT(id) as size FROM User")
+        cursor.execute("SELECT COUNT(id) as size FROM user")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -129,7 +129,7 @@ def get_stats_modules(internal_call=False):
         cursor.close()
         conn.close()
         if (not internal_call):
-            return(modules.utils.build_response_json(request.path, 404))
+            return(modules.utils.build_response_json(request.path, 200, {"size":0}))
         else:
             return(None)
     else:
@@ -153,6 +153,7 @@ def get_stats_modules(internal_call=False):
     if (not internal_call):
         return(modules.utils.build_response_json(request.path, 200, stat))
     else: 
+        print("--->" + stat)
         return(stat)
 
 """
@@ -172,7 +173,7 @@ def get_stats_questions(internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT COUNT(id) as size FROM Question")
+        cursor.execute("SELECT COUNT(id) as size FROM question")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -216,7 +217,7 @@ def get_stats_answers(internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT COUNT(id) as size FROM Answer")
+        cursor.execute("SELECT COUNT(id) as size FROM answer")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -260,7 +261,7 @@ def get_stats_recommendations(internal_call=False):
         conn    = mysql.connect()
         cursor  = conn.cursor()
         # Top 5 only
-        cursor.execute("SELECT content, occurrences FROM Recommendation, (SELECT recommendationID as rID, count(*) as occurrences FROM Session_Recommendation GROUP BY recommendationID ORDER BY occurrences DESC LIMIT 5) as Top5 WHERE ID = rID;")
+        cursor.execute("SELECT content, occurrences FROM recommendation, (SELECT recommendationID as rID, count(*) as occurrences FROM session_recommendation GROUP BY recommendationID ORDER BY occurrences DESC LIMIT 5) as Top5 WHERE ID = rID;")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -270,7 +271,7 @@ def get_stats_recommendations(internal_call=False):
         cursor.close()
         conn.close()
         if (not internal_call):
-            return(modules.utils.build_response_json(request.path, 404))
+            return(modules.utils.build_response_json(request.path, 200, {"size":0}))
         else:
             return(None)
     else:
@@ -312,7 +313,7 @@ def get_stats_sessions(internal_call=False):
         conn    = mysql.connect()
         cursor  = conn.cursor()
         # Number of session in the Last 7 days sessions
-        cursor.execute("SELECT date(createdOn) as day, COUNT(*) as occurrences FROM Session WHERE createdon >= DATE_ADD(CURDATE(), INTERVAL -7 DAY) GROUP BY day")
+        cursor.execute("SELECT date(createdOn) as day, COUNT(*) as occurrences FROM session WHERE createdon >= DATE_ADD(CURDATE(), INTERVAL -7 DAY) GROUP BY day")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -322,7 +323,7 @@ def get_stats_sessions(internal_call=False):
         cursor.close()
         conn.close()
         if (not internal_call):
-            return(modules.utils.build_response_json(request.path, 404))
+            return(modules.utils.build_response_json(request.path, 200, {"size": 0}))
         else:
             return(None)   
     else:

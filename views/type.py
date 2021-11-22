@@ -55,7 +55,7 @@ def add_type():
     
     # Build the SQL instruction using our handy function to build sql instructions.
     values = (name, description, createdon, updatedon)
-    sql, values = modules.utils.build_sql_instruction("INSERT INTO Type", ["name", description and "description" or None, createdon and "createdon" or None, updatedon and "updatedon" or None], values)
+    sql, values = modules.utils.build_sql_instruction("INSERT INTO type", ["name", description and "description" or None, createdon and "createdon" or None, updatedon and "updatedon" or None], values)
     if (DEBUG): print("[SAM-API]: [POST]/api/type - " + sql)
 
     # Add
@@ -99,7 +99,7 @@ def update_type():
     # Check if there is anything to update (i.e. frontend developer has not sent any values to update).
     if (len(values) == 0): return(modules.utils.build_response_json(request.path, 200))   
 
-    sql, values = modules.utils.build_sql_instruction("UPDATE Type", columns, values, where)
+    sql, values = modules.utils.build_sql_instruction("UPDATE type", columns, values, where)
     if (DEBUG): print("[SAM-API]: [PUT]/api/type - " + sql + " " + str(values))
 
     # Update Recommendation
@@ -122,7 +122,7 @@ def get_types():
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT ID, name, description, createdOn, updatedOn FROM Type")
+        cursor.execute("SELECT ID, name, description, createdOn, updatedOn FROM type")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -156,7 +156,7 @@ def find_modules_of_type(type_id):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT ID FROM Module WHERE typeID=%s", type_id)
+        cursor.execute("SELECT ID FROM module WHERE typeID=%s", type_id)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -195,7 +195,7 @@ def find_type(ID):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT ID, name, description, createdOn, updatedOn FROM Type WHERE ID=%s", ID)
+        cursor.execute("SELECT ID, name, description, createdOn, updatedOn FROM type WHERE ID=%s", ID)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -234,7 +234,7 @@ def delete_type(ID):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("DELETE FROM Type WHERE ID=%s", ID)
+        cursor.execute("DELETE FROM type WHERE ID=%s", ID)
         conn.commit()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500) 

@@ -77,5 +77,4 @@ def download_recommendations_zip(module_name, ID):
     views.user.isAuthenticated(request)
     
     file_name = str(module_name)+'_session_'+str(ID)+'.zip'
-
-    return send_from_directory('temp/', file_name, as_attachment=True)
+    return send_from_directory('./temp/', file_name, as_attachment=True)

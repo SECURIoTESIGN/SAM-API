@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Get Recommendations &mdash; SAM-API 1.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> SAM-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Get Recommendations</a></li>
+<li><a class="reference internal" href="#add-recommendation">Add Recommendation</a></li>
+<li><a class="reference internal" href="#edit-recommendation">Edit Recommendation</a></li>
+<li><a class="reference internal" href="#remove-recommendation">Remove Recommendation</a></li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SAM-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Get Recommendations</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/services/recommendation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="get-recommendations">
+<h1>Get Recommendations<a class="headerlink" href="#get-recommendations" title="Permalink to this headline"></a></h1>
+<dl class="http get">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">GET</span> </span><span class="sig-name descname"><span class="pre">/api/recommendations</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Get recommendations.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Response JSON Object</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id of the recommendation.</p></li>
+<li><p><strong>content</strong> (<em>string</em>) – Recommendation name.</p></li>
+<li><p><strong>description</strong> (<em>string</em>) – Description of the recommendation.</p></li>
+<li><p><strong>guide</strong> (<em>string</em>) – The filename of the recommendation guide.</p></li>
+<li><p><strong>modules</strong> (<em>array</em>) – Array of modules mapped to the current recommendation.</p></li>
+<li><p><strong>createdon</strong> (<em>datetime</em>) – Creation date and time.</p></li>
+<li><p><strong>updatedon</strong> (<em>datetime</em>) – Update date and time.</p></li>
+<li><p><strong>status</strong> (<em>int</em>) – Status code.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Status Codes</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Recommendations successfully retrieved.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a></span> – The server was unable to process the request (e.g., malformed request syntax).</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to retrieve recommendations.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;/api/recommendations&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;content&quot;</span><span class="p">:[</span>
+         <span class="p">{</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="s2">&quot;Confidentiality&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+            <span class="nt">&quot;guide&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+            <span class="nt">&quot;modules&quot;</span><span class="p">:[</span>
+               <span class="p">{</span>
+                  <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+                  <span class="nt">&quot;shortname&quot;</span><span class="p">:</span><span class="s2">&quot;SRE&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;displayname&quot;</span><span class="p">:</span><span class="s2">&quot;Security Requirements&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;fullname&quot;</span><span class="p">:</span><span class="s2">&quot;Security Requirements Elicitation&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="s2">&quot;test&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;avatar&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+                  <span class="nt">&quot;logic_filename&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+                  <span class="nt">&quot;type_id&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+                  <span class="nt">&quot;createdon&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 13:29:49 GMT&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;updatedon&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 13:29:49 GMT&quot;</span>
+               <span class="p">}</span>
+            <span class="p">],</span>
+            <span class="nt">&quot;createdOn&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 13:29:49 GMT&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;updatedOn&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 13:29:49 GMT&quot;</span>
+         <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<hr/><dl class="http get">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">GET</span> </span><span class="sig-name descname"><span class="pre">/api/recommendation/</span></span><span class="sig-paren">(</span><em class="property"><span class="pre">int:</span> </em><em class="sig-param"><span class="pre">id</span></em><span class="sig-paren">)</span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Get recommendation identified by <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Form Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> – The id of the recommendation.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id of the recommendation.</p></li>
+<li><p><strong>content</strong> (<em>string</em>) – Recommendation name.</p></li>
+<li><p><strong>description</strong> (<em>string</em>) – Description of the recommendation.</p></li>
+<li><p><strong>guide</strong> (<em>string</em>) – The filename of the recommendation guide.</p></li>
+<li><p><strong>createdon</strong> (<em>datetime</em>) – Creation date and time.</p></li>
+<li><p><strong>updatedon</strong> (<em>datetime</em>) – Update date and time.</p></li>
+<li><p><strong>status</strong> (<em>int</em>) – Status code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Recommendation successfully retrieved.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a></span> – The server was unable to process the request (e.g., malformed request syntax).</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to retrieve recommendation.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;/api/recommendation/1&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;content&quot;</span><span class="p">:[</span>
+         <span class="p">{</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="s2">&quot;Confidentiality&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+            <span class="nt">&quot;guide&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+            <span class="nt">&quot;createdOn&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 13:29:49 GMT&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;updatedOn&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 13:29:49 GMT&quot;</span>
+         <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<hr/><dl class="http get">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">GET</span> </span><span class="sig-name descname"><span class="pre">/api/recommendations/module/</span></span><span class="sig-paren">(</span><em class="property"><span class="pre">int:</span> </em><em class="sig-param"><span class="pre">id</span></em><span class="sig-paren">)</span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Finds the set of recommendations for a module identified by <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Form Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> – The id of the module.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id of the recommendation.</p></li>
+<li><p><strong>content</strong> (<em>string</em>) – Recommendation name.</p></li>
+<li><p><strong>questions_answers</strong> (<em>array</em>) – An array that contains the mapping between questions and answers for the current recommendation and module.</p></li>
+<li><p><strong>createdon</strong> (<em>datetime</em>) – Creation date and time.</p></li>
+<li><p><strong>updatedon</strong> (<em>datetime</em>) – Update date and time.</p></li>
+<li><p><strong>status</strong> (<em>int</em>) – Status code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Recommendations successfully retrieved.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a></span> – The server was unable to process the request (e.g., malformed request syntax).</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to retrieve recommendations.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;/api/recommendations/module/1&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;content&quot;</span><span class="p">:[</span>
+         <span class="p">{</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="s2">&quot;Confidentiality&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;questions_answers&quot;</span><span class="p">:[</span>
+               <span class="p">{</span>
+                  <span class="nt">&quot;question_id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+                  <span class="nt">&quot;answer_id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+                  <span class="nt">&quot;createdon&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 13:29:49 GMT&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;updatedon&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 13:29:49 GMT&quot;</span>
+               <span class="p">}</span>
+            <span class="p">],</span>
+            <span class="nt">&quot;createdon&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 13:29:49 GMT&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;updatedon&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 13:29:49 GMT&quot;</span>
+         <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In this example, for module 1 the recommendation 1 is given if for <code class="docutils literal notranslate"><span class="pre">question_id</span></code> the <code class="docutils literal notranslate"><span class="pre">answer_id</span></code> is given by a user.</p>
+</div>
+<hr/></section>
+<section id="add-recommendation">
+<h1>Add Recommendation<a class="headerlink" href="#add-recommendation" title="Permalink to this headline"></a></h1>
+<dl class="http post">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">POST</span> </span><span class="sig-name descname"><span class="pre">/api/recommendation</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Add a new recommendation.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Request JSON Object</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>content</strong> (<em>string</em>) – The name of the new recommendation.</p></li>
+<li><p><strong>description</strong> (<em>string</em>) – The description of the new recommendation.</p></li>
+<li><p><strong>guide</strong> (<em>string</em>) – The filename of the recommendation guide.</p></li>
+<li><p><strong>questions_answers</strong> (<em>array</em>) – An array that contains the mapping between questions and answers for the new recommendation.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – The id of the new recommendation.</p></li>
+<li><p><strong>status</strong> (<em>int</em>) – Status code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Recommendation successfully added.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a></span> – The server was unable to process the request (e.g., malformed request syntax).</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to add recommendation.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Request</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="s2">&quot;New Recommendation&quot;</span><span class="p">,</span>
+   <span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="s2">&quot;New Recommendation Description&quot;</span><span class="p">,</span>
+   <span class="nt">&quot;guide&quot;</span><span class="p">:</span><span class="s2">&quot;new_recommendation.md&quot;</span><span class="p">,</span>
+   <span class="nt">&quot;questions_answers&quot;</span><span class="p">:[</span>
+      <span class="p">{</span>
+         <span class="nt">&quot;question_id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+         <span class="nt">&quot;answer_id&quot;</span><span class="p">:</span><span class="mi">1</span>
+      <span class="p">}</span>
+   <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>In order to upload a guide for the new recommendation you need to use this service in conjunction with the service detailed in <a class="reference internal" href="file.html#upload"><span class="std std-ref">/api/file/(string:filename)</span></a>.</p>
+</div>
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;/api/recommendation&quot;</span><span class="p">:{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span> <span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span><span class="p">}}</span>
+</pre></div>
+</div>
+</section>
+<section id="edit-recommendation">
+<h1>Edit Recommendation<a class="headerlink" href="#edit-recommendation" title="Permalink to this headline"></a></h1>
+<dl class="http put">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">PUT</span> </span><span class="sig-name descname"><span class="pre">/api/recommendation</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Update a recommendation identified by <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Request JSON Object</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> (<em>string</em>) – The id of the recommendation to update.</p></li>
+<li><p><strong>content</strong> (<em>string</em>) – The name of the new recommendation.</p></li>
+<li><p><strong>description</strong> (<em>string</em>) – The description of the new recommendation.</p></li>
+<li><p><strong>guide</strong> (<em>string</em>) – The filename of the recommendation guide.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>status</strong> (<em>int</em>) – Status code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Recommendation successfully updated.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a></span> – The server was unable to process the request (e.g., malformed request syntax).</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to update recommendation.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Request</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span>
+   <span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="s2">&quot;New Recommendation updated&quot;</span><span class="p">,</span>
+   <span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="s2">&quot;New recommendation description updated&quot;</span><span class="p">,</span>
+   <span class="nt">&quot;guide&quot;</span><span class="p">:</span><span class="s2">&quot;recommendation_updated_guide.md&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>In order to upload a new guide you need to use this service in conjunction with the service detailed in <a class="reference internal" href="file.html#upload"><span class="std std-ref">/api/file/(string:filename)</span></a>.</p>
+</div>
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;/api/recommendation&quot;</span><span class="p">:{</span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span><span class="p">}}</span>
+</pre></div>
+</div>
+</section>
+<section id="remove-recommendation">
+<h1>Remove Recommendation<a class="headerlink" href="#remove-recommendation" title="Permalink to this headline"></a></h1>
+<dl class="http delete">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">DELETE</span> </span><span class="sig-name descname"><span class="pre">/api/recommendations/</span></span><span class="sig-paren">(</span><em class="property"><span class="pre">int:</span> </em><em class="sig-param"><span class="pre">id</span></em><span class="sig-paren">)</span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Remove a recommendation identified by <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Form Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> – The id of the recommendation to remove.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>status</strong> (<em>int</em>) – Status code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Recommendation successfully removed.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a></span> – The server was unable to process the request (e.g., malformed request syntax).</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to remove recommendation.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;/api/recommendation&quot;</span><span class="p">:{</span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span><span class="p">}}</span>
+</pre></div>
+</div>
+<hr/><dl class="http delete">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">DELETE</span> </span><span class="sig-name descname"><span class="pre">/api/recommendations/module/</span></span><span class="sig-paren">(</span><em class="property"><span class="pre">int:</span> </em><em class="sig-param"><span class="pre">id</span></em><span class="sig-paren">)</span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Removes the mapping between a module identified by <code class="docutils literal notranslate"><span class="pre">id</span></code> and its recommendations.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Form Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> – The id of the module.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>status</strong> (<em>int</em>) – Status code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Mapping successfully removed.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a></span> – The server was unable to process the request (e.g., malformed request syntax).</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to remove mapping.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;/api/recommendations/modules/1&quot;</span><span class="p">:{</span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span><span class="p">}}</span>
+</pre></div>
+</div>
+<hr/><dl class="http delete">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">DELETE</span> </span><span class="sig-name descname"><span class="pre">/api/recommendations/</span></span><span class="sig-paren">(</span><em class="property"><span class="pre">int:</span> </em><em class="sig-param"><span class="pre">id</span></em><span class="sig-paren">)</span><span class="sig-name descname"><span class="pre">/module/</span></span><span class="sig-paren">(</span><em class="property"><span class="pre">int:</span> </em><em class="sig-param"><span class="pre">id</span></em><span class="sig-paren">)</span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Removes the mapping between a module <code class="docutils literal notranslate"><span class="pre">id</span></code> and a recommendation <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Form Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> – The id of the recommendation or module.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>status</strong> (<em>int</em>) – Status code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Mapping successfully removed.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a></span> – The server was unable to process the request (e.g., malformed request syntax).</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to remove mapping.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;/api/recommendations/1/modules/1&quot;</span><span class="p">:{</span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span><span class="p">}}</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Get User Sessions &mdash; SAM-API 1.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> SAM-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Get User Sessions</a></li>
+<li><a class="reference internal" href="#create-user-session">Create User Session</a></li>
+<li><a class="reference internal" href="#edit-user-session">Edit User Session</a></li>
+<li><a class="reference internal" href="#close-user-session">Close User Session</a></li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SAM-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Get User Sessions</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/services/session.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="get-user-sessions">
+<h1>Get User Sessions<a class="headerlink" href="#get-user-sessions" title="Permalink to this headline"></a></h1>
+<dl class="http get">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">GET</span> </span><span class="sig-name descname"><span class="pre">/api/sessions</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Get user sessions.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Response JSON Object</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id of the session.</p></li>
+<li><p><strong>module_id</strong> (<em>int</em>) – Id of the module executed on that session.</p></li>
+<li><p><strong>user_id</strong> (<em>int</em>) – The session belongs to this user.</p></li>
+<li><p><strong>ended</strong> (<em>boolean</em>) – Flag that indicates that a session was terminated by the user.</p></li>
+<li><p><strong>createdon</strong> (<em>datetime</em>) – Creation date and time.</p></li>
+<li><p><strong>updatedon</strong> (<em>datetime</em>) – Update date and time.</p></li>
+<li><p><strong>status</strong> (<em>int</em>) – Status code.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Status Codes</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Sessions successfully retrieved.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a></span> – The server was unable to process the request (e.g., malformed request syntax).</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to retrieve sessions.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;/api/sessions&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;content&quot;</span><span class="p">:[</span>
+         <span class="p">{</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;module_id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;user_id&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span>
+            <span class="nt">&quot;ended&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span>
+            <span class="nt">&quot;updatedOn&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 10:31:41 GMT&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;createdOn&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 10:31:41 GMT&quot;</span>
+         <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">end</span></code> flag should be set to true when all the questions of a module were answered by a user.</p>
+</div>
+<hr/><dl class="http get">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">GET</span> </span><span class="sig-name descname"><span class="pre">/api/session/</span></span><span class="sig-paren">(</span><em class="property"><span class="pre">int:</span> </em><em class="sig-param"><span class="pre">id</span></em><span class="sig-paren">)</span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Get user session identified by <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – id of the session.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id of the session.</p></li>
+<li><p><strong>module_id</strong> (<em>int</em>) – Id of the module executed on that session.</p></li>
+<li><p><strong>user_id</strong> (<em>int</em>) – The session belongs to this user.</p></li>
+<li><p><strong>ended</strong> (<em>boolean</em>) – Flag that indicates that a session was terminated by the user.</p></li>
+<li><p><strong>createdon</strong> (<em>datetime</em>) – Creation date and time.</p></li>
+<li><p><strong>updatedon</strong> (<em>datetime</em>) – Update date and time.</p></li>
+<li><p><strong>status</strong> (<em>int</em>) – Status code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Sessions successfully retrieved.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a></span> – The server was unable to process the request (e.g., malformed request syntax).</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to retrieve sessions.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;/api/sessions&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;content&quot;</span><span class="p">:[</span>
+         <span class="p">{</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;module_id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;user_id&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span>
+            <span class="nt">&quot;ended&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span>
+            <span class="nt">&quot;updatedOn&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 10:31:41 GMT&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;createdOn&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 10:31:41 GMT&quot;</span>
+         <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<hr/><dl class="http get">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">GET</span> </span><span class="sig-name descname"><span class="pre">/api/session/user/</span></span><span class="sig-paren">(</span><em class="property"><span class="pre">string:</span> </em><em class="sig-param"><span class="pre">email</span></em><span class="sig-paren">)</span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Get sessions of a user identified by <code class="docutils literal notranslate"><span class="pre">email</span></code>.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>email</strong> (<em>string</em>) – Email of the user.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id of the session or module.</p></li>
+<li><p><strong>user_email</strong> (<em>string</em>) – The email of the user.</p></li>
+<li><p><strong>ended</strong> (<em>boolean</em>) – Flag that indicates that a session was terminated by the user.</p></li>
+<li><p><strong>type_id</strong> (<em>int</em>) – Module type id.</p></li>
+<li><p><strong>shortname</strong> (<em>string</em>) – Unique short name or abbreviation.</p></li>
+<li><p><strong>fullname</strong> (<em>string</em>) – Full name of the module.</p></li>
+<li><p><strong>displayname</strong> (<em>string</em>) – Module display name that can be used by a frontend.</p></li>
+<li><p><strong>dependencies</strong> (<em>array</em>) – An array that contains the set of modules that the current module depends on.</p></li>
+<li><p><strong>description</strong> (<em>string</em>) – Module description.</p></li>
+<li><p><strong>avatar</strong> (<em>string</em>) – Avatar of the user (i.e., location in disk).</p></li>
+<li><p><strong>logic_filename</strong> (<em>string</em>) – Filename of the file containing the dynamic logic of the module.</p></li>
+<li><p><strong>plugin</strong> (<em>boolean</em>) – A flag that sets if the current module is a plugin.</p></li>
+<li><p><strong>createdon</strong> (<em>datetime</em>) – Creation date and time.</p></li>
+<li><p><strong>updatedon</strong> (<em>datetime</em>) – Update date and time.</p></li>
+<li><p><strong>status</strong> (<em>int</em>) – Status code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Sessions successfully retrieved.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a></span> – The server was unable to process the request (e.g., malformed request syntax).</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to retrieve sessions.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;/api/sessions/user/forrest@sam.pt&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;content&quot;</span><span class="p">:[</span>
+         <span class="p">{</span>
+
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;user_email&quot;</span><span class="p">:</span><span class="s2">&quot;forrest@sam.pt&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;user_id&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span>
+            <span class="nt">&quot;ended&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span>
+            <span class="nt">&quot;module&quot;</span><span class="p">:{</span>
+               <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+               <span class="nt">&quot;shortname&quot;</span><span class="p">:</span><span class="s2">&quot;SRE&quot;</span><span class="p">,</span>
+               <span class="nt">&quot;fullname&quot;</span><span class="p">:</span><span class="s2">&quot;Security Requirements Elicitation&quot;</span><span class="p">,</span>
+               <span class="nt">&quot;displayname&quot;</span><span class="p">:</span><span class="s2">&quot;Security Requirements&quot;</span><span class="p">,</span>
+               <span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+               <span class="nt">&quot;dependencies&quot;</span><span class="p">:[],</span>
+               <span class="nt">&quot;logic_filename&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+               <span class="nt">&quot;type_id&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+               <span class="nt">&quot;avatar&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+               <span class="nt">&quot;createdon&quot;</span><span class="p">:</span><span class="s2">&quot;Fri, 19 Nov 2021 15:29:18 GMT&quot;</span><span class="p">,</span>
+               <span class="nt">&quot;updatedon&quot;</span><span class="p">:</span><span class="s2">&quot;Fri, 19 Nov 2021 15:29:18 GMT&quot;</span>
+            <span class="p">},</span>
+            <span class="nt">&quot;createdOn&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 10:31:41 GMT&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;updatedOn&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 10:31:41 GMT&quot;</span>
+         <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<hr/><dl class="http get">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">GET</span> </span><span class="sig-name descname"><span class="pre">/api/session/closed</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Get user sessions that were set as closed or terminated.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Response JSON Object</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id of the session, question, answer, or recommendation.</p></li>
+<li><p><strong>module_id</strong> (<em>int</em>) – Id of the module executed on that session.</p></li>
+<li><p><strong>user_id</strong> (<em>int</em>) – The session belongs to this user.</p></li>
+<li><p><strong>ended</strong> (<em>boolean</em>) – Flag that indicates that a session was terminated by the user.</p></li>
+<li><p><strong>content</strong> (<em>string</em>) – The content of question, answer, or recommendation.</p></li>
+<li><p><strong>answer</strong> (<em>array</em>) – Selected answers for the current question and session.</p></li>
+<li><p><strong>recommendation_guide</strong> (<em>string</em>) – The filename of the recommendation guide.</p></li>
+<li><p><strong>createdon</strong> (<em>datetime</em>) – Creation date and time.</p></li>
+<li><p><strong>updatedon</strong> (<em>datetime</em>) – Update date and time.</p></li>
+<li><p><strong>status</strong> (<em>int</em>) – Status code.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Status Codes</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Sessions successfully retrieved.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a></span> – The server was unable to process the request (e.g., malformed request syntax).</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to retrieve sessions.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;/api/sessions/closed&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;content&quot;</span><span class="p">:[</span>
+         <span class="p">{</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;user_id&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span>
+            <span class="nt">&quot;module_id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;ended&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;questions&quot;</span><span class="p">:[</span>
+               <span class="p">{</span>
+                  <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+                  <span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="s2">&quot;What is the domain of your IoT system ?&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;answer&quot;</span><span class="p">:[{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="s2">&quot;Smart home&quot;</span><span class="p">}],</span>
+               <span class="p">}</span>
+            <span class="p">],</span>
+            <span class="nt">&quot;recommendations&quot;</span><span class="p">:[</span>
+               <span class="p">{</span>
+                  <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+                  <span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="s2">&quot;Confidentiality&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+                  <span class="nt">&quot;recommendation_guide&quot;</span><span class="p">:</span><span class="kc">null</span>
+               <span class="p">}</span>
+            <span class="p">],</span>
+            <span class="nt">&quot;createdOn&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 10:31:41 GMT&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;updatedOn&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 11:31:29 GMT&quot;</span>
+         <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<hr/><dl class="http get">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">GET</span> </span><span class="sig-name descname"><span class="pre">/api/session/</span></span><span class="sig-paren">(</span><em class="property"><span class="pre">int:</span> </em><em class="sig-param"><span class="pre">id</span></em><span class="sig-paren">)</span><span class="sig-name descname"><span class="pre">/closed</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Get user sessions identified by <code class="docutils literal notranslate"><span class="pre">id</span></code> that were flagged as closed.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id of the session.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id of the session, question, answer, or recommendation.</p></li>
+<li><p><strong>module_id</strong> (<em>int</em>) – Id of the module executed on that session.</p></li>
+<li><p><strong>user_id</strong> (<em>int</em>) – The session belongs to this user.</p></li>
+<li><p><strong>ended</strong> (<em>boolean</em>) – Flag that indicates that a session was terminated by the user.</p></li>
+<li><p><strong>content</strong> (<em>string</em>) – The content of question, answer, or recommendation.</p></li>
+<li><p><strong>answer</strong> (<em>array</em>) – Selected answers for the current question and session.</p></li>
+<li><p><strong>recommendation_guide</strong> (<em>string</em>) – The filename of the recommendation guide.</p></li>
+<li><p><strong>createdon</strong> (<em>datetime</em>) – Creation date and time.</p></li>
+<li><p><strong>updatedon</strong> (<em>datetime</em>) – Update date and time.</p></li>
+<li><p><strong>status</strong> (<em>int</em>) – Status code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Sessions successfully retrieved.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a></span> – The server was unable to process the request (e.g., malformed request syntax).</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to retrieve sessions.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;/api/sessions/closed&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;content&quot;</span><span class="p">:[</span>
+         <span class="p">{</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;user_id&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span>
+            <span class="nt">&quot;module_id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;ended&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;questions&quot;</span><span class="p">:[</span>
+               <span class="p">{</span>
+                  <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+                  <span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="s2">&quot;What is the domain of your IoT system ?&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;answer&quot;</span><span class="p">:[{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="s2">&quot;Smart home&quot;</span><span class="p">}],</span>
+               <span class="p">}</span>
+            <span class="p">],</span>
+            <span class="nt">&quot;recommendations&quot;</span><span class="p">:[</span>
+               <span class="p">{</span>
+                  <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+                  <span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="s2">&quot;Confidentiality&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+                  <span class="nt">&quot;recommendation_guide&quot;</span><span class="p">:</span><span class="kc">null</span>
+               <span class="p">}</span>
+            <span class="p">],</span>
+            <span class="nt">&quot;createdOn&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 10:31:41 GMT&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;updatedOn&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 11:31:29 GMT&quot;</span>
+         <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<hr/><dl class="http get">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">GET</span> </span><span class="sig-name descname"><span class="pre">/api/session/module/</span></span><span class="sig-paren">(</span><em class="property"><span class="pre">int:</span> </em><em class="sig-param"><span class="pre">id</span></em><span class="sig-paren">)</span><span class="sig-name descname"><span class="pre">/user/</span></span><span class="sig-paren">(</span><em class="property"><span class="pre">int:</span> </em><em class="sig-param"><span class="pre">id</span></em><span class="sig-paren">)</span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Get user sessions that were flagged as closed for a particular user <code class="docutils literal notranslate"><span class="pre">id</span></code> and module <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id of the module or user.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id of the session.</p></li>
+<li><p><strong>user_id</strong> (<em>int</em>) – The session belongs to this user.</p></li>
+<li><p><strong>user_email</strong> (<em>string</em>) – The email of the user.</p></li>
+<li><p><strong>module_id</strong> (<em>int</em>) – Id of the module executed on that session.</p></li>
+<li><p><strong>ended</strong> (<em>boolean</em>) – Flag that indicates that a session was terminated by the user.</p></li>
+<li><p><strong>createdon</strong> (<em>datetime</em>) – Creation date and time.</p></li>
+<li><p><strong>updatedon</strong> (<em>datetime</em>) – Update date and time.</p></li>
+<li><p><strong>status</strong> (<em>int</em>) – Status code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Sessions successfully retrieved.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a></span> – The server was unable to process the request (e.g., malformed request syntax).</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to retrieve sessions.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;/api/sessions/module/1/user/2&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;content&quot;</span><span class="p">:[</span>
+         <span class="p">{</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;user_id&quot;</span><span class="p">:</span><span class="mi">2</span>
+            <span class="nt">&quot;user_email&quot;</span><span class="p">:</span><span class="s2">&quot;forrest@sam.pt&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;module_id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;ended&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;createdOn&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 10:31:41 GMT&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;updatedOn&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 11:31:29 GMT&quot;</span>
+         <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="create-user-session">
+<h1>Create User Session<a class="headerlink" href="#create-user-session" title="Permalink to this headline"></a></h1>
+<dl class="http post">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">POST</span> </span><span class="sig-name descname"><span class="pre">/api/session</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Starts a new user session taking into account a user selected module identified by <code class="docutils literal notranslate"><span class="pre">module_id</span></code>.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Request JSON Object</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>module_id</strong> (<em>int</em>) – Id of the module that will be executed on that user session.</p></li>
+<li><p><strong>email</strong> (<em>string</em>) – Email of the user who started the session.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id of the new session.</p></li>
+<li><p><strong>shortname</strong> (<em>string</em>) – Unique short name or abbreviation of the module.</p></li>
+<li><p><strong>fullname</strong> (<em>string</em>) – Full name of the module.</p></li>
+<li><p><strong>displayname</strong> (<em>string</em>) – Module display name that can be used by a frontend.</p></li>
+<li><p><strong>description</strong> (<em>string</em>) – Module description.</p></li>
+<li><p><strong>tree</strong> (<em>array</em>) – Array of questions and answers mapped to the module.</p></li>
+<li><p><strong>dependencies</strong> (<em>array</em>) – An array that contains the set of modules that the current module depends on.</p></li>
+<li><p><strong>recommendations</strong> (<em>array</em>) – Array of recommendations that contains the mapping between question <code class="docutils literal notranslate"><span class="pre">id</span></code> and answer <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p></li>
+<li><p><strong>tree</strong> – Array of questions and answers mapped to the module.</p></li>
+<li><p><strong>createdon</strong> (<em>datetime</em>) – Creation date and time.</p></li>
+<li><p><strong>updatedon</strong> (<em>datetime</em>) – Update date and time.</p></li>
+<li><p><strong>status</strong> (<em>int</em>) – Status code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Session successfully created.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a></span> – The server was unable to process the request (e.g., malformed request syntax).</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to create session.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Request</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;module_id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="nt">&quot;email&quot;</span><span class="p">:</span><span class="s2">&quot;forrest@sam.pt&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;/api/session&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+      <span class="nt">&quot;module&quot;</span><span class="p">:[</span>
+         <span class="p">{</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;shortname&quot;</span><span class="p">:</span><span class="s2">&quot;SRE&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;displayname&quot;</span><span class="p">:</span><span class="s2">&quot;Security Requirements&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;fullname&quot;</span><span class="p">:</span><span class="s2">&quot;Security Requirements Elicitation&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="s2">&quot;Module description&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;avatar&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+            <span class="nt">&quot;logic_filename&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+            <span class="nt">&quot;type_id&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+            <span class="nt">&quot;dependencies&quot;</span><span class="p">:[],</span>
+            <span class="nt">&quot;recommendations&quot;</span><span class="p">:[</span>
+               <span class="p">{</span>
+                  <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+                  <span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="s2">&quot;Confidentiality&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;questions_answers&quot;</span><span class="p">:[</span>
+                     <span class="p">{</span>
+                        <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+                        <span class="nt">&quot;question_id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+                        <span class="nt">&quot;answer_id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+                        <span class="nt">&quot;createdon&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 11:55:12 GMT&quot;</span><span class="p">,</span>
+                        <span class="nt">&quot;updatedon&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 11:55:12 GMT&quot;</span>
+                     <span class="p">}</span>
+                  <span class="p">],</span>
+                  <span class="nt">&quot;createdon&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 11:55:12 GMT&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;updatedon&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 11:55:12 GMT&quot;</span>
+               <span class="p">}</span>
+            <span class="p">],</span>
+            <span class="nt">&quot;tree&quot;</span><span class="p">:[</span>
+               <span class="p">{</span>
+                  <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+                  <span class="nt">&quot;order&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span>
+                  <span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;What is the domain of your IoT system ?&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;multipleAnswers&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span>
+                  <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;question&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;expanded&quot;</span><span class="p">:</span><span class="kc">false</span><span class="p">,</span>
+                  <span class="nt">&quot;children&quot;</span><span class="p">:[</span>
+                     <span class="p">{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Smart home&quot;</span><span class="p">,</span> <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;answer&quot;</span><span class="p">,</span> <span class="nt">&quot;children&quot;</span><span class="p">:[]},</span>
+                     <span class="p">{</span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span> <span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Smart Healthcare&quot;</span><span class="p">,</span> <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;answer&quot;</span><span class="p">,</span> <span class="nt">&quot;children&quot;</span><span class="p">:[]}</span>
+                  <span class="p">]</span>
+               <span class="p">}</span>
+            <span class="p">],</span>
+            <span class="nt">&quot;createdon&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 11:55:12 GMT&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;updatedon&quot;</span><span class="p">:</span><span class="s2">&quot;Sat, 20 Nov 2021 11:55:12 GMT&quot;</span>
+         <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="edit-user-session">
+<h1>Edit User Session<a class="headerlink" href="#edit-user-session" title="Permalink to this headline"></a></h1>
+<dl class="http put">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">PUT</span> </span><span class="sig-name descname"><span class="pre">/api/session</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Update a session. Specifically, by adding an answer to a question for the session module.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Request JSON Object</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>question_id</strong> (<em>int</em>) – Id of the module that will be executed on that user session.</p></li>
+<li><p><strong>answer_id</strong> (<em>int</em>) – Email of the user who started the session.</p></li>
+<li><p><strong>input</strong> (<em>string</em>) – (optional) User direct answer that was not choosen from a predefined set of answers.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>status</strong> (<em>int</em>) – Status code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Session successfully created.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a></span> – The server was unable to process the request (e.g., malformed request syntax).</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to create session.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Request</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;question_id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="nt">&quot;answer_id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">input</span></code> parameter should only be included in the request body if the question is not a multi-choice one where the user has to include a direct answer:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;question_id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span> <span class="nt">&quot;input&quot;</span><span class="p">:</span><span class="s2">&quot;This is the user answer&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;/api/session/1&quot;</span><span class="p">:{</span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span><span class="p">}}</span>
+</pre></div>
+</div>
+</section>
+<section id="close-user-session">
+<h1>Close User Session<a class="headerlink" href="#close-user-session" title="Permalink to this headline"></a></h1>
+<dl class="http put">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">PUT</span> </span><span class="sig-name descname"><span class="pre">/api/session/{id}/end</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Close or terminate a user session through the session <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id of the session.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id of the session that was closed.</p></li>
+<li><p><strong>recommendations</strong> (<em>array</em>) – An array that contains the recommendations based on the answers given by the user in the session.</p></li>
+<li><p><strong>status</strong> (<em>int</em>) – Status code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Session successfully closed.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a></span> – The server was unable to process the request (e.g., malformed request syntax).</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to close session.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This service will return the set of recommendations based on the answers given by the user in that session.</p>
+</div>
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;/api/session/1/end&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+      <span class="nt">&quot;recommendations&quot;</span><span class="p">:[</span>
+         <span class="p">{</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="s2">&quot;Confidentiality&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+            <span class="nt">&quot;recommendation_guide&quot;</span><span class="p">:</span><span class="kc">null</span>
+         <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

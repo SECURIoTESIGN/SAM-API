@@ -1,3 +1,4 @@
+""""""
 """
 // ---------------------------------------------------------------------------
 //
@@ -56,7 +57,7 @@ def add_group():
     
     # Build the SQL instruction using our handy function to build sql instructions.
     values = (designation, createdon, updatedon)
-    sql, values = modules.utils.build_sql_instruction("INSERT INTO SAM.Group", ["designation", createdon and "createdon" or None, updatedon and "updatedon" or None], values)
+    sql, values = modules.utils.build_sql_instruction("INSERT INTO sam.group", ["designation", createdon and "createdon" or None, updatedon and "updatedon" or None], values)
     if (DEBUG): print("[SAM-API]: [POST]/api/group - " + sql)
 
     print(g_modules)
@@ -71,12 +72,12 @@ def add_group():
         if (g_users):
             for g_user in g_users:
                 values = (g_user['id'], n_id)
-                sql, values = modules.utils.build_sql_instruction("INSERT INTO User_Group", ["userID", "groupID"], values)
+                sql, values = modules.utils.build_sql_instruction("INSERT INTO user_group", ["userID", "groupID"], values)
                 modules.utils.db_execute_update_insert(mysql, sql, values)
         if (g_modules):
             for g_module in g_modules:
                 values = (g_module['id'], n_id)
-                sql, values = modules.utils.build_sql_instruction("INSERT INTO Module_Group", ["moduleID", "groupID"], values)
+                sql, values = modules.utils.build_sql_instruction("INSERT INTO module_group", ["moduleID", "groupID"], values)
                 modules.utils.db_execute_update_insert(mysql, sql, values)
         
         return(modules.utils.build_response_json(request.path, 200, {"id": n_id}))  
@@ -117,7 +118,7 @@ def update_group():
     # Check if there is anything to update (i.e. frontend developer has not sent any values to update).
     if (len(values) == 0): return(modules.utils.build_response_json(request.path, 200))   
 
-    sql, values = modules.utils.build_sql_instruction("UPDATE SAM.Group", columns, values, where)
+    sql, values = modules.utils.build_sql_instruction("UPDATE sam.group", columns, values, where)
     if (DEBUG): print("[SAM-API]: [PUT]/api/group - " + sql + " " + str(values))
 
     # Update Recommendation
@@ -132,7 +133,7 @@ def update_group():
                 try:
                     conn    = mysql.connect()
                     cursor  = conn.cursor()
-                    cursor.execute("DELETE FROM User_Group WHERE userID=%s", g_user['id'])
+                    cursor.execute("DELETE FROM user_group WHERE userID=%s", g_user['id'])
                     conn.commit()
                 except Exception as e:
                     print("entrou")
@@ -143,7 +144,7 @@ def update_group():
             # Add a new user mapping
             else:
                 values = (g_user['id'], group_id)
-                sql, values = modules.utils.build_sql_instruction("INSERT INTO User_Group", ["userID", "groupID"], values)
+                sql, values = modules.utils.build_sql_instruction("INSERT INTO user_group", ["userID", "groupID"], values)
                 modules.utils.db_execute_update_insert(mysql, sql, values)
     
     # Do as above, but for modules.
@@ -155,7 +156,7 @@ def update_group():
                 try:
                     conn    = mysql.connect()
                     cursor  = conn.cursor()
-                    cursor.execute("DELETE FROM Module_Group WHERE moduleID=%s", g_module['id'])
+                    cursor.execute("DELETE FROM module_group WHERE moduleID=%s", g_module['id'])
                     conn.commit()
                 except Exception as e:
                     raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
@@ -165,7 +166,7 @@ def update_group():
             # Add a new module mapping
             else:
                 values = (g_module['id'], group_id)
-                sql, values = modules.utils.build_sql_instruction("INSERT INTO Module_Group", ["moduleID", "groupID"], values)
+                sql, values = modules.utils.build_sql_instruction("INSERT INTO module_group", ["moduleID", "groupID"], values)
                 modules.utils.db_execute_update_insert(mysql, sql, values)
 
     return(modules.utils.build_response_json(request.path, 200))   
@@ -185,7 +186,7 @@ def get_groups():
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT ID, designation, createdon, updatedon FROM SAM.Group")
+        cursor.execute("SELECT ID, designation, createdon, updatedon FROM sam.group")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -219,7 +220,7 @@ def find_modules_of_group(group_id):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT moduleID FROM Module_Group WHERE groupID=%s", group_id)
+        cursor.execute("SELECT moduleID FROM module_group WHERE groupID=%s", group_id)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -247,7 +248,7 @@ def find_users_of_group(group_id):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT user_email FROM View_User_Group WHERE group_id=%s", group_id)
+        cursor.execute("SELECT user_email FROM view_user_group WHERE group_id=%s", group_id)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -283,7 +284,7 @@ def find_group(ID):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT ID, designation, createdon, updatedon FROM SAM.Group WHERE ID=%s", ID)
+        cursor.execute("SELECT id, designation, createdon, updatedon FROM sam.group WHERE id=%s", ID)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -323,7 +324,7 @@ def delete_group(ID):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("DELETE FROM SAM.Group WHERE ID=%s", ID)
+        cursor.execute("DELETE FROM sam.group WHERE ID=%s", ID)
         conn.commit()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500) 

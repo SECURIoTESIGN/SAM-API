@@ -81,7 +81,7 @@ def add_session():
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT ID, ended FROM Session WHERE userID=(SELECT ID FROM User WHERE email=%s) AND moduleID=%s ORDER BY ID DESC LIMIT 1", (obj['email'], obj['module_id']))
+        cursor.execute("SELECT ID, ended FROM session WHERE userID=(SELECT ID FROM user WHERE email=%s) AND moduleID=%s ORDER BY ID DESC LIMIT 1", (obj['email'], obj['module_id']))
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -99,7 +99,7 @@ def add_session():
         try:
             conn    = mysql.connect()
             cursor  = conn.cursor()
-            cursor.execute("DELETE FROM Session WHERE ID=%s", destroySessionID)
+            cursor.execute("DELETE FROM session WHERE ID=%s", destroySessionID)
             conn.commit()
         except Exception as e:
             raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
@@ -110,7 +110,7 @@ def add_session():
     # 6. Connect to the database and add a new session.
     try:
         cursor  = conn.cursor()
-        cursor.execute("INSERT INTO Session (userID, moduleID) VALUES ((SELECT ID FROM User WHERE email=%s), %s)", (obj['email'],obj['module_id']))
+        cursor.execute("INSERT INTO session (userID, moduleID) VALUES ((SELECT ID FROM user WHERE email=%s), %s)", (obj['email'],obj['module_id']))
         data['id'] = conn.insert_id()
         conn.commit()
 
@@ -155,9 +155,9 @@ def update_session(ID):
         conn    = mysql.connect()
         cursor  = conn.cursor()
         if (not answer_user_inputted):
-            cursor.execute("INSERT INTO Session_User_Answer (sessionID, questionAnswerID) VALUES (%s, (SELECT ID FROM Question_Answer WHERE questionID=%s AND answerID=%s))", (ID, obj['question_id'], obj['answer_id']))
+            cursor.execute("INSERT INTO session_user_answer (sessionID, questionAnswerID) VALUES (%s, (SELECT ID FROM question_answer WHERE questionID=%s AND answerID=%s))", (ID, obj['question_id'], obj['answer_id']))
         else:
-            cursor.execute("INSERT INTO Session_User_Answer (sessionID, questionID, input) VALUES (%s, %s, %s)", (ID, obj['question_id'], obj['input']))
+            cursor.execute("INSERT INTO session_user_answer (sessionID, questionID, input) VALUES (%s, %s, %s)", (ID, obj['question_id'], obj['input']))
         conn.commit()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
@@ -184,7 +184,7 @@ def get_sessions():
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT ID, userID, moduleID, ended, createdOn, updatedOn FROM Session")
+        cursor.execute("SELECT ID, userID, moduleID, ended, createdOn, updatedOn FROM session")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -225,7 +225,7 @@ def end_session(ID):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("UPDATE Session SET ended=1 WHERE ID=%s", ID) 
+        cursor.execute("UPDATE session SET ended=1 WHERE ID=%s", ID) 
         conn.commit()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
@@ -252,7 +252,7 @@ def find_session_closed(ID, internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT session_ID, session_userID, session_moduleID, session_ended, session_createdOn, session_updatedOn, question_ID, question, answer_input, module_logic, answer_id, answer FROM View_Session_Answers WHERE session_ID=%s AND session_ended=1 ORDER BY question_ID", ID)
+        cursor.execute("SELECT session_ID, session_userID, session_moduleID, session_ended, session_createdOn, session_updatedOn, question_ID, question, answer_input, module_logic, answer_id, answer FROM view_session_answers WHERE session_ID=%s AND session_ended=1 ORDER BY question_ID", ID)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -262,7 +262,7 @@ def find_session_closed(ID, internal_call=False):
     if (len(res) == 0):
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT ID, userID, moduleID, ended, createdOn, updatedOn FROM Session WHERE ID = %s" , ID)
+        cursor.execute("SELECT ID, userID, moduleID, ended, createdOn, updatedOn FROM session WHERE ID = %s" , ID)
         res = cursor.fetchall()
         data = {}
         # 3. Let's get the info about the session.
@@ -278,7 +278,7 @@ def find_session_closed(ID, internal_call=False):
 
         try:
             cursor  = conn.cursor()
-            cursor.execute("SELECT recommendation_id, recommendation, recommendation_description, recommendation_guide  FROM View_Session_Recommendation WHERE session_id=%s", ID)
+            cursor.execute("SELECT recommendation_id, recommendation, recommendation_description, recommendation_guide  FROM view_session_recommendation WHERE session_id=%s", ID)
             res = cursor.fetchall()
         except Exception as e:
             raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -343,7 +343,7 @@ def find_session_closed(ID, internal_call=False):
     print("Getting recomendations stored")
     try:
         cursor  = conn.cursor()
-        cursor.execute("SELECT recommendation_id, recommendation, recommendation_description, recommendation_guide  FROM View_Session_Recommendation WHERE session_id=%s", ID)
+        cursor.execute("SELECT recommendation_id, recommendation, recommendation_description, recommendation_guide  FROM view_session_recommendation WHERE session_id=%s", ID)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -383,7 +383,7 @@ def get_sessions_closed(internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT id FROM Session WHERE ended =1")
+        cursor.execute("SELECT id FROM session WHERE ended =1")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -427,7 +427,7 @@ def find_session(ID, internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT ID, userID, moduleID, ended, createdOn, updatedOn FROM Session WHERE ID=%s", ID)
+        cursor.execute("SELECT ID, userID, moduleID, ended, createdOn, updatedOn FROM session WHERE ID=%s", ID)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -493,7 +493,7 @@ def find_sessions_of_user(user_email, internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT session_id, user_id, user_email, moduleID, ended, createdon, updatedon FROM View_User_Sessions WHERE user_email=%s", user_email)
+        cursor.execute("SELECT session_id, user_id, user_email, moduleID, ended, createdon, updatedon FROM view_user_sessions WHERE user_email=%s", user_email)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -555,7 +555,7 @@ def find_sessions_of_user_module(module_id, user_id, internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT session_id, user_id, user_email, moduleID, ended, createdon, updatedon FROM View_User_Sessions WHERE moduleID=%s AND user_id=%s AND ended=1 ORDER BY session_id DESC", (module_id, user_id))
+        cursor.execute("SELECT session_id, user_id, user_email, moduleID, ended, createdon, updatedon FROM view_user_sessions WHERE moduleID=%s AND user_id=%s AND ended=1 ORDER BY session_id DESC", (module_id, user_id))
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -666,9 +666,9 @@ def find_recommendations(request, ID):
         conn    = mysql.connect()
         cursor  = conn.cursor()
         if (module[0]['logic_filename'] != None):
-            table_name = "View_Recommendation_Logic"
+            table_name = "view_recommendation_logic"
         else:
-            table_name = "View_Recommendation"
+            table_name = "view_recommendation"
         
         cursor.execute("SELECT session_id, recommendation_id, recommendation, recommendation_description, guideFileName FROM " + table_name + " WHERE session_id=%s", ID)
         res = cursor.fetchall()
@@ -697,7 +697,7 @@ def find_recommendations(request, ID):
             try:
                 conn2    = mysql.connect()
                 cursor2  = conn2.cursor()
-                cursor2.execute("INSERT INTO Session_Recommendation (sessionID, recommendationID) VALUES (%s, %s)", (ID, recommendation['id']))
+                cursor2.execute("INSERT INTO session_recommendation (sessionID, recommendationID) VALUES (%s, %s)", (ID, recommendation['id']))
                 conn2.commit()
             except Exception as e:
                 raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
@@ -735,7 +735,7 @@ def add_logic_session_recommendation(session_id, recommendation_id):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("INSERT INTO Session_Recommendation (sessionID, recommendationID) VALUES (%s, %s)", (session_id, recommendation_id))
+        cursor.execute("INSERT INTO session_recommendation (sessionID, recommendationID) VALUES (%s, %s)", (session_id, recommendation_id))
         conn.commit()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
@@ -755,7 +755,7 @@ def count_sessions_of_user_module(module_id, user_id):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT COUNT(session_id) FROM View_User_Sessions WHERE moduleID=%s AND user_id=%s AND ended=1 ORDER BY session_id DESC", (module_id, user_id))
+        cursor.execute("SELECT COUNT(session_id) FROM view_user_sessions WHERE moduleID=%s AND user_id=%s AND ended=1 ORDER BY session_id DESC", (module_id, user_id))
         res = cursor.fetchall()
         cursor.close()
         conn.close()

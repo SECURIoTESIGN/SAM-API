@@ -24,7 +24,7 @@
 //  POCI-01-0145-FEDER-030657) 
 // ---------------------------------------------------------------------------
 """
-import hashlib, codecs, os, shutil
+import hashlib, ast, codecs, os, shutil
 from flask import jsonify
 from flask.globals import session
 import modules.error_handlers
@@ -288,9 +288,9 @@ class PDF(FPDF):
 
     # Page footer
     def footer(self):
-        self.image(str(self.image_dir)+'Portugal2020.png', 37, 280, w=30)
-        self.image(str(self.image_dir)+'FCT.png', 77, 280, w=30)
-        self.image(str(self.image_dir)+'Compete2020.png', 109, 278, w=30)
+        self.image(str(self.image_dir)+'portugal2020.png', 37, 280, w=30)
+        self.image(str(self.image_dir)+'fct.png', 77, 280, w=30)
+        self.image(str(self.image_dir)+'compete2020.png', 109, 278, w=30)
         self.image(str(self.image_dir)+'feder.png', 144, 280, w=30)
 
         # Position at 3.7 cm from bottom
