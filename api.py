@@ -26,7 +26,7 @@
 // ---------------------------------------------------------------------------
 //
 """
-__version__ = "0.0.4"
+__version__ = "0.9.0"
 import time, pathlib
 import modules.error_handlers, modules.utils # SAM's modules
 from configparser import SafeConfigParser
