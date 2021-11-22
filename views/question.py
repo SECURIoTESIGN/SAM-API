@@ -25,10 +25,7 @@
 // ---------------------------------------------------------------------------
 """
 from api import app, mysql
-from email_validator import validate_email, EmailNotValidError
-from flask import Flask, abort, request, jsonify, render_template, redirect, url_for, request
-from datetime import datetime
-import requests, json, os
+from flask import request
 import modules.error_handlers, modules.utils # SAM's modules
 import views.user, views.answer, views.module # SAM's views
 
@@ -36,7 +33,7 @@ import views.user, views.answer, views.module # SAM's views
 [Summary]: Adds a new question to the database.
 [Returns]: Response result.
 """
-@app.route('/question', methods=['POST'])
+@app.route('/api/question', methods=['POST'])
 def add_question():
     DEBUG=True
     if request.method != 'POST': return
@@ -58,8 +55,8 @@ def add_question():
     
     # Build the SQL instruction using our handy function to build sql instructions.
     values = (content, description, createdon, updatedon)
-    sql, values = modules.utils.build_sql_instruction("INSERT INTO Question", ["content", "description", createdon and "createdon" or None, updatedon and "updatedon" or None], values)
-    if (DEBUG): print("[SAM-API]: [POST]/question - " + sql)
+    sql, values = modules.utils.build_sql_instruction("INSERT INTO question", ["content", "description", createdon and "createdon" or None, updatedon and "updatedon" or None], values)
+    if (DEBUG): print("[SAM-API]: [POST]/api/question - " + sql)
 
     # Add
     n_id = modules.utils.db_execute_update_insert(mysql, sql, values)
@@ -73,7 +70,7 @@ def add_question():
 [Summary]: Delete a question
 [Returns]: Returns a success or error response
 """
-@app.route('/question/<ID>', methods=["DELETE"])
+@app.route('/api/question/<ID>', methods=["DELETE"])
 def delete_question(ID, internal_call=False):
     if (not internal_call):
         if request.method != 'DELETE': return
@@ -85,7 +82,7 @@ def delete_question(ID, internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("DELETE FROM Question WHERE ID=%s", ID)
+        cursor.execute("DELETE FROM question WHERE ID=%s", ID)
         conn.commit()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
@@ -103,7 +100,7 @@ def delete_question(ID, internal_call=False):
 [Summary]: Updates a question.
 [Returns]: Response result.
 """
-@app.route('/question', methods=['PUT'])
+@app.route('/api/question', methods=['PUT'])
 def update_question():
     DEBUG=True
     if request.method != 'PUT': return
@@ -133,8 +130,8 @@ def update_question():
     # Check if there is anything to update (i.e. frontend developer has not sent any values to update).
     if (len(values) == 0): return(modules.utils.build_response_json(request.path, 200))   
 
-    sql, values = modules.utils.build_sql_instruction("UPDATE Question", columns, values, where)
-    if (DEBUG): print("[SAM-API]: [PUT]/question - " + sql + " " + str(values))
+    sql, values = modules.utils.build_sql_instruction("UPDATE question", columns, values, where)
+    if (DEBUG): print("[SAM-API]: [PUT]/api/question - " + sql + " " + str(values))
 
     # Update Recommendation
     modules.utils.db_execute_update_insert(mysql, sql, values)
@@ -145,7 +142,7 @@ def update_question():
 [Summary]: Get Questions.
 [Returns]: Response result.
 """
-@app.route('/questions')
+@app.route('/api/questions')
 def get_questions():
     if request.method != 'GET': return
 
@@ -156,7 +153,7 @@ def get_questions():
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT id, content, description, createdOn, updatedOn FROM Question")
+        cursor.execute("SELECT id, content, description, createdOn, updatedOn FROM question")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -191,7 +188,7 @@ def find_modules_of_question(question_id):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT module_id FROM View_Module_Question WHERE question_id=%s", question_id)
+        cursor.execute("SELECT module_id FROM view_module_question WHERE question_id=%s", question_id)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -205,7 +202,7 @@ def find_modules_of_question(question_id):
         try:
             conn    = mysql.connect()
             cursor  = conn.cursor()
-            cursor.execute("SELECT parent FROM Question_has_Child WHERE child=%s", question_id)
+            cursor.execute("SELECT parent FROM question_has_child WHERE child=%s", question_id)
             res = cursor.fetchall()
         except Exception as e:
             raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -246,7 +243,7 @@ def find_modules_of_question(question_id):
 [Summary]: Finds Question.
 [Returns]: Response result.
 """
-@app.route('/question/<ID>', methods=['GET'])
+@app.route('/api/question/<ID>', methods=['GET'])
 def find_question(ID, internal_call=False):
     if (not internal_call):
         if request.method != 'GET': return
@@ -259,7 +256,7 @@ def find_question(ID, internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT ID as question_id, content, description, createdOn, updatedOn FROM Question WHERE ID=%s", ID)
+        cursor.execute("SELECT ID as question_id, content, description, createdOn, updatedOn FROM question WHERE ID=%s", ID)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -290,7 +287,7 @@ def find_question(ID, internal_call=False):
 [Summary]: Finds Answers of a Question by question ID ans answerID- [Question_Answer] Table.
 [Returns]: Response result.
 """
-@app.route('/question/<question_id>/answer/<answer_id>', methods=['GET'])
+@app.route('/api/question/<question_id>/answer/<answer_id>', methods=['GET'])
 def find_question_answers_2(question_id, answer_id, internal_call=False):
     if (request.method != 'GET' and not internal_call): return
 
@@ -338,7 +335,7 @@ def find_question_answers_2(question_id, answer_id, internal_call=False):
 [Summary]: Finds Answers of a Question - [Question_Answer] Table.
 [Returns]: Response result.
 """
-@app.route('/question/<ID>/answers', methods=['GET'])
+@app.route('/api/question/<ID>/answers', methods=['GET'])
 def find_question_answers(ID):
     if request.method != 'GET': return
 
@@ -379,7 +376,7 @@ def find_question_answers(ID):
 [Summary]: Gets Answers of a Questions - [Question_Answer] Table.
 [Returns]: Response result.
 """
-@app.route('/questions/answers', methods=['GET'])
+@app.route('/api/questions/answers', methods=['GET'])
 def get_questions_answers():
    
     if request.method != 'GET': return

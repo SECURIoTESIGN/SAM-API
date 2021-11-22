@@ -25,10 +25,8 @@
 // ---------------------------------------------------------------------------
 """
 from api import app, mysql
-from email_validator import validate_email, EmailNotValidError
-from flask import Flask, abort, request, jsonify, render_template, redirect, url_for, request
-from datetime import datetime
-import requests, json, os
+from flask import request
+import os
 import modules.error_handlers, modules.utils # SAM's modules
 import views.user, views.module # SAM's views
 
@@ -37,7 +35,7 @@ import views.user, views.module # SAM's views
 [Summary]: Adds a new recommendation to the database.
 [Returns]: Response result.
 """
-@app.route('/recommendation', methods=['POST'])
+@app.route('/api/recommendation', methods=['POST'])
 def add_recommendation(internal_json=None):
     DEBUG=False
     if (internal_json is None):
@@ -59,7 +57,7 @@ def add_recommendation(internal_json=None):
             return(None)
     
     # Validate if the necessary data is on the provided JSON
-    # Check if the recommendation [id] is null. If not null, it means the module was previsoulyed added and we just need to add the question_answers mapping to table [recommendation_question_answer].
+    # Check if the recommendation [id] is null. If not null, it means the recommendation was previsoulyed added and we just need to add the question_answers mapping to table [recommendation_question_answer].
     if (json_data['id'] is None):
         if (not modules.utils.valid_json(json_data, {"content"})):
             raise modules.error_handlers.BadRequest(request.path, "Some required key or value is missing from the JSON object", 400)    
@@ -72,7 +70,7 @@ def add_recommendation(internal_json=None):
     
         # Build the SQL instruction using our handy function to build sql instructions.
         values = (content, description, guide, createdon, updatedon)
-        sql, values = modules.utils.build_sql_instruction("INSERT INTO Recommendation", ["content", description and "description" or None, guide and "guidefilename" or None, createdon and "createdon" or None, updatedon and "updatedon" or None], values)
+        sql, values = modules.utils.build_sql_instruction("INSERT INTO recommendation", ["content", description and "description" or None, guide and "guidefilename" or None, createdon and "createdon" or None, updatedon and "updatedon" or None], values)
         if (DEBUG): print("[SAM-API]: [POST]/recomendation - " + sql + " " + str(values))
 
         # Add
@@ -88,7 +86,7 @@ def add_recommendation(internal_json=None):
             # Get the file extension of the guide uploaded (it can be txt or md) in order to create the final name of the file.
             file_extension = guide[guide.rfind("."): len(guide)]
             final_recommendation_filename = "recommendation_" + str(recommendation_id) + file_extension
-            sql, values = modules.utils.build_sql_instruction("UPDATE Recommendation", ["guideFileName"], final_recommendation_filename, "WHERE id="+str(recommendation_id))
+            sql, values = modules.utils.build_sql_instruction("UPDATE recommendation", ["guideFileName"], final_recommendation_filename, "WHERE id="+str(recommendation_id))
             modules.utils.db_execute_update_insert(mysql, sql, values, True)
         
     else:
@@ -110,7 +108,7 @@ def add_recommendation(internal_json=None):
         question_answer_id = question_answer['id']
         columns = ["recommendationID", "questionAnswerID"] 
         values  = (recommendation_id, question_answer_id)
-        sql, values = modules.utils.build_sql_instruction("INSERT INTO Recommendation_Question_Answer", columns, values)
+        sql, values = modules.utils.build_sql_instruction("INSERT INTO recommendation_question_answer", columns, values)
         if (DEBUG): print("[SAM-API]: [POST]/recomendation - " + sql + " " + str(values))
         # Add
         rqa_id = modules.utils.db_execute_update_insert(mysql, sql, values)
@@ -130,7 +128,7 @@ def add_recommendation(internal_json=None):
 [Summary]: Delete a recommendation.
 [Returns]: Returns a success or error response
 """
-@app.route('/recommendation/<recommendation_id>', methods=["DELETE"])
+@app.route('/api/recommendation/<recommendation_id>', methods=["DELETE"])
 def delete_recommendation(recommendation_id):
     if request.method != 'DELETE': return
     # 1. Check if the user has permissions to access this resource
@@ -143,7 +141,7 @@ def delete_recommendation(recommendation_id):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("DELETE FROM Recommendation WHERE ID=%s", recommendation_id)
+        cursor.execute("DELETE FROM recommendation WHERE ID=%s", recommendation_id)
         conn.commit()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
@@ -164,7 +162,7 @@ def delete_recommendation(recommendation_id):
 [Summary]: Updates a recommendation
 [Returns]: Response result.
 """
-@app.route('/recommendation', methods=['PUT'])
+@app.route('/api/recommendation', methods=['PUT'])
 def update_recommendation():
     DEBUG=False
     if request.method != 'PUT': return
@@ -208,7 +206,7 @@ def update_recommendation():
     # Check if there is anything to update (i.e. frontend developer has not sent any values to update).
     if (len(values) == 0): return(modules.utils.build_response_json(request.path, 200))   
 
-    sql, values = modules.utils.build_sql_instruction("UPDATE Recommendation", columns, values, where)
+    sql, values = modules.utils.build_sql_instruction("UPDATE recommendation", columns, values, where)
     if (DEBUG): print("[SAM-API]: [PUT]/recomendation - " + sql + " " + str(values))
 
     # Update Recommendation
@@ -220,7 +218,7 @@ def update_recommendation():
 [Summary]: Get recommendations.
 [Returns]: Response result.
 """
-@app.route('/recommendations', methods=['GET'])
+@app.route('/api/recommendations', methods=['GET'])
 def get_recommendations(internal_call=False):
     if (not internal_call): 
         if request.method != 'GET': return
@@ -233,7 +231,7 @@ def get_recommendations(internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT ID, content, description, guideFileName, createdon, updatedon FROM Recommendation")
+        cursor.execute("SELECT ID, content, description, guideFileName, createdon, updatedon FROM recommendation")
         res = cursor.fetchall()
         for row in res:
             recommendation = {}
@@ -254,7 +252,7 @@ def get_recommendations(internal_call=False):
         for recommendation in recommendations:
             try:
                 cursor  = conn.cursor()
-                cursor.execute("SELECT module_id FROM VIEW_module_recommendations WHERE recommendation_id=%s", recommendation['id'])
+                cursor.execute("SELECT module_id FROM view_module_recommendations WHERE recommendation_id=%s", recommendation['id'])
                 res = cursor.fetchall()
                 for row in res:
                     module = views.module.find_module(row[0], True)[0]
@@ -278,7 +276,7 @@ def get_recommendations(internal_call=False):
 [Summary]: Finds recommendation by ID.
 [Returns]: Response result.
 """
-@app.route('/recommendation/<ID>', methods=['GET'])
+@app.route('/api/recommendation/<ID>', methods=['GET'])
 def find_recommendation(ID, internal_call=False):
     if (not internal_call): 
         if request.method != 'GET': return
@@ -290,7 +288,7 @@ def find_recommendation(ID, internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT ID, content, description, guideFileName, createdon, updatedon FROM Recommendation WHERE ID=%s", ID)
+        cursor.execute("SELECT ID, content, description, guideFileName, createdon, updatedon FROM recommendation WHERE ID=%s", ID)
         res = cursor.fetchall()
         for row in res:
             result = {}
@@ -316,7 +314,7 @@ def find_recommendation(ID, internal_call=False):
 [Summary]: Finds the recommendations of question, answer association.
 [Returns]: Response result.
 """
-@app.route('/recommendations/question/<question_id>/answer/<answer_id>', methods=['GET'])
+@app.route('/api/recommendations/question/<question_id>/answer/<answer_id>', methods=['GET'])
 def find_recommendations_of_question_answer(question_id, answer_id, internal_call=False):
     if request.method != 'GET': return
     # Check if the user has permissions to access this resource
@@ -325,7 +323,7 @@ def find_recommendations_of_question_answer(question_id, answer_id, internal_cal
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT recommendation_id as id, content, description, guide, createdon, updatedon FROM View_Question_Answer_Recommendation WHERE question_id = %s AND answer_id = %s", (question_id, answer_id))
+        cursor.execute("SELECT recommendation_id as id, content, description, guide, createdon, updatedon FROM view_question_answer_recommendation WHERE question_id = %s AND answer_id = %s", (question_id, answer_id))
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
@@ -360,7 +358,7 @@ def find_recommendations_of_question_answer(question_id, answer_id, internal_cal
 [Summary]: Finds the recommendations of a module
 [Returns]: Response result.
 """
-@app.route('/recommendations/module/<module_id>', methods=['GET'])
+@app.route('/api/recommendations/module/<module_id>', methods=['GET'])
 def find_recommendations_of_module(module_id, internal_call=False):
     if (not internal_call):
         if request.method != 'GET': 
@@ -372,7 +370,7 @@ def find_recommendations_of_module(module_id, internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT recommendation_ID, recommendation_content, createdon, updatedon FROM View_Module_Recommendations WHERE module_id=%s", module_id)
+        cursor.execute("SELECT recommendation_ID, recommendation_content, createdon, updatedon FROM view_module_recommendations WHERE module_id=%s", module_id)
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
@@ -397,7 +395,7 @@ def find_recommendations_of_module(module_id, internal_call=False):
         recommendation_id = recommendation['id']
         try:
             cursor  = conn.cursor()
-            cursor.execute("SELECT recommendation_question_answer_id, question_id, answer_id, createdon, updatedon FROM View_Module_Recommendations_Questions_Answers WHERE module_id=%s and recommendation_id=%s", (module_id, recommendation_id))
+            cursor.execute("SELECT recommendation_question_answer_id, question_id, answer_id, createdon, updatedon FROM view_module_recommendations_questions_answers WHERE module_id=%s and recommendation_id=%s", (module_id, recommendation_id))
             res = cursor.fetchall()
         except Exception as e:
             raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -426,7 +424,7 @@ def find_recommendations_of_module(module_id, internal_call=False):
 [Summary]: Removes the mapping between a module and its recommendations.
 [Returns]: Returns a reponse object.
 """
-@app.route('/recommendations/module/<module_id>', methods=['DELETE'])
+@app.route('/api/recommendations/module/<module_id>', methods=['DELETE'])
 def remove_recommendations_of_module(module_id, internal_call=False):
     if not internal_call:
         if request.method != 'DELETE': return
@@ -438,7 +436,7 @@ def remove_recommendations_of_module(module_id, internal_call=False):
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("DELETE FROM recommendation_question_answer WHERE ID IN (SELECT recommendation_question_answer_ID From View_Module_Recommendations_Questions_Answers where module_id=%s);", module_id)
+        cursor.execute("DELETE FROM recommendation_question_answer WHERE ID IN (SELECT recommendation_question_answer_ID From view_module_recommendations_questions_answers where module_id=%s);", module_id)
         conn.commit()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500) 
@@ -457,7 +455,7 @@ def remove_recommendations_of_module(module_id, internal_call=False):
 [Summary]: Removes the mapping of a module and a recommendation.
 [Returns]: Returns a reponse object.
 """
-@app.route('/recommendation/<recommendation_id>/module/<module_id>', methods=['DELETE'])
+@app.route('/api/recommendation/<recommendation_id>/module/<module_id>', methods=['DELETE'])
 def remove_recommendation_of_module(recommendation_id, module_id, internal_call=False):
     if not internal_call:
         if request.method != 'DELETE': return
@@ -469,7 +467,7 @@ def remove_recommendation_of_module(recommendation_id, module_id, internal_call=
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("DELETE FROM recommendation_question_answer WHERE ID IN (SELECT recommendation_question_answer_ID From View_Module_Recommendations_Questions_Answers where module_id=%s AND recommendation_id=%s);", (module_id, recommendation_id))
+        cursor.execute("DELETE FROM recommendation_question_answer WHERE ID IN (SELECT recommendation_question_answer_ID From view_module_recommendations_questions_answers where module_id=%s AND recommendation_id=%s);", (module_id, recommendation_id))
         conn.commit()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500) 

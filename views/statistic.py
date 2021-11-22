@@ -25,30 +25,34 @@
 // ---------------------------------------------------------------------------
 """
 from api import app, mysql
-from flask import Flask, request, abort, jsonify, send_from_directory
-import os, views.user, modules.utils, views.recommendation, views.module, views.session
+from flask import request
+import views.user, modules.utils, views.recommendation, views.module, views.session
 
 
 """
 [Summary]: Get Global Stats
 [Returns]: Response result.
 """
-@app.route("/statistics", methods=['GET'])
+@app.route("/api/statistics", methods=['GET'])
 def get_global_stats():
-    stats = {}
-    tmp_users = get_stats_user(True)
-    tmp_modules = get_stats_modules(True)
-    tmp_questions = get_stats_questions(True)
-    tmp_answers = get_stats_answers(True)
-    tmp_sessions = get_stats_sessions(True)
-    tmp_recommendations = get_stats_recommendations(True)
+    if request.method != 'GET': return
+    
+    views.user.isAuthenticated(request)
 
-    stats['users']              = tmp_users and tmp_users['size'] or 0
-    stats['modules']            = tmp_modules and tmp_modules['size'] or 0
-    stats['questions']          = tmp_questions and tmp_questions['size'] or 0
-    stats['answers']            = tmp_answers and tmp_answers['size'] or 0
-    stats['sessions']           = tmp_sessions and tmp_sessions['size'] or 0
-    stats['recommendations']    = tmp_recommendations and tmp_recommendations['size'] or 0
+    stats = {}
+    tmp_users = get_number_of_table('user')
+    tmp_modules = get_number_of_table('module')
+    tmp_questions = get_number_of_table('question')
+    tmp_answers = get_number_of_table('answer')
+    tmp_sessions = get_number_of_table('session')
+    tmp_recommendations = get_number_of_table('recommendation')
+
+    stats['users']              = tmp_users or 0
+    stats['modules']            = tmp_modules or 0
+    stats['questions']          = tmp_questions or 0
+    stats['answers']            = tmp_answers or 0
+    stats['sessions']           = tmp_sessions or 0
+    stats['recommendations']    = tmp_recommendations or 0
 
     # 'May the Force be with you.'
     return(modules.utils.build_response_json(request.path, 200, stats)) 
@@ -57,7 +61,7 @@ def get_global_stats():
 [Summary]: Get the number of users 
 [Returns]: Response result.
 """
-@app.route("/statistic/users", methods=['GET'])
+@app.route("/api/statistic/users", methods=['GET'])
 def get_stats_user(internal_call=False):
     if (not internal_call): 
         if request.method != 'GET': return
@@ -101,7 +105,7 @@ def get_stats_user(internal_call=False):
 [Summary]: Get the number of modules 
 [Returns]: Response result.
 """
-@app.route("/statistic/modules", methods=['GET'])
+@app.route("/api/statistic/modules", methods=['GET'])
 def get_stats_modules(internal_call=False):
     if (not internal_call): 
         if request.method != 'GET': return
@@ -115,7 +119,7 @@ def get_stats_modules(internal_call=False):
         conn    = mysql.connect()
         cursor  = conn.cursor()
         # Top 5 only
-        cursor.execute("SELECT moduleID, count(*) as occurrences FROM Session GROUP BY moduleID ORDER BY occurrences DESC LIMIT 5")
+        cursor.execute("SELECT shortname, displayname, occurrences FROM module, (SELECT moduleID as mID, count(*) as occurrences FROM session GROUP BY moduleID ORDER BY occurrences DESC LIMIT 5) as Top5 WHERE ID = mID")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -125,60 +129,38 @@ def get_stats_modules(internal_call=False):
         cursor.close()
         conn.close()
         if (not internal_call):
-            return(modules.utils.build_response_json(request.path, 404))
+            return(modules.utils.build_response_json(request.path, 200, {"size":0}))
         else:
             return(None)
     else:
+        tot_mod = 0
         stat = {}
-        stat['size'] = get_number_of_modules()
         stat['top'] = []
         for row in res:
-            module = views.module.find_module(row[0], True)
-            module[0]['occurrences'] = row[1]
-            del module[0]["createdon"]
-            del module[0]["updatedon"]
-            del module[0]["tree"]
-            del module[0]["recommendations"]
-            del module[0]["logic_filename"]
-            del module[0]["description"]
-            del module[0]["dependencies"]
-            stat['top'].append(module[0])
+            module = {}
+            module['shortname'] = row[0]
+            module['displayname'] = row[1]
+            module['occurrences'] = row[2]
+            tot_mod += row[2]
+            stat['top'].append(module)
+        
+        stat['size'] = tot_mod
 
-    cursor.close()
+    cursor.close() 
     conn.close()
 
     # 'May the Force be with you, young master'.
     if (not internal_call):
         return(modules.utils.build_response_json(request.path, 200, stat))
     else: 
+        print("--->" + stat)
         return(stat)
-
-def get_number_of_modules():
-    size = 0
-    try:
-        conn    = mysql.connect()
-        cursor  = conn.cursor()
-        cursor.execute("SELECT COUNT(id) as size FROM Module")
-        res = cursor.fetchall()
-    except Exception as e:
-        raise modules.error_handlers.BadRequest(request.path, str(e), 500)
-    
-    # Check for empty results 
-    if (len(res) == 0):
-        cursor.close()
-        conn.close()
-        return(size)    
-    else:
-        for row in res:
-            size = row[0]
-            break
-    return(size)
 
 """
 [Summary]: Get the number of questions 
 [Returns]: Response result.
 """
-@app.route("/statistic/questions", methods=['GET'])
+@app.route("/api/statistic/questions", methods=['GET'])
 def get_stats_questions(internal_call=False):
     if (not internal_call):
         if request.method != 'GET': return
@@ -223,7 +205,7 @@ def get_stats_questions(internal_call=False):
 [Summary]: Get the number of answers 
 [Returns]: Response result.
 """
-@app.route("/statistic/answers", methods=['GET'])
+@app.route("/api/statistic/answers", methods=['GET'])
 def get_stats_answers(internal_call=False):
     if (not internal_call):
         if request.method != 'GET': return
@@ -266,7 +248,7 @@ def get_stats_answers(internal_call=False):
 [Summary]: Get the number of recommendations 
 [Returns]: Response result.
 """
-@app.route("/statistic/recommendations", methods=['GET'])
+@app.route("/api/statistic/recommendations", methods=['GET'])
 def get_stats_recommendations(internal_call=False):
     if (not internal_call):
         if request.method != 'GET': return
@@ -279,7 +261,7 @@ def get_stats_recommendations(internal_call=False):
         conn    = mysql.connect()
         cursor  = conn.cursor()
         # Top 5 only
-        cursor.execute("SELECT recommendationID, count(*) as occurrences FROM Session_recommendation GROUP BY recommendationID ORDER BY occurrences DESC LIMIT 5")
+        cursor.execute("SELECT content, occurrences FROM recommendation, (SELECT recommendationID as rID, count(*) as occurrences FROM session_recommendation GROUP BY recommendationID ORDER BY occurrences DESC LIMIT 5) as Top5 WHERE ID = rID;")
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
@@ -289,22 +271,21 @@ def get_stats_recommendations(internal_call=False):
         cursor.close()
         conn.close()
         if (not internal_call):
-            return(modules.utils.build_response_json(request.path, 404))
+            return(modules.utils.build_response_json(request.path, 200, {"size":0}))
         else:
             return(None)
     else:
+        tot_recm = 0
         stat = {}
-        stat['size'] = get_number_of_recommendations()
         stat['top'] = []
         for row in res:
             recommendation = {}
-            recommendation = views.recommendation.find_recommendation(row[0], True)
-            del recommendation[0]['description']
-            del recommendation[0]['guide']
-            del recommendation[0]['createdOn']
-            del recommendation[0]['updatedOn']
-            recommendation[0]['occurrences'] = row[1]
-            stat['top'].append(recommendation[0])
+            recommendation['occurrences'] = row[1]
+            recommendation['content'] = row[0]
+            tot_recm += row[1]
+            stat['top'].append(recommendation)
+        
+        stat['size'] = tot_recm
 
     cursor.close()
     conn.close()
@@ -314,32 +295,12 @@ def get_stats_recommendations(internal_call=False):
     else:
         return(stat)
 
-def get_number_of_recommendations():
-    size = 0
-    try:
-        conn    = mysql.connect()
-        cursor  = conn.cursor()
-        cursor.execute("SELECT COUNT(id) as size FROM recommendation")
-        res = cursor.fetchall()
-    except Exception as e:
-        raise modules.error_handlers.BadRequest(request.path, str(e), 500)
-    
-    # Check for empty results 
-    if (len(res) == 0):
-        cursor.close()
-        conn.close()
-        return(size)    
-    else:
-        for row in res:
-            size = row[0]
-            break
-    return(size)
 
 """
 [Summary]: Get the number of sessions in the last 7 days.
 [Returns]: Response result.
 """
-@app.route("/statistic/sessions", methods=['GET'])
+@app.route("/api/statistic/sessions", methods=['GET'])
 def get_stats_sessions(internal_call=False):
     if (not internal_call):
         if request.method != 'GET': return
@@ -362,12 +323,11 @@ def get_stats_sessions(internal_call=False):
         cursor.close()
         conn.close()
         if (not internal_call):
-            return(modules.utils.build_response_json(request.path, 404))
+            return(modules.utils.build_response_json(request.path, 200, {"size": 0}))
         else:
             return(None)   
     else:
         stat = {}
-        stat['size'] = get_number_of_sessions()
         stat['top'] = []
         for row in res:
             date = {}
@@ -384,23 +344,22 @@ def get_stats_sessions(internal_call=False):
     else:
         return(stat)
 
-def get_number_of_sessions():
+
+"""
+[Summary]: Get the amount of elements in a table. 
+[Returns]: Integer.
+"""
+def get_number_of_table(table_name):
     size = 0
     try:
         conn    = mysql.connect()
         cursor  = conn.cursor()
-        cursor.execute("SELECT COUNT(id) as size FROM Module")
+        cursor.execute("SELECT COUNT(id) as size FROM "+str(table_name))
         res = cursor.fetchall()
     except Exception as e:
         raise modules.error_handlers.BadRequest(request.path, str(e), 500)
     
-    # Check for empty results 
-    if (len(res) == 0):
-        cursor.close()
-        conn.close()
-        return(size)    
-    else:
-        for row in res:
-            size = row[0]
-            break
+    if len(res) != 0:
+            size = res[0][0]
+
     return(size)

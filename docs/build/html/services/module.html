@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Get Modules &mdash; SAM-API 1.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/custom.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> SAM-API
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">Get Modules</a></li>
+<li><a class="reference internal" href="#get-module-type">Get Module Type</a></li>
+<li><a class="reference internal" href="#get-questions-answers-of-a-module">Get Questions/Answers of a Module</a></li>
+<li><a class="reference internal" href="#get-questions-of-modules">Get Questions of Modules</a></li>
+<li><a class="reference internal" href="#get-modules-answers">Get Modules Answers</a></li>
+<li><a class="reference internal" href="#add-module">Add Module</a></li>
+<li><a class="reference internal" href="#edit-module">Edit Module</a></li>
+<li><a class="reference internal" href="#remove-module">Remove Module</a></li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SAM-API</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Get Modules</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/services/module.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="get-modules">
+<h1>Get Modules<a class="headerlink" href="#get-modules" title="Permalink to this headline"></a></h1>
+<dl class="http get">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">GET</span> </span><span class="sig-name descname"><span class="pre">/api/module</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Get the list of modules installed in the platform.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Response JSON Object</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id of the module.</p></li>
+<li><p><strong>type_id</strong> (<em>int</em>) – Module type id.</p></li>
+<li><p><strong>shortname</strong> (<em>string</em>) – Unique short name or abbreviation.</p></li>
+<li><p><strong>description</strong> (<em>string</em>) – Module description.</p></li>
+<li><p><strong>fullname</strong> (<em>string</em>) – Full name of the module.</p></li>
+<li><p><strong>displayname</strong> (<em>string</em>) – Module display name that can be used by a frontend.</p></li>
+<li><p><strong>avatar</strong> (<em>string</em>) – Avatar of the user (i.e., location in disk).</p></li>
+<li><p><strong>logic_filename</strong> (<em>string</em>) – Filename of the file containing the dynamic logic of the module.</p></li>
+<li><p><strong>plugin</strong> (<em>boolean</em>) – A flag that sets if the current module is a plugin.</p></li>
+<li><p><strong>createdon</strong> (<em>datetime</em>) – Creation date and time.</p></li>
+<li><p><strong>updatedon</strong> (<em>datetime</em>) – Update date and time.</p></li>
+<li><p><strong>status</strong> (<em>int</em>) – status code.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Status Codes</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Module successfully retrieved.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to retrieve module.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;/api/modules&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;content&quot;</span><span class="p">:[</span>
+         <span class="p">{</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;type_id&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+            <span class="nt">&quot;shortname&quot;</span><span class="p">:</span><span class="s2">&quot;SRE&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;fullname&quot;</span><span class="p">:</span><span class="s2">&quot;Security Requirements Elicitation&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+            <span class="nt">&quot;displayname&quot;</span><span class="p">:</span><span class="s2">&quot;Security Requirements&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;avatar&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+            <span class="nt">&quot;logic_filename&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+            <span class="nt">&quot;plugin&quot;</span><span class="p">:</span><span class="kc">false</span><span class="p">,</span>
+            <span class="nt">&quot;createdon&quot;</span><span class="p">:</span><span class="s2">&quot;Tue, 28 Sep 2021 13:42:48 GMT&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;updatedon&quot;</span><span class="p">:</span><span class="s2">&quot;Tue, 28 Sep 2021 13:48:19 GMT&quot;</span>
+         <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<hr/><dl class="http get">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">GET</span> </span><span class="sig-name descname"><span class="pre">/api/module/</span></span><span class="sig-paren">(</span><em class="property"><span class="pre">int:</span> </em><em class="sig-param"><span class="pre">id</span></em><span class="sig-paren">)</span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Get a module identified by <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> – Id of the module.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id of the module.</p></li>
+<li><p><strong>type_id</strong> (<em>int</em>) – Module type id.</p></li>
+<li><p><strong>dependencies</strong> (<em>array</em>) – An array that contains the set of modules that the current module depends on.</p></li>
+<li><p><strong>shortname</strong> (<em>string</em>) – Unique short name or abbreviation.</p></li>
+<li><p><strong>displayname</strong> (<em>string</em>) – Module display name that can be used by a frontend.</p></li>
+<li><p><strong>fullname</strong> (<em>string</em>) – Full name of the module.</p></li>
+<li><p><strong>description</strong> (<em>string</em>) – Module description.</p></li>
+<li><p><strong>logic_filename</strong> (<em>string</em>) – Filename of the file containing the dynamic logic of the module.</p></li>
+<li><p><strong>avatar</strong> (<em>string</em>) – Avatar of the user (i.e., location in disk).</p></li>
+<li><p><strong>recommendations</strong> (<em>array</em>) – Set of recommendations mapped to this module.</p></li>
+<li><p><strong>tree</strong> (<em>array</em>) – An array that contains the set of questions and answers mapped for the current module.</p></li>
+<li><p><strong>createdon</strong> (<em>datetime</em>) – Creation date and time.</p></li>
+<li><p><strong>updatedon</strong> (<em>datetime</em>) – Update date and time.</p></li>
+<li><p><strong>status</strong> (<em>int</em>) – Status code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Module successfully retrieved.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to retrieve module.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;/api/module/1&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;content&quot;</span><span class="p">:[</span>
+         <span class="p">{</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;type_id&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+            <span class="nt">&quot;dependencies&quot;</span><span class="p">:[],</span>
+            <span class="nt">&quot;shortname&quot;</span><span class="p">:</span><span class="s2">&quot;SRE&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;displayname&quot;</span><span class="p">:</span><span class="s2">&quot;Security Requirements&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;fullname&quot;</span><span class="p">:</span><span class="s2">&quot;Security Requirements Elicitation&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+            <span class="nt">&quot;logic_filename&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+            <span class="nt">&quot;avatar&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+            <span class="nt">&quot;recommendations&quot;</span><span class="p">:[</span>
+               <span class="p">{</span>
+                  <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+                  <span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="s2">&quot;Confidentiality&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;questions_answers&quot;</span><span class="p">:[</span>
+                     <span class="p">{</span>
+                        <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+                        <span class="nt">&quot;answer_id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+                        <span class="nt">&quot;question_id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+                        <span class="nt">&quot;createdon&quot;</span><span class="p">:</span><span class="s2">&quot;Fri, 19 Nov 2021 12:54:49 GMT&quot;</span><span class="p">,</span>
+                        <span class="nt">&quot;updatedon&quot;</span><span class="p">:</span><span class="s2">&quot;Fri, 19 Nov 2021 12:54:49 GMT&quot;</span>
+                     <span class="p">}</span>
+                  <span class="p">],</span>
+                  <span class="nt">&quot;createdon&quot;</span><span class="p">:</span><span class="s2">&quot;Fri, 19 Nov 2021 12:54:49 GMT&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;updatedon&quot;</span><span class="p">:</span><span class="s2">&quot;Fri, 19 Nov 2021 12:54:49 GMT&quot;</span>
+               <span class="p">}</span>
+            <span class="p">],</span>
+            <span class="nt">&quot;tree&quot;</span><span class="p">:[</span>
+               <span class="p">{</span>
+                  <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+                  <span class="nt">&quot;order&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span>
+                  <span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;What is the domain of your IoT system ?&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;multipleAnswers&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span>
+                  <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;question&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;children&quot;</span><span class="p">:[</span>
+                     <span class="p">{</span>
+                        <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+                        <span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Smart home&quot;</span><span class="p">,</span>
+                        <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;answer&quot;</span><span class="p">,</span>
+                        <span class="nt">&quot;children&quot;</span><span class="p">:[],</span>
+                     <span class="p">},</span>
+                     <span class="p">{</span>
+                        <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span>
+                        <span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Smart Healthcare&quot;</span><span class="p">,</span>
+                        <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;answer&quot;</span><span class="p">,</span>
+                        <span class="nt">&quot;children&quot;</span><span class="p">:[]</span>
+                     <span class="p">}</span>
+                  <span class="p">],</span>
+               <span class="p">}</span>
+            <span class="p">],</span>
+            <span class="nt">&quot;createdon&quot;</span><span class="p">:</span><span class="s2">&quot;Fri, 19 Nov 2021 12:54:49 GMT&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;updatedon&quot;</span><span class="p">:</span><span class="s2">&quot;Fri, 19 Nov 2021 12:54:49 GMT&quot;</span>
+         <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="get-module-type">
+<h1>Get Module Type<a class="headerlink" href="#get-module-type" title="Permalink to this headline"></a></h1>
+<dl class="http get">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">GET</span> </span><span class="sig-name descname"><span class="pre">/api/module/</span></span><span class="sig-paren">(</span><em class="property"><span class="pre">int:</span> </em><em class="sig-param"><span class="pre">id</span></em><span class="sig-paren">)</span><span class="sig-name descname"><span class="pre">/type</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Get the type of module identified by <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> – Id of the module.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>status</strong> (<em>boolean</em>) – A flag that sets if the current module is a plugin, true if the correct module is a plugin, false otherwise.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Module type successfully retrieved.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to retrieve module type information.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A module plugin comprises questions and answers, while a module that is not a plugin fully depends on other modules to produce output.</p>
+</div>
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;/api/module/1/type&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="kc">false</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="get-questions-answers-of-a-module">
+<h1>Get Questions/Answers of a Module<a class="headerlink" href="#get-questions-answers-of-a-module" title="Permalink to this headline"></a></h1>
+<dl class="http get">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">GET</span> </span><span class="sig-name descname"><span class="pre">/api/module/</span></span><span class="sig-paren">(</span><em class="property"><span class="pre">int:</span> </em><em class="sig-param"><span class="pre">id</span></em><span class="sig-paren">)</span><span class="sig-name descname"><span class="pre">/tree</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Get the <code class="docutils literal notranslate"><span class="pre">tree</span></code> array of questions and answers of a module identified by <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> – Id of the module.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id of the current question or answer in the array depending of the <code class="docutils literal notranslate"><span class="pre">type</span></code>.</p></li>
+<li><p><strong>order</strong> (<em>int</em>) – The sequencial number of the question.</p></li>
+<li><p><strong>children</strong> (<em>array</em>) – The current module has a set of questions or answers that are mapped to this array.</p></li>
+<li><p><strong>name</strong> (<em>string</em>) – The content/text of the current question.</p></li>
+<li><p><strong>type</strong> (<em>string</em>) – Defines if the current element in the tree array is a <code class="docutils literal notranslate"><span class="pre">question</span></code> or an <code class="docutils literal notranslate"><span class="pre">answer</span></code>.</p></li>
+<li><p><strong>multipleAnswers</strong> (<em>boolean</em>) – Defines if the user can select multiple answers for the current question.</p></li>
+<li><p><strong>status</strong> (<em>int</em>) – status code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Module tree successfully retrieved.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to retrieve tree of the module.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Please, consider using something like, for example, the <a class="reference external" href="https://github.com/frontend-collective/react-sortable-tree/">react-sortable-tree</a> react component to develop a proper user interface to interact and manage the data returned by this service.</p>
+</div>
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;/api/module/1/tree&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;tree&quot;</span><span class="p">:[</span>
+         <span class="p">{</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+            <span class="nt">&quot;order&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span>
+            <span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;What is the domain of your IoT system ?&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;multipleAnswers&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span>
+            <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="nt">&quot;question&quot;</span>
+            <span class="nt">&quot;children&quot;</span><span class="p">:[</span>
+               <span class="p">{</span>
+                  <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+                  <span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Smart home&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;answer&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;children&quot;</span><span class="p">:[]</span>
+               <span class="p">},</span>
+               <span class="p">{</span>
+                  <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span>
+                  <span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Smart Healthcare&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;answer&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;children&quot;</span><span class="p">:[]</span>
+               <span class="p">}</span>
+            <span class="p">],</span>
+         <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="get-questions-of-modules">
+<h1>Get Questions of Modules<a class="headerlink" href="#get-questions-of-modules" title="Permalink to this headline"></a></h1>
+<dl class="http get">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">GET</span> </span><span class="sig-name descname"><span class="pre">/api/module/questions</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Get the list of questions mapped to each module.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Response JSON Object</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Module or question id.</p></li>
+<li><p><strong>questions</strong> (<em>array</em>) – Array of questions.</p></li>
+<li><p><strong>status</strong> (<em>int</em>) – status code.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Status Codes</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Module’s questions successfully retrieved.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to retrieve module’s questions.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;/api/modules/questions&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="p">[</span>
+         <span class="p">{</span>
+         <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+         <span class="nt">&quot;questions&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+               <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+               <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;What is the domain of your IoT system ?&quot;</span><span class="p">,</span>
+               <span class="nt">&quot;createdon&quot;</span><span class="p">:</span> <span class="s2">&quot;Fri, 19 Nov 2021 15:29:18 GMT&quot;</span><span class="p">,</span>
+               <span class="nt">&quot;updatedon&quot;</span><span class="p">:</span> <span class="s2">&quot;Fri, 19 Nov 2021 15:29:18 GMT&quot;</span>
+            <span class="p">}</span>
+         <span class="p">]</span>
+         <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;status&quot;</span><span class="p">:</span> <span class="mi">200</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<hr/><dl class="http get">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">GET</span> </span><span class="sig-name descname"><span class="pre">/api/module/</span></span><span class="sig-paren">(</span><em class="property"><span class="pre">int:</span> </em><em class="sig-param"><span class="pre">id</span></em><span class="sig-paren">)</span><span class="sig-name descname"><span class="pre">/questions</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Get the list of questions mapped to a module identified by <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> – Id of the module.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Module or question id.</p></li>
+<li><p><strong>questions</strong> (<em>array</em>) – Array of questions.</p></li>
+<li><p><strong>status</strong> (<em>int</em>) – status code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Module’s questions successfully retrieved.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to retrieve module’s questions.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;/api/modules/questions&quot;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="p">[</span>
+         <span class="p">{</span>
+         <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+         <span class="nt">&quot;questions&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+               <span class="nt">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+               <span class="nt">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;What is the domain of your IoT system ?&quot;</span><span class="p">,</span>
+               <span class="nt">&quot;createdon&quot;</span><span class="p">:</span> <span class="s2">&quot;Fri, 19 Nov 2021 15:29:18 GMT&quot;</span><span class="p">,</span>
+               <span class="nt">&quot;updatedon&quot;</span><span class="p">:</span> <span class="s2">&quot;Fri, 19 Nov 2021 15:29:18 GMT&quot;</span>
+            <span class="p">}</span>
+         <span class="p">]</span>
+         <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;status&quot;</span><span class="p">:</span> <span class="mi">200</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="get-modules-answers">
+<h1>Get Modules Answers<a class="headerlink" href="#get-modules-answers" title="Permalink to this headline"></a></h1>
+<dl class="http get">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">GET</span> </span><span class="sig-name descname"><span class="pre">/api/module/answers</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Get the list of answers mapped to each module.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Response JSON Object</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Module or answer id.</p></li>
+<li><p><strong>answers</strong> (<em>array</em>) – Array of answers.</p></li>
+<li><p><strong>status</strong> (<em>int</em>) – status code.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Status Codes</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Module’s answers successfully retrieved.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to retrieve module’s answers.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;/api/modules/answers&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;content&quot;</span><span class="p">:[</span>
+         <span class="p">{</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span>
+            <span class="nt">&quot;answers&quot;</span><span class="p">:[</span>
+               <span class="p">{</span>
+                  <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+                  <span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="s2">&quot;Smart home&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;createdon&quot;</span><span class="p">:</span><span class="s2">&quot;Fri, 19 Nov 2021 15:29:18 GMT&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;updatedon&quot;</span><span class="p">:</span><span class="s2">&quot;Fri, 19 Nov 2021 15:29:18 GMT&quot;</span>
+               <span class="p">},</span>
+               <span class="p">{</span>
+                  <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span>
+                  <span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="s2">&quot;Smart Healthcare&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;createdon&quot;</span><span class="p">:</span><span class="s2">&quot;Fri, 19 Nov 2021 15:29:18 GMT&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;updatedon&quot;</span><span class="p">:</span><span class="s2">&quot;Fri, 19 Nov 2021 15:29:18 GMT&quot;</span>
+               <span class="p">}</span>
+            <span class="p">]</span>
+         <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<hr/><dl class="http get">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">GET</span> </span><span class="sig-name descname"><span class="pre">/api/module/</span></span><span class="sig-paren">(</span><em class="property"><span class="pre">int:</span> </em><em class="sig-param"><span class="pre">id</span></em><span class="sig-paren">)</span><span class="sig-name descname"><span class="pre">/answers</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Get the list of answers mapped to a module identified by <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> – Id of the module.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Module or answer id.</p></li>
+<li><p><strong>answers</strong> (<em>array</em>) – Array of answers.</p></li>
+<li><p><strong>status</strong> (<em>int</em>) – status code.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Module’s answers successfully retrieved.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to retrieve module’s answers.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;/api/modules/answers&quot;</span><span class="p">:{</span>
+      <span class="nt">&quot;content&quot;</span><span class="p">:[</span>
+         <span class="p">{</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span>
+            <span class="nt">&quot;answers&quot;</span><span class="p">:[</span>
+               <span class="p">{</span>
+                  <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+                  <span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="s2">&quot;Smart home&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;createdon&quot;</span><span class="p">:</span><span class="s2">&quot;Fri, 19 Nov 2021 15:29:18 GMT&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;updatedon&quot;</span><span class="p">:</span><span class="s2">&quot;Fri, 19 Nov 2021 15:29:18 GMT&quot;</span>
+               <span class="p">},</span>
+               <span class="p">{</span>
+                  <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span>
+                  <span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="s2">&quot;Smart Healthcare&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;createdon&quot;</span><span class="p">:</span><span class="s2">&quot;Fri, 19 Nov 2021 15:29:18 GMT&quot;</span><span class="p">,</span>
+                  <span class="nt">&quot;updatedon&quot;</span><span class="p">:</span><span class="s2">&quot;Fri, 19 Nov 2021 15:29:18 GMT&quot;</span>
+               <span class="p">}</span>
+            <span class="p">]</span>
+         <span class="p">}</span>
+      <span class="p">],</span>
+      <span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="add-module">
+<h1>Add Module<a class="headerlink" href="#add-module" title="Permalink to this headline"></a></h1>
+<span class="target" id="addmodule"></span><dl class="http post">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">POST</span> </span><span class="sig-name descname"><span class="pre">/api/module</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Add a new module.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Request JSON Object</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>shortname</strong> (<em>string</em>) – Unique short name or abbreviation of the module.</p></li>
+<li><p><strong>fullname</strong> (<em>string</em>) – Full name of the module.</p></li>
+<li><p><strong>displayname</strong> (<em>string</em>) – Module display name that can be used by a frontend.</p></li>
+<li><p><strong>description</strong> (<em>string</em>) – Module description.</p></li>
+<li><p><strong>tree</strong> (<em>array</em>) – Array of questions and answers mapped to the module.</p></li>
+<li><p><strong>recommendations</strong> (<em>array</em>) – Array of recommendations mapped to a question <code class="docutils literal notranslate"><span class="pre">id</span></code> and answer <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p></li>
+<li><p><strong>dependencies</strong> (<em>array</em>) – An array that contains the set of modules that the current module depends on.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Status Codes</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Module successfully added.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a></span> – The server was unable to process the request (e.g., malformed request syntax).</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to add module.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">client_id</span></code> field is a temporary id for a question or an answer that may not yet exist in the database – This temporary id is assigned by a client. An identical situation exists for <code class="docutils literal notranslate"><span class="pre">client_question_id</span></code> and <code class="docutils literal notranslate"><span class="pre">client_answer_id</span></code>:</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Each question can trigger a set of answers or questions (<code class="docutils literal notranslate"><span class="pre">tree</span></code> field).</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Each module can only be triggered if a module dependency was satisfied (i.e., the module described in the field <code class="docutils literal notranslate"><span class="pre">dependencies</span></code> was previously executed by the user).</p>
+</div>
+<p><strong>Example Request</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;shortname&quot;</span><span class="p">:</span><span class="s2">&quot;SRE&quot;</span><span class="p">,</span>
+   <span class="nt">&quot;fullname&quot;</span><span class="p">:</span><span class="s2">&quot;Security Requirements Elicitation&quot;</span><span class="p">,</span>
+   <span class="nt">&quot;displayname&quot;</span><span class="p">:</span><span class="s2">&quot;Security Requirements&quot;</span><span class="p">,</span>
+   <span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="s2">&quot;Module description&quot;</span><span class="p">,</span>
+   <span class="nt">&quot;tree&quot;</span><span class="p">:[</span>
+      <span class="p">{</span>
+         <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+         <span class="nt">&quot;client_id&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span>
+         <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;question&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;What is the domain of your IoT system ?&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;multipleAnswers&quot;</span><span class="p">:</span><span class="kc">false</span><span class="p">,</span>
+         <span class="nt">&quot;children&quot;</span><span class="p">:[</span>
+            <span class="p">{</span>
+               <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+               <span class="nt">&quot;client_id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+               <span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Smart home&quot;</span><span class="p">,</span>
+               <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;answer&quot;</span><span class="p">,</span>
+               <span class="nt">&quot;multipleAnswers&quot;</span><span class="p">:</span><span class="kc">false</span><span class="p">,</span>
+               <span class="nt">&quot;children&quot;</span><span class="p">:[</span>
+                  <span class="p">{</span>
+                     <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+                     <span class="nt">&quot;client_id&quot;</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span>
+                     <span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Will the sytem have a user LogIn ?&quot;</span><span class="p">,</span>
+                     <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;question&quot;</span><span class="p">,</span>
+                     <span class="nt">&quot;children&quot;</span><span class="p">:[</span>
+                        <span class="p">{</span>
+                           <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+                           <span class="nt">&quot;client_id&quot;</span><span class="p">:</span><span class="mi">3</span><span class="p">,</span>
+                           <span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Yes&quot;</span><span class="p">,</span>
+                           <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;answer&quot;</span><span class="p">,</span>
+                           <span class="nt">&quot;children&quot;</span><span class="p">:[</span>
+
+                           <span class="p">]</span>
+                        <span class="p">},</span>
+                        <span class="p">{</span>
+                           <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+                           <span class="nt">&quot;client_id&quot;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span>
+                           <span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;No&quot;</span><span class="p">,</span>
+                           <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;answer&quot;</span><span class="p">,</span>
+                           <span class="nt">&quot;children&quot;</span><span class="p">:[</span>
+
+                           <span class="p">]</span>
+                        <span class="p">}</span>
+                     <span class="p">]</span>
+                  <span class="p">}</span>
+               <span class="p">]</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+               <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+               <span class="nt">&quot;client_id&quot;</span><span class="p">:</span><span class="mi">5</span><span class="p">,</span>
+               <span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Smart Healthcare&quot;</span><span class="p">,</span>
+               <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;answer&quot;</span><span class="p">,</span>
+               <span class="nt">&quot;multipleAnswers&quot;</span><span class="p">:</span><span class="kc">false</span><span class="p">,</span>
+               <span class="nt">&quot;children&quot;</span><span class="p">:[</span>
+                  <span class="p">{</span>
+                     <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+                     <span class="nt">&quot;client_id&quot;</span><span class="p">:</span><span class="mi">6</span><span class="p">,</span>
+                     <span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;Yes&quot;</span><span class="p">,</span>
+                     <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;answer&quot;</span><span class="p">,</span>
+                     <span class="nt">&quot;children&quot;</span><span class="p">:[</span>
+
+                     <span class="p">]</span>
+                  <span class="p">},</span>
+                  <span class="p">{</span>
+                     <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+                     <span class="nt">&quot;client_id&quot;</span><span class="p">:</span><span class="mi">7</span><span class="p">,</span>
+                     <span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="s2">&quot;No&quot;</span><span class="p">,</span>
+                     <span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;answer&quot;</span><span class="p">,</span>
+                     <span class="nt">&quot;children&quot;</span><span class="p">:[</span>
+
+                     <span class="p">]</span>
+                  <span class="p">}</span>
+               <span class="p">]</span>
+            <span class="p">}</span>
+         <span class="p">]</span>
+      <span class="p">}</span>
+   <span class="p">],</span>
+   <span class="nt">&quot;recommendations&quot;</span><span class="p">:[</span>
+      <span class="p">{</span>
+         <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span>
+         <span class="nt">&quot;content&quot;</span><span class="p">:</span><span class="s2">&quot;Confidentiality&quot;</span><span class="p">,</span>
+         <span class="nt">&quot;questions_answers&quot;</span><span class="p">:[</span>
+            <span class="p">{</span>
+               <span class="nt">&quot;client_question_id&quot;</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span>
+               <span class="nt">&quot;client_answer_id&quot;</span><span class="p">:</span><span class="mi">1</span>
+            <span class="p">}</span>
+         <span class="p">]</span>
+      <span class="p">}</span>
+   <span class="p">],</span>
+   <span class="nt">&quot;dependencies&quot;</span><span class="p">:[</span>
+      <span class="p">{</span>
+         <span class="nt">&quot;module&quot;</span><span class="p">:{</span>
+            <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">2</span>
+         <span class="p">}</span>
+      <span class="p">}</span>
+   <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="edit-module">
+<h1>Edit Module<a class="headerlink" href="#edit-module" title="Permalink to this headline"></a></h1>
+<dl class="http put">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">PUT</span> </span><span class="sig-name descname"><span class="pre">/api/module</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Edit a module.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Request JSON Object</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id of the module to edit.</p></li>
+<li><p><strong>shortname</strong> (<em>string</em>) – Unique short name or abbreviation of the module.</p></li>
+<li><p><strong>fullname</strong> (<em>string</em>) – Full name of the module.</p></li>
+<li><p><strong>displayname</strong> (<em>string</em>) – Module display name that can be used by a frontend.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response JSON Object</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>status</strong> (<em>int</em>) – Status code</p></li>
+</ul>
+</dd>
+<dt class="field-even">Status Codes</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Module successfully updated.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a></span> – The server was unable to process the request (e.g., malformed request syntax).</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to update module.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<p><strong>Example Request</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+   <span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+   <span class="nt">&quot;shortname&quot;</span><span class="p">:</span><span class="s2">&quot;SREU&quot;</span><span class="p">,</span>
+   <span class="nt">&quot;fullname&quot;</span><span class="p">:</span><span class="s2">&quot;Security Requirements Elicitation Updated&quot;</span><span class="p">,</span>
+   <span class="nt">&quot;displayname&quot;</span><span class="p">:</span><span class="s2">&quot;Security Requirements Updated&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Questions, answers, recommendations and dependencies of the module can also be updated using this service by following the same JSON object provide as example in the <code class="docutils literal notranslate"><span class="pre">/api/module</span></code> (add module) service.</p>
+</div>
+<p><strong>Example Response</strong></p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;/api/module&quot;</span><span class="p">:{</span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="mi">200</span><span class="p">}}</span>
+</pre></div>
+</div>
+</section>
+<section id="remove-module">
+<h1>Remove Module<a class="headerlink" href="#remove-module" title="Permalink to this headline"></a></h1>
+<dl class="http delete">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">DELETE</span> </span><span class="sig-name descname"><span class="pre">/api/module/</span></span><span class="sig-paren">(</span><em class="property"><span class="pre">int:</span> </em><em class="sig-param"><span class="pre">id</span></em><span class="sig-paren">)</span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Performs a partial delete of a Module. That is, only the module and those sessions linked are deleted - Linked questions and associated answers are not delete.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id of the module to partially delete.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Status Codes</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Module successfully removed.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to remove module.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="http delete">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">DELETE</span> </span><span class="sig-name descname"><span class="pre">/api/module/</span></span><span class="sig-paren">(</span><em class="property"><span class="pre">int:</span> </em><em class="sig-param"><span class="pre">id</span></em><span class="sig-paren">)</span><span class="sig-name descname"><span class="pre">/full</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Fully removes a module (including sessions, linked questions, and answers).</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id of the module to fully delete.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Status Codes</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Module successfully removed.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to remove module.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="http delete">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">DELETE</span> </span><span class="sig-name descname"><span class="pre">/api/module/</span></span><span class="sig-paren">(</span><em class="property"><span class="pre">int:</span> </em><em class="sig-param"><span class="pre">id</span></em><span class="sig-paren">)</span><span class="sig-name descname"><span class="pre">/questions</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Removes all questions mapped to the module identified by <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id of the module.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Status Codes</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Module questions successfully removed.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to remove module questions.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="http delete">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">DELETE</span> </span><span class="sig-name descname"><span class="pre">/api/module/</span></span><span class="sig-paren">(</span><em class="property"><span class="pre">int:</span> </em><em class="sig-param"><span class="pre">id</span></em><span class="sig-paren">)</span><span class="sig-name descname"><span class="pre">/answers</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Removes all answers mapped to the module identified by <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id of the module.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Status Codes</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Module answers successfully removed.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to remove module answers.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="http delete">
+<dt class="sig sig-object http">
+<span class="sig-name descname"><span class="pre">DELETE</span> </span><span class="sig-name descname"><span class="pre">/api/module/</span></span><span class="sig-paren">(</span><em class="property"><span class="pre">int:</span> </em><em class="sig-param"><span class="pre">id</span></em><span class="sig-paren">)</span><span class="sig-name descname"><span class="pre">/logic</span></span></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Synopsis</dt>
+<dd class="field-odd"><p>Removes the logic file mapped to the module identified by <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p>
+</dd>
+<dt class="field-even">Request Headers</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7235#section-4.2">Authorization</a></span> – Bearer token provided by <a class="reference internal" href="auth.html#authenticate"><span class="std std-ref">/api/user/login</span></a>.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Response Headers</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://tools.ietf.org/html/rfc7231#section-3.1.1.5">Content-Type</a></span> – application/json</p></li>
+</ul>
+</dd>
+<dt class="field-even">Parameters</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – Id of the module.</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Status Codes</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a></span> – Module answers successfully removed.</p></li>
+<li><p><span><a class="reference external" href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a></span> – Fail to remove module answers.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,11 @@
+.flaskenv
+instance/
+venv/
+.vscode/
+__pycache__/
+views/__pycache__/
+modules/__pycache__/
+external/*.py
+external/*.csv
+external/*.md
+temp/

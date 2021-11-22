@@ -24,9 +24,11 @@
 //  POCI-01-0145-FEDER-030657) 
 // ---------------------------------------------------------------------------
 """
-import time, hashlib, uuid, flask, json, codecs, os
+import hashlib, ast, codecs, os, shutil
 from flask import jsonify
+from flask.globals import session
 import modules.error_handlers
+from fpdf import FPDF
 
 """
 [Summary]: Outputs a custom message to the terminal.
@@ -51,7 +53,7 @@ def console_log(function_name, message, exception=False):
        sql = modules.utils.build_sql_instruction("INSERT INTO Recommendation", ["content", "description", "guideFilename", "createdon", updatedon and "updatedon" or None], values)
 [Returns]: The final SQL instruction to be feed into the db_execute_update_insert() function.
 TODO: This function needs work. 
-"""
+""" 
 def build_sql_instruction(SQL, columns, values, where=None):
     if type(values) is tuple:
         values = [i for i in values if i]  # If exists, remove None values.
@@ -245,3 +247,100 @@ def check_password(hashed_password, user_password):
     # Let's combine the salt and the password
     password, salt = hashed_password.split(':')
     return password == hashlib.sha256(salt.encode() + user_password.encode()).hexdigest()
+
+"""
+[Summary]: Orders the questions, answered by user, based on the module tree.
+[Returns]: Returns the ordered questions.
+"""
+def order_questions(tree, session_questions, ordered_questions=[]):
+    for obj in tree:
+        if obj['type'] == 'question':
+            for question in session_questions:
+                if question['id'] == obj['id']:
+                    ordered_questions.append(question)
+                    break
+
+        for children in obj['children']:
+            order_questions([children], session_questions, ordered_questions)
+    
+    return ordered_questions
+
+"""
+[Summary]: Class that helps building the PDF for module's recommendations.
+"""
+class PDF(FPDF):
+    def __init__(self, module_name, session_num, image_dir):
+        super().__init__()
+        self.module_name = module_name
+        self.session_num = session_num
+        self.image_dir   = image_dir
+
+        self.set_margins(left=35, top=35)
+        self.set_auto_page_break(True, margin=30)
+
+    def header(self):
+        self.set_font('Helvetica', '', 5)
+        self.cell(12, -24, 'Towards the assurance of SECURity by dESIGN of the Internet of Things', 0, 0, 'C')
+        # Logo
+        self.image(str(self.image_dir)+'project.png', 20, 18, 40)
+        self.image(str(self.image_dir)+'logo.png', 160, 5, 30)
+        self.ln(1)
+
+    # Page footer
+    def footer(self):
+        self.image(str(self.image_dir)+'portugal2020.png', 37, 280, w=30)
+        self.image(str(self.image_dir)+'fct.png', 77, 280, w=30)
+        self.image(str(self.image_dir)+'compete2020.png', 109, 278, w=30)
+        self.image(str(self.image_dir)+'feder.png', 144, 280, w=30)
+
+        # Position at 3.7 cm from bottom
+        self.set_y(-32)
+        self.set_font('Helvetica', '', 6)
+        # Project Information
+        self.cell(0, 20, 'SAM - Security Advisory Modules © 2021 SECURIoTESIGN', 0, 0, 'C')
+        # Page number
+        self.cell(0, 20, 'Page ' + str(self.page_no()) + '/{nb}', 0, 0, 'R')
+
+    def write_title(self):
+        # Title
+        self.set_font('Helvetica', 'B', 18)
+        self.multi_cell(w=0, h=10, txt='Recommendations for ' + str(self.module_name), border=0, align='C', fill=False)
+        # Session number
+        self.set_font('Helvetica', '', 12)
+        self.multi_cell(w=0, h=10, txt='Session ' + str(self.session_num), border=0, align='C')
+        # Line break
+        self.ln(10)
+
+    def write_recommendation(self, recm):
+        # Set font for recommendation title
+        self.set_font('Helvetica', 'B', 14)
+        # Write the recommendation title
+        self.multi_cell(0, 8, recm['content'], 0)
+        # Write the recommendation description
+        if recm['description'] is not None:
+            # Set font for recommendation description
+            self.set_font('Helvetica', '', 12)
+            self.multi_cell(0, 6, recm['description'], 0)
+        # Add guide if needed
+        if recm['recommendation_guide'] is not None:
+            self.set_font('Helvetica', '', 8)
+            self.multi_cell(0, 5, 'More information available at: ' + str(recm['recommendation_guide']), 0, 'R')
+        # Add some space
+        self.ln(5)
+"""
+[Summary]: Build the PDF for a specific module's session.
+[Returns]: Returns True when the PDF is built.
+"""
+def build_recommendations_PDF(module_name, session_id, recommendations):
+    pdf = PDF(module_name=module_name, session_num=session_id, image_dir='static/')
+    pdf.alias_nb_pages()
+    pdf.add_page()
+    pdf.write_title()
+    for recm in recommendations['recommendations']:
+        pdf.write_recommendation(recm)
+    pdf.output('temp/session'+str(session_id)+'/session'+str(session_id)+'.pdf', 'F')
+    return True
+
+def create_recommendations_ZIP(module_name, session_id):
+    shutil.make_archive('temp/'+str(module_name)+'_session_'+str(session_id), 'zip', 'temp/session'+str(session_id))
+    return True

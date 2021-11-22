@@ -24,14 +24,14 @@
 //  POCI-01-0145-FEDER-030657) 
 // ---------------------------------------------------------------------------
 """
-from api import app, mysql
-from flask import Flask, request, abort, jsonify, send_from_directory
+from api import app
+from flask import request, abort, jsonify, send_from_directory
 import os, views.user, modules.utils
 from werkzeug.utils import secure_filename
 
 UPLOAD_DIRECTORY="./external/"
 
-@app.route("/file/<path:path>", methods=['GET'])
+@app.route("/api/file/<path:path>", methods=['GET'])
 def get_file(path):
     if request.method != 'GET': return
     # Check if the user has permissions to access this resource
@@ -39,7 +39,7 @@ def get_file(path):
     
     return send_from_directory(UPLOAD_DIRECTORY, path, as_attachment=True)
 
-@app.route("/files", methods=['GET'])
+@app.route("/api/files", methods=['GET'])
 def list_files():
     if request.method != 'GET': return
     # Check if the user has permissions to access this resource
@@ -52,7 +52,7 @@ def list_files():
             files.append(filename)
     return jsonify(files)
 
-@app.route("/file/<filename>", methods=["POST"])
+@app.route("/api/file/<filename>", methods=["POST"])
 def post_file(filename):
     if request.method != 'POST': return
     file = request.files['file']
@@ -68,4 +68,13 @@ def post_file(filename):
         file.save(UPLOAD_DIRECTORY + filename)
 
     # Return 201 CREATED
-    return(modules.utils.build_response_json(request.path, 201))    
+    return(modules.utils.build_response_json(request.path, 201))
+
+@app.route('/api/file/module/<module_name>/session/<ID>', methods=['GET'])
+def download_recommendations_zip(module_name, ID):
+    if request.method != 'GET': return
+    # Check if the user has permissions to access this resource
+    views.user.isAuthenticated(request)
+    
+    file_name = str(module_name)+'_session_'+str(ID)+'.zip'
+    return send_from_directory('./temp/', file_name, as_attachment=True)
