@@ -90,6 +90,7 @@ Installing Core Modules
 To install core modules into SAM:
 
 .. code-block:: bash
+
    cd sam-api
    make modules
 
