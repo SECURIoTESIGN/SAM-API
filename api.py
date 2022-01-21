@@ -39,7 +39,8 @@ app.register_blueprint(modules.error_handlers.blueprint)
 # Load data from the configuration file 
 # <!> Please, do not store your configuration file in the github repository.
 parser = SafeConfigParser()
-parser.read(str(pathlib.Path(__file__).parent.resolve()) +'/instance/config.cfg')
+# parser.read(str(pathlib.Path(__file__).parent.resolve()) +'/instance/config.cfg')
+parser.read('./instance/config.cfg');
 # JWT related stuff
 JWT_SECRET_TOKEN = parser.get('default', 'JWT_SECRET_TOKEN')
 JWT_EXPIRATION_SECONDS = parser.get('default', 'JWT_EXPIRATION_SECONDS')
